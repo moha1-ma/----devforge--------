@@ -132,6 +132,7 @@
 - [x] Document the free device-testing path and the official paid Apple Developer requirements for TestFlight and public App Store release without attempting publication.
 - [x] Implement and test only owner-approved iOS readiness improvements, preserving owner-controlled signing, account access, payment, review, and submission.
 - [x] Prepare a least-privilege Apple enrollment and publishing checklist that excludes personal-data entry, legal acceptance, payment, and final submission unless the owner confirms each action.
-- [ ] Provide progress updates for material build, review, or enrollment milestones without retaining personal credentials or account details in the project.
+- [x] Provide progress updates for material build, review, or enrollment milestones without retaining personal credentials or account details in the project.
 - [x] Add and test meaningful native iPhone functionality that gives DevForge value beyond an embedded website, then document it accurately for App Review.
 - [ ] Prepare concrete, owner-approved public support and privacy-policy URLs plus review-access instructions before any App Store submission.
+- [ ] Guide the educational institution through Apple’s official fee-waiver request only after it proves eligibility and completes identity, legal, and account steps under its own control.

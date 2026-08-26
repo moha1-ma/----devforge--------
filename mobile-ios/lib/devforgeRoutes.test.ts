@@ -1,9 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { isTrustedDevForgeNavigation, makeWorkspaceUrl, normalizeDevForgeOrigin } from "./devforgeRoutes";
+import { DEFAULT_DEVFORGE_ORIGIN, DEVFORGE_ORIGIN, isTrustedDevForgeNavigation, makeWorkspaceUrl, normalizeDevForgeOrigin } from "./devforgeRoutes";
 
 const independentOrigin = "https://devforge-copy.manus.space";
 
 describe("makeWorkspaceUrl", () => {
+  it("defaults to the HTTPS domain published for this independent copy", () => {
+    expect(DEFAULT_DEVFORGE_ORIGIN).toBe("https://devforgeapp-grp92cnd.manus.space");
+    expect(DEVFORGE_ORIGIN).toBe(DEFAULT_DEVFORGE_ORIGIN);
+  });
+
   it("uses the configured independent origin and creates a hash route for the assistant", () => {
     expect(makeWorkspaceUrl("/ai", independentOrigin)).toBe("https://devforge-copy.manus.space/?ios=1#/ai");
   });

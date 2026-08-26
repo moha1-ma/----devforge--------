@@ -14,7 +14,8 @@ export function normalizeDevForgeOrigin(value: string | undefined) {
   }
 }
 
-export const DEVFORGE_ORIGIN = normalizeDevForgeOrigin(process.env.EXPO_PUBLIC_DEVFORGE_ORIGIN);
+export const DEFAULT_DEVFORGE_ORIGIN = "https://devforgeapp-grp92cnd.manus.space";
+export const DEVFORGE_ORIGIN = normalizeDevForgeOrigin(process.env.EXPO_PUBLIC_DEVFORGE_ORIGIN ?? DEFAULT_DEVFORGE_ORIGIN);
 
 export function makeWorkspaceUrl(route: DevForgeRoute, origin = DEVFORGE_ORIGIN) {
   if (!origin) return null;

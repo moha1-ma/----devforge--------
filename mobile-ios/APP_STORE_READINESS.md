@@ -39,6 +39,10 @@
 
 > لا تُدخل الهوية أو الدفع أو بيانات الضرائب أو توافق على اتفاقيات Apple أو ترسل التطبيق للمراجعة إلا في جلسة يسيطر عليها المالك وبعد تأكيد صريح لكل خطوة.
 
+## مسار إعفاء المؤسسة التعليمية
+
+يمكن للمؤسسة التعليمية المعتمدة طلب إعفاء من Apple عند التسجيل باسم جهة قانونية. يتطلب المسار أن تكون المؤسسة معترفًا بها رسميًا من جهة اعتماد مختصة، وألا تكون فردًا أو مؤسسة فردية، وألا تبيع منتجات أو خدمات رقمية من خلال تطبيقاتها أو تكون قد وقّعت اتفاقية التطبيقات المدفوعة دون إنهائها. يختار حامل الحساب طلب الإعفاء أثناء التسجيل، وتراجع Apple الطلب وقد تطلب مستندات إضافية. لا يمثل وجود منصة تعليمية إلكترونية وحده إثباتًا للاعتماد أو ضمانًا للإعفاء.
+
 ## المراجع الرسمية
 
 1. [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)
@@ -46,3 +50,4 @@
 3. [Apple: App Privacy Details](https://developer.apple.com/app-store/app-privacy-details/)
 4. [Apple: Choosing a Membership](https://developer.apple.com/support/compare-memberships/)
 5. [Apple: Avoiding common App Review issues](https://developer.apple.com/distribute/app-review/)
+6. [Apple: Developer Program Fee Waiver](https://developer.apple.com/support/membership-fee-waiver/)
