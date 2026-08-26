@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -8,11 +9,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { WebView } from "react-native-webview";
 import { DEVFORGE_ORIGIN, isTrustedDevForgeNavigation, makeWorkspaceUrl, type DevForgeRoute } from "./lib/devforgeRoutes";
 import { mobileHomeSections } from "./lib/homeSections";
+import { createNativeBriefRecord, NATIVE_BRIEF_MAX_LENGTH, NATIVE_BRIEF_STORAGE_KEY, parseNativeBriefRecord } from "./lib/nativeBrief";
 
 type WorkspaceTarget = {
   title: string;
@@ -36,6 +39,64 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [webError, setWebError] = useState<string | null>(null);
   const workspaceUrl = useMemo(() => (activeTarget ? makeWorkspaceUrl(activeTarget.route) : null), [activeTarget]);
+  const [nativeBrief, setNativeBrief] = useState("");
+  const [briefStatus, setBriefStatus] = useState("يُحفظ هذا الموجز على جهازك فقط.");
+  const [isBriefReady, setIsBriefReady] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    AsyncStorage.getItem(NATIVE_BRIEF_STORAGE_KEY)
+      .then((value) => {
+        const record = parseNativeBriefRecord(value);
+        if (!isMounted || !record) return;
+        setNativeBrief(record.content);
+        setBriefStatus("تمت استعادة موجزك المحلي. لن يُرسل إلى DevForge إلا إذا اخترت نسخه أو إدخاله بنفسك.");
+      })
+      .catch(() => {
+        if (isMounted) setBriefStatus("تعذر قراءة الموجز المحلي. يمكنك متابعة العمل دون حفظه.");
+      })
+      .finally(() => {
+        if (isMounted) setIsBriefReady(true);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const saveNativeBrief = async () => {
+    const result = createNativeBriefRecord(nativeBrief);
+    if (!result.ok) {
+      setBriefStatus(result.message);
+      return;
+    }
+
+    try {
+      await AsyncStorage.setItem(NATIVE_BRIEF_STORAGE_KEY, JSON.stringify(result.record));
+      setNativeBrief(result.record.content);
+      setBriefStatus("تم حفظ موجزك على هذا الجهاز فقط.");
+    } catch {
+      setBriefStatus("تعذر الحفظ المحلي. لم يُرسل أي محتوى إلى الإنترنت.");
+    }
+  };
+
+  const clearNativeBrief = () => {
+    Alert.alert("حذف الموجز المحلي", "سيُحذف من هذا الجهاز فقط ولا يمكن استعادته من التطبيق.", [
+      { text: "إلغاء", style: "cancel" },
+      {
+        text: "حذف",
+        style: "destructive",
+        onPress: () => {
+          void AsyncStorage.removeItem(NATIVE_BRIEF_STORAGE_KEY)
+            .then(() => {
+              setNativeBrief("");
+              setBriefStatus("تم حذف الموجز المحلي من هذا الجهاز.");
+            })
+            .catch(() => setBriefStatus("تعذر حذف الموجز المحلي. لم يُرسل أي محتوى إلى الإنترنت."));
+        },
+      },
+    ]);
+  };
 
   const openTarget = (target: WorkspaceTarget) => {
     if (!DEVFORGE_ORIGIN) {
@@ -117,6 +178,33 @@ export default function App() {
         </View>
 
         {!DEVFORGE_ORIGIN ? <View style={styles.configurationNotice}><Text style={styles.configurationNoticeTitle}>يلزم ربط النسخة المنشورة</Text><Text style={styles.configurationNoticeText}>هذه النسخة المستقلة لا تتصل بأي مشروع آخر. قبل الاختبار أو الإرسال، حدّد رابط HTTPS الخاص بها في إعداد البناء.</Text></View> : null}
+
+        <View style={styles.nativeBriefPanel}>
+          <Text style={styles.panelEyebrow}>أداة iPhone أصلية</Text>
+          <Text style={styles.panelTitle}>موجز البناء الخاص بك</Text>
+          <Text style={styles.panelText}>دوّن هدفك أو خطوتك التالية على الهاتف. يبقى النص محليًا على جهازك ولا يُرسل تلقائيًا إلى المنصة أو أي خدمة أخرى.</Text>
+          <TextInput
+            accessibilityLabel="موجز البناء المحلي"
+            editable={isBriefReady}
+            maxLength={NATIVE_BRIEF_MAX_LENGTH}
+            multiline
+            onChangeText={(value) => {
+              setNativeBrief(value);
+              setBriefStatus("يُحفظ هذا الموجز على جهازك فقط.");
+            }}
+            placeholder="مثال: جهّز صفحة تعريف عربية لمشروع العميل"
+            placeholderTextColor="#7897AA"
+            style={styles.nativeBriefInput}
+            textAlignVertical="top"
+            value={nativeBrief}
+          />
+          <Text style={styles.nativeBriefCount}>{nativeBrief.length}/{NATIVE_BRIEF_MAX_LENGTH}</Text>
+          <Text style={styles.nativeBriefStatus}>{isBriefReady ? briefStatus : "يتم تجهيز مساحة الحفظ المحلية…"}</Text>
+          <View style={styles.nativeBriefActions}>
+            <Pressable accessibilityRole="button" disabled={!isBriefReady} onPress={() => void saveNativeBrief()} style={({ pressed }) => [styles.nativeBriefSave, pressed && styles.pressed, !isBriefReady && styles.disabledButton]}><Text style={styles.nativeBriefSaveText}>حفظ على الهاتف</Text></Pressable>
+            <Pressable accessibilityRole="button" disabled={!isBriefReady || !nativeBrief} onPress={clearNativeBrief} style={({ pressed }) => [styles.nativeBriefClear, pressed && styles.pressed, (!isBriefReady || !nativeBrief) && styles.disabledButton]}><Text style={styles.nativeBriefClearText}>حذف</Text></Pressable>
+          </View>
+        </View>
 
         <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>تعلم وابنِ</Text><Text style={styles.sectionHint}>6 أدوات</Text></View>
         <View style={styles.cardGrid}>
@@ -211,4 +299,14 @@ const styles = StyleSheet.create({
   configurationNotice: { backgroundColor: "#183449", borderColor: "#3C6C83", borderRadius: 16, borderWidth: 1, marginTop: 20, padding: 16 },
   configurationNoticeTitle: { color: "#DFF8FF", fontSize: 14, fontWeight: "900", textAlign: "right" },
   configurationNoticeText: { color: "#B9D5E2", fontSize: 13, lineHeight: 21, marginTop: 6, textAlign: "right" },
+  nativeBriefPanel: { backgroundColor: "#103541", borderColor: "#2E7A7E", borderRadius: 20, borderWidth: 1, marginTop: 20, padding: 18 },
+  nativeBriefInput: { backgroundColor: "#082633", borderColor: "#2A5C68", borderRadius: 12, borderWidth: 1, color: "#F5FAFF", fontSize: 14, lineHeight: 21, marginTop: 14, minHeight: 96, padding: 12, textAlign: "right" },
+  nativeBriefCount: { color: "#91B9C3", fontSize: 11, marginTop: 6, textAlign: "left" },
+  nativeBriefStatus: { color: "#C8E6E7", fontSize: 12, lineHeight: 19, marginTop: 8, textAlign: "right" },
+  nativeBriefActions: { flexDirection: "row-reverse", gap: 10, marginTop: 14 },
+  nativeBriefSave: { alignItems: "center", backgroundColor: "#37D6C0", borderRadius: 11, flex: 1, paddingVertical: 12 },
+  nativeBriefSaveText: { color: "#06242C", fontSize: 13, fontWeight: "900" },
+  nativeBriefClear: { alignItems: "center", borderColor: "#51828A", borderRadius: 11, borderWidth: 1, paddingHorizontal: 18, paddingVertical: 12 },
+  nativeBriefClearText: { color: "#D8EFF1", fontSize: 13, fontWeight: "800" },
+  disabledButton: { opacity: 0.45 },
 });
