@@ -128,3 +128,8 @@
 - [x] Extend the iOS companion source with the educational and marketplace navigation plus App Store-ready metadata, without claiming a signed IPA or App Store publication.
 - [x] Re-run and capture explicit iOS `npm test` and `tsc --noEmit` success after the educational and marketplace changes, then document the owner-controlled Apple Developer, TestFlight, App Store Connect, payment, and marketplace-review steps.
 - [x] Add focused test coverage for the educational and marketplace sections of the iOS home screen beyond route formatting.
+- [x] Review this copy's iOS companion source and identify the exact remaining work for a build-ready iPhone application.
+- [x] Document the free device-testing path and the official paid Apple Developer requirements for TestFlight and public App Store release without attempting publication.
+- [x] Implement and test only owner-approved iOS readiness improvements, preserving owner-controlled signing, account access, payment, review, and submission.
+- [x] Prepare a least-privilege Apple enrollment and publishing checklist that excludes personal-data entry, legal acceptance, payment, and final submission unless the owner confirms each action.
+- [ ] Provide progress updates for material build, review, or enrollment milestones without retaining personal credentials or account details in the project.
