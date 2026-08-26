@@ -18,6 +18,8 @@ import WebsiteStudio from "./pages/WebsiteStudio";
 import DomainGallery from "./pages/DomainGallery";
 import IntegrationCenter from "./pages/IntegrationCenter";
 import DeveloperCenter from "./pages/DeveloperCenter";
+import VisitorSubmissionPage from "./pages/VisitorSubmissionPage";
+import VisitorReviewCenter from "./pages/VisitorReviewCenter";
 import Workspace from "./pages/Workspace";
 
 const toHashHref = (href: string) => `#${href}`;
@@ -42,6 +44,8 @@ function AppRoutes() {
         <Route path="/domains" component={DomainGallery} />
         <Route path="/integrations" component={IntegrationCenter} />
         <Route path="/developer-center" component={DeveloperCenter} />
+        <Route path="/share" component={VisitorSubmissionPage} />
+        <Route path="/visitor-review" component={VisitorReviewCenter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

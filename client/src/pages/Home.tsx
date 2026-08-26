@@ -20,7 +20,7 @@ export default function Home() {
       <nav className="container relative z-10 flex h-20 items-center justify-between border-b border-white/8">
         <Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-400/15"><Blocks className="h-5 w-5" /></span><span className="font-mono text-xl font-bold tracking-tight text-white">Dev<span className="text-cyan-300">Forge</span></span></Link>
         <div className="hidden items-center gap-7 text-sm text-slate-400 md:flex"><a href="#capabilities" className="hover:text-white">{t("capabilities")}</a><a href="#workflow" className="hover:text-white">{t("workflow")}</a><a href="#control" className="hover:text-white">{t("control")}</a></div>
-        <div className="flex items-center gap-2"><LanguageSelector compact /><Link href="/plans"><Button className="h-10 rounded-xl bg-white px-4 font-bold text-slate-950 hover:bg-cyan-100">{t("startJourney")} <ArrowLeft className="mr-2 h-4 w-4" /></Button></Link></div>
+        <div className="flex items-center gap-2"><LanguageSelector compact /><Link href="/share"><Button variant="outline" className="hidden h-10 rounded-xl border-white/15 bg-white/3 px-4 text-white hover:bg-white/8 hover:text-white sm:inline-flex">شارك</Button></Link><Link href="/plans"><Button className="h-10 rounded-xl bg-white px-4 font-bold text-slate-950 hover:bg-cyan-100">{t("startJourney")} <ArrowLeft className="mr-2 h-4 w-4" /></Button></Link></div>
       </nav>
 
       <div className="container relative z-10"><IosInstallGuide /></div>

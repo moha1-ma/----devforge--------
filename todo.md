@@ -150,3 +150,7 @@
 - [x] Extend the private Developer Center UI with language selection, Python templates, security/AI planning modes, and clearly non-runnable task cards.
 - [x] Add tests that reject execution-oriented requests and verify language/task proposals remain owner-only, structured, and responsive.
 - [x] Define and implement a review-gated self-improvement cycle that produces a diagnosis, proposed changes, security impact, and tests without autonomously changing code, secrets, deployments, or accounts.
+- [x] Define a visitor-submission policy for opinions, images, videos, and code with prohibited-content boundaries, file-size/type validation, privacy notice, and mandatory owner moderation.
+- [x] Add data models and secure object storage for pending visitor submissions and attachments without executing code or exposing pending media publicly.
+- [x] Build a public Arabic-first submission page and an owner-only review queue with accept/reject actions and non-public attachment access.
+- [x] Add tests for upload policy, pending-content privacy, owner-only moderation, rejection handling, and responsive submission UI.

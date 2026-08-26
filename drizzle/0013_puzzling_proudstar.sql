@@ -1,0 +1,1 @@
+ALTER TABLE `visitorSubmissionAttachments` ADD CONSTRAINT `vs_attachment_submission_fk` FOREIGN KEY (`submissionId`) REFERENCES `visitorSubmissions`(`id`) ON DELETE no action ON UPDATE no action;

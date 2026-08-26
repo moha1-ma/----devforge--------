@@ -1,4 +1,4 @@
-import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -241,6 +241,31 @@ export const developerReviewTasks = mysqlTable("developerReviewTasks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [uniqueIndex("developer_review_task_owner_key_unique").on(table.ownerId, table.taskKey)]);
 
+export const visitorSubmissions = mysqlTable("visitorSubmissions", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorAlias: varchar("visitorAlias", { length: 80 }),
+  category: mysqlEnum("category", ["opinion", "media", "code", "project"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  content: text("content").notNull(),
+  consentAccepted: boolean("consentAccepted").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  moderatorId: int("moderatorId").references(() => users.id, { onDelete: "set null" }),
+  moderationNote: varchar("moderationNote", { length: 500 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const visitorSubmissionAttachments = mysqlTable("visitorSubmissionAttachments", {
+  id: int("id").autoincrement().primaryKey(),
+  submissionId: int("submissionId").notNull().references(() => visitorSubmissions.id, { onDelete: "cascade" }),
+  kind: mysqlEnum("kind", ["image", "video", "code"]).notNull(),
+  safeName: varchar("safeName", { length: 180 }).notNull(),
+  mimeType: varchar("mimeType", { length: 120 }).notNull(),
+  sizeBytes: int("sizeBytes").notNull(),
+  storageKey: varchar("storageKey", { length: 600 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [foreignKey({ name: "vs_attachment_submission_fk", columns: [table.submissionId], foreignColumns: [visitorSubmissions.id] })]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -262,3 +287,5 @@ export type DomainCatalogItem = typeof domainCatalogItems.$inferSelect;
 export type IntegrationPreference = typeof integrationPreferences.$inferSelect;
 export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSelect;
 export type DeveloperReviewTask = typeof developerReviewTasks.$inferSelect;
+export type VisitorSubmission = typeof visitorSubmissions.$inferSelect;
+export type VisitorSubmissionAttachment = typeof visitorSubmissionAttachments.$inferSelect;

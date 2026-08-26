@@ -20,6 +20,8 @@ import { generateDeveloperCenterProposal, listDeveloperCenterProposals, listDeve
 import { ENV } from "./_core/env";
 import { TRPCError } from "@trpc/server";
 import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
+import { getPrivateVisitorAttachment, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
+import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -139,6 +141,20 @@ export const appRouter = router({
     list: ownerProcedure.query(({ ctx }) => listDeveloperCenterProposals(ctx.user.id)),
     listTasks: ownerProcedure.query(({ ctx }) => listDeveloperReviewTasks(ctx.user.id)),
     generate: ownerProcedure.input(z.object({ mode: z.enum(developerCenterModes), languageKey: z.enum(developerLanguageKeys), focus: z.enum(developerCenterFocuses), brief: z.string().trim().min(24).max(6000) })).mutation(({ ctx, input }) => generateDeveloperCenterProposal({ ownerId: ctx.user.id, ...input })),
+  }),
+  visitorSubmissions: router({
+    policy: publicProcedure.query(() => ({ copy: visitorSubmissionPolicyCopy, status: "owner-moderated" as const })),
+    submit: publicProcedure.input(z.object({
+      visitorAlias: z.string().trim().max(80).optional(),
+      category: z.enum(["opinion", "media", "code", "project"]),
+      title: z.string().trim().min(3).max(180),
+      content: z.string().trim().min(12).max(6000),
+      consentAccepted: z.literal(true),
+      attachments: z.array(z.object({ name: z.string().trim().min(1).max(180), mimeType: z.string().trim().min(1).max(120), base64: z.string().min(1).max(24_000_000) })).max(4),
+    })).mutation(({ input }) => submitVisitorContribution(input)),
+    listForOwner: ownerProcedure.query(({ ctx }) => listVisitorSubmissionsForOwner(ctx.user.id)),
+    moderate: ownerProcedure.input(z.object({ submissionId: z.number().int().positive(), status: z.enum(["approved", "rejected"]), moderationNote: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateVisitorSubmission({ ownerId: ctx.user.id, ...input })),
+    attachmentForOwner: ownerProcedure.input(z.object({ attachmentId: z.number().int().positive() })).query(({ ctx, input }) => getPrivateVisitorAttachment(ctx.user.id, input.attachmentId)),
   }),
 });
 
