@@ -212,6 +212,19 @@ export const integrationPreferences = mysqlTable("integrationPreferences", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [uniqueIndex("integration_preference_owner_provider_unique").on(table.ownerId, table.providerKey)]);
 
+export const developerCenterProposals = mysqlTable("developerCenterProposals", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  mode: mysqlEnum("mode", ["software", "website", "titles"]).notNull(),
+  brief: text("brief").notNull(),
+  headline: varchar("headline", { length: 240 }).notNull(),
+  proposalJson: text("proposalJson").notNull(),
+  model: varchar("model", { length: 120 }).notNull(),
+  reviewStatus: mysqlEnum("reviewStatus", ["draft", "reviewed", "archived"]).default("draft").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -231,3 +244,4 @@ export type AiImageAsset = typeof aiImageAssets.$inferSelect;
 export type WebsiteBuild = typeof websiteBuilds.$inferSelect;
 export type DomainCatalogItem = typeof domainCatalogItems.$inferSelect;
 export type IntegrationPreference = typeof integrationPreferences.$inferSelect;
+export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSelect;

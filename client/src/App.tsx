@@ -17,6 +17,7 @@ import StripeLab from "./pages/StripeLab";
 import WebsiteStudio from "./pages/WebsiteStudio";
 import DomainGallery from "./pages/DomainGallery";
 import IntegrationCenter from "./pages/IntegrationCenter";
+import DeveloperCenter from "./pages/DeveloperCenter";
 import Workspace from "./pages/Workspace";
 
 const toHashHref = (href: string) => `#${href}`;
@@ -40,6 +41,7 @@ function AppRoutes() {
         <Route path="/website-studio" component={WebsiteStudio} />
         <Route path="/domains" component={DomainGallery} />
         <Route path="/integrations" component={IntegrationCenter} />
+        <Route path="/developer-center" component={DeveloperCenter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

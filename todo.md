@@ -139,3 +139,9 @@
 - [ ] Complete the remaining technical App Store readiness work without creating accounts, entering personal data, accepting agreements, making payments, or submitting externally without the owner’s in-context confirmation.
 - [x] Prepare a review-ready App Store Connect handoff covering native functionality, privacy disclosures to verify, screenshots, review access, and mandatory public URLs without inventing organization details.
 - [x] Prepare a device-test checklist and review-evidence template for the first iPhone preview build without generating or distributing a build.
+- [ ] Initiate Apple Account and organization enrollment flow, requesting a fee waiver only after the owner completes identity, two-factor authentication, and legal-information steps within Apple.
+- [x] Confirm that the owner completed Apple Account creation and two-factor authentication in Apple’s own account interface without retaining account details.
+- [x] Define an owner-only AI Developer Center for complex software planning, website structures, and title generation with explicit review-only and non-execution safeguards.
+- [x] Add owner-scoped persistence and protected AI proposal procedures for the Developer Center without file writes, command execution, deployment, secret access, or external account actions.
+- [x] Build an Arabic-first private Developer Center UI with organized proposal outputs, title generation, website-blueprint generation, and mobile support.
+- [x] Add server and rendered UI tests proving owner isolation, review-only output, prohibited-action rejection, and responsive behavior for the Developer Center.

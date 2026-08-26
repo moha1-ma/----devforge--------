@@ -17,6 +17,7 @@ vi.mock("./pages/PlansWorkspace", () => ({ default: () => <div>مسارات ال
 vi.mock("./pages/ImageStudio", () => ({ default: () => <div>استوديو الصور</div> }));
 vi.mock("./pages/WebsiteStudio", () => ({ default: () => <div>منشئ المواقع</div> }));
 vi.mock("./pages/DomainGallery", () => ({ default: () => <div>معرض النطاقات</div> }));
+vi.mock("./pages/DeveloperCenter", () => ({ default: () => <div>مركز المطور الذكي</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -44,5 +45,12 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("معرض النطاقات")).toBeTruthy();
+  });
+
+  it("loads the private Developer Center from its hash URL", () => {
+    window.location.hash = "#/developer-center";
+    render(<App />);
+
+    expect(screen.getByText("مركز المطور الذكي")).toBeTruthy();
   });
 });

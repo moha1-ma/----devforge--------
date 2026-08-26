@@ -15,6 +15,10 @@ import { addSupabaseStarter, createWebsiteBuild, listWebsiteBuilds, prepareWebsi
 import { listOwnerDomainCatalog, seedOwnerDomainCatalog, updateOwnerDomainStatus } from "./domainCatalog";
 import { listIntegrationPreferences, requestIntegrationPreference } from "./integrationCenter";
 import { researchModes } from "./aiResearchPolicy";
+import { developerCenterModes } from "./developerCenterPolicy";
+import { generateDeveloperCenterProposal, listDeveloperCenterProposals } from "./developerCenter";
+import { ENV } from "./_core/env";
+import { TRPCError } from "@trpc/server";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -39,6 +43,11 @@ const sourceUpdateInput = z.object({
   sourceFileId: z.number().int().positive(),
   content: z.string().max(524288),
   note: z.string().trim().max(240).optional(),
+});
+
+const ownerProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.openId !== ENV.ownerOpenId) throw new TRPCError({ code: "FORBIDDEN", message: "هذه المساحة مخصصة للمالك فقط" });
+  return next();
 });
 
 export const appRouter = router({
@@ -124,6 +133,10 @@ export const appRouter = router({
     })).mutation(({ ctx, input }) => createWebsiteBuild({ ownerId: ctx.user.id, ...input })),
     prepareDomain: protectedProcedure.input(z.object({ websiteBuildId: z.number().int().positive(), domain: z.string().trim().min(4).max(253) })).mutation(({ ctx, input }) => prepareWebsiteDomain({ ownerId: ctx.user.id, ...input })),
     addSupabaseStarter: protectedProcedure.input(z.object({ websiteBuildId: z.number().int().positive() })).mutation(({ ctx, input }) => addSupabaseStarter({ ownerId: ctx.user.id, ...input })),
+  }),
+  developerCenter: router({
+    list: ownerProcedure.query(({ ctx }) => listDeveloperCenterProposals(ctx.user.id)),
+    generate: ownerProcedure.input(z.object({ mode: z.enum(developerCenterModes), brief: z.string().trim().min(24).max(6000) })).mutation(({ ctx, input }) => generateDeveloperCenterProposal({ ownerId: ctx.user.id, ...input })),
   }),
 });
 
