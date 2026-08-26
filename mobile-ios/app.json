@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "DevForge",
+    "slug": "devforge-ios",
+    "description": "منصة خاصة لتعلّم بناء المواقع والتطبيقات وإدارة مشاريع DevForge من iPhone.",
+    "version": "1.0.0",
+    "scheme": "devforge",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#071A2B",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.devforge.platform",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}

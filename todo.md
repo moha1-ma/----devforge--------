@@ -1,0 +1,130 @@
+# Project TODO
+
+- [x] Complete the platform domain model for deployments and activity events in addition to projects, work items, pull requests, and releases.
+- [x] Build a responsive Arabic-first DevForge landing and authenticated dashboard shell.
+- [x] Implement project portfolio cards with repository status, team ownership, and release readiness.
+- [x] Implement a work-item board with backlog, in-progress, review, and done states.
+- [x] Implement a pull-request review workspace with code-change summary, reviewers, checks, and merge status.
+- [x] Implement a release timeline and deployment activity feed with environment status.
+- [x] Implement real search and quick actions alongside accessible responsive navigation.
+- [x] Generate and apply the database migration, then verify the persistent workspace-summary API response.
+- [x] Add Vitest coverage for domain helpers and key UI behaviors, then run the test suite.
+- [x] Verify responsive desktop and mobile layouts for the landing page, workspace, and Stripe lab.
+- [x] Validate project/work-item creation controls through rendered component tests without adding fixtures to the user database.
+- [x] Save a checkpoint containing the completed platform build and delivery notes.
+- [x] Add Stripe sandbox safety guards and document the user-controlled test-key configuration boundary.
+- [x] Build a Stripe API explorer interface that explains safe Payment Intent testing without issuing calls until test keys are configured.
+- [x] Write an Arabic Stripe demo script and API capability reference.
+- [x] Add automated tests for Stripe test-key validation and sandbox request serialization.
+- [x] Build a DevForge Stripe sandbox lab interface that communicates the safe API test flow.
+- [x] Record the remaining user-controlled Stripe test-key setup in Settings → Payment; no key was requested or stored by the application.
+- [x] Exercise the database-backed workspace-summary API and validate create interactions without persisting test fixtures.
+- [x] Add rendered-component tests for workspace filtering, board states, and dialog interactions.
+- [x] Replace the exposed owner access code with a secure, hash-based owner recovery gate layered over authenticated identity.
+- [x] Document the authenticated owner boundary and source-file / AI safety policy.
+- [x] Add owner-scoped projects, source files, file revisions, and AI conversation data models with strict access checks.
+- [x] Build a private owner workspace for creating, editing, and deleting source files across Python, HTML, CSS, JavaScript, TypeScript, JSON, Markdown, and other text formats.
+- [x] Add safe source-file import with file-type, size, path, and content validation; do not execute uploaded code.
+- [x] Build a browser editor with language detection, revision history, project navigation, and a controlled preview workflow.
+- [x] Add a private AI workspace with legal free/local-only guidance; remote model calls remain deliberately disabled until the owner configures a local endpoint.
+- [x] Convert the web experience into an installable Progressive Web App sharing the same owner data and permissions.
+- [x] Prepare an optional GitHub import/export workflow that remains disabled until the owner explicitly authenticates and selects a repository.
+- [x] Add authorization, file-policy, rendered UI, responsive PWA, and AI safety checks.
+- [x] Implement GitHub link metadata procedures and an explicit owner-confirmed repository selection state; keep import/export execution disabled until OAuth is configured.
+- [x] Add rendered component tests for OwnerCodeGate, CodeWorkspace, AiWorkspace, and GithubWorkspace states.
+- [x] Add verification coverage for the PWA manifest, service-worker privacy policy, and owner-route authorization behavior.
+- [x] Add automated owner-route authorization tests for wrong-code rejection, successful server verification, and private-content unlock.
+- [x] Add a server-side `auth.verifyOwnerCode` test covering admin success, invalid-code rejection, and non-admin rejection.
+- [x] Repair the owner entry flow so the approved email and ownership code work reliably in the published app.
+- [x] Add guided build plans for websites, mobile applications, APIs, and full software products with clear start-to-finish steps.
+- [x] Turn landing-page and workspace actions into working routes that create or continue a selected build plan.
+- [x] Add an owner-scoped AI image studio with prompt composition, image generation, history, and safe storage.
+- [x] Add tests for owner-code normalization, plan routing, and AI image studio empty/error states.
+- [x] Verify the published owner login logic and the responsive guided-plan workflow.
+- [ ] Confirm the published owner-gate result after the canonical code is submitted from the owner’s external phone session; in-agent OAuth verification remains blocked by interactive login.
+- [x] Wire workspace quick actions to create or continue a build plan and add coverage for that behavior.
+- [x] Add image-studio generation error-state and plan CTA routing tests.
+- [ ] Verify the plans and image-studio routes at a mobile viewport after the owner gate is unlocked.
+- [x] Publish the updated guided-plan and image-studio routes, then re-check that the production URL serves them instead of a 404 page.
+- [ ] Record explicit confirmation that the canonical owner code succeeds in the published external session; the server-side diagnosis and tests are complete but browser OAuth cannot be completed in-agent.
+- [x] Convert SPA navigation to hash-based routes and cover the guided-plan hash URL with a rendered routing test.
+- [x] Record the completed Bright Data read-only test, including the retrieved sample result and supported capabilities, in a dedicated reviewable summary.
+- [ ] Inspect and safely test the ElevenLabs connector, then summarize retrieved data and supported capabilities.
+- [x] Inspect and safely test the Supabase connector, then summarize retrieved data and supported capabilities.
+- [x] Define the website-builder model and document the safe boundary between site generation, deployment guidance, and domain registration.
+- [x] Add owner-scoped website-builder records and protected procedures for creating and listing site builds.
+- [x] Build an Arabic-first Website Studio with structured briefs, visual presets, and responsive preview states.
+- [x] Generate safe editable website source files from approved templates without executing arbitrary user code.
+- [x] Add a Domain Center that supports availability preparation and explicit domain-connection guidance without claiming to register paid domains automatically.
+- [x] Add a visible Website Studio error/retry state and concrete DNS guidance without exposing payment or identity collection.
+- [x] Add tests, responsive verification, and publish the website-builder expansion.
+- [x] Define the safe mobile Supabase setup boundary, including publishable keys only and no automatic paid project creation.
+- [x] Add a Supabase Setup Center to Website Studio with mobile-first steps and project-aware status states.
+- [x] Add an editable Supabase browser-client starter and SQL/RLS guidance without storing service-role secrets.
+- [ ] Verify the new Supabase Setup Center at a mobile viewport after owner unlock, confirm the published action is reachable, then record the published test coverage.
+- [x] Fix the reported iPhone layout overflow: replace the desktop sidebar behavior with a mobile-safe navigation pattern and give private pages full-width content.
+- [ ] Verify the repaired plans and Website Studio layouts at an iPhone viewport, then publish the mobile fix.
+- [x] Replace the disabled AI-notes behavior with an owner-scoped server-side assistant that responds only after user submission and discloses managed-model usage.
+- [ ] Add mobile-friendly AI chat states, usage disclosure, error handling, tests, and publish verification.
+- [x] Define a transparent domain-catalog model for 20 proposed names, explicitly separated from verified registration, availability, and payment.
+- [x] Add a private domain-catalog record model and owner-scoped procedures for browsing and updating readiness states.
+- [x] Build a mobile-friendly Domain Gallery with 20 proposed names, filtering, verification preparation, and no misleading sale/availability claims.
+- [x] Optimize assistant request context and response limits for faster practical replies while retaining user-triggered usage disclosure.
+- [ ] Add tests, responsive verification, and publish the domain-gallery and assistant-speed expansion.
+- [x] Diagnose the published AI reply failure shown on iPhone, preserve user messages, and surface any failed response clearly.
+- [x] Identify and cover the GPT output-limit serialization bug that produced successful requests with empty assistant content.
+- [ ] Verify an assistant reply reaches the owner’s phone session after the fix and publish the repair.
+- [x] Define the iOS companion-app boundary, including secure web authentication and the Apple signing requirement for an installable build.
+- [x] Create an Expo iOS companion source project with DevForge branding and a native mobile shell.
+- [x] Build the core iOS screens and secure in-app route to the existing DevForge platform.
+- [x] Validate the Expo project and provide iPhone testing and App Store signing guidance.
+- [x] Include the validated Expo iOS source under `mobile-ios/` in the DevForge project while excluding local dependencies and repository metadata.
+- [x] Investigate the two visible runtime errors reported on the owner’s iPhone and retain all existing private messages.
+- [x] Correct the iPhone drawer so it opens as a full off-canvas overlay without exposing or clipping the desktop sidebar behind it.
+- [ ] Verify the published iPhone layout and clear error state from the owner’s authenticated session.
+- [x] Include `.test.ts` client tests in the Vitest suite so the iPhone navigation and API-error regressions execute on every verification run.
+- [x] Verify the iPhone PWA manifest, standalone launch route, and service-worker setup for a home-screen application experience.
+- [x] Add a clear Arabic in-app instruction that guides iPhone owners to install DevForge on the home screen through Safari.
+- [x] Publish and verify the standalone iPhone application route without claiming an App Store binary exists.
+- [x] Confirm on the owner’s iPhone that the DevForge home-screen icon launches the standalone PWA successfully.
+- [x] Confirm that DevForge is installed from the public production domain rather than a preview URL, so the external preview-mode banner is absent.
+- [x] Review the existing GitHub metadata workspace and define the minimum owner-approved repository context that may reach the AI assistant.
+- [x] Add an explicit GitHub repository-context selector for the AI assistant without automated synchronization, write access, or background fetching.
+- [x] Add owner-scope and privacy tests proving that only selected metadata is attached to an AI request, then publish the integration.
+- [x] Add negative GitHub-context tests proving no repository metadata is sent without selection and a missing owner-approved link fails before invoking the AI model.
+- [x] Normalize accepted GitHub repository inputs so the owner may save either `owner/repository` or a canonical github.com URL without weakening validation.
+- [x] Update the mobile GitHub input guidance and tests, then publish the repaired save flow.
+- [ ] Confirm from the owner’s authenticated iPhone session that a full GitHub URL saves successfully and is displayed back as normalized `owner/repository`.
+- [x] Select a low-sensitivity text file from an authorized GitHub repository without modifying the external repository.
+- [x] Import the selected GitHub file into an existing owner-scoped DevForge project with source-file policy validation.
+- [x] Record the selected repository metadata for optional AI context and verify the imported source is private to the owner.
+- [x] Resolve the authenticated owner and project IDs from owner-scoped data before accepting the GitHub import as complete.
+- [x] Verify the imported source and GitHub metadata under the confirmed owner/project pair before finalizing the import record.
+- [x] Resolve the active owner from session-backed configuration without exposing identifiers, then reconcile the imported project and source records against that owner.
+- [ ] Confirm from the owner’s active DevForge session that the imported README appears in the selected project before closing the import task.
+- [x] Replace the owner-screen confirmation with a documented server-side import verification, as explicitly authorized by the owner.
+- [x] Add a permanent owner-scoped GitHub import verification procedure and test it without relying on temporary scripts or environment identity lookups.
+- [x] Locate the visible English subtitle-style message in the owner’s AI thread and remove only that matching message.
+- [x] Verify the owner’s AI thread no longer includes the removed text while preserving all other messages.
+- [x] Record an owner-scoped post-delete message readback proving remaining non-matching AI thread messages are intact.
+- [x] Read back stable IDs and short non-sensitive previews of the remaining owner-thread messages to document that only the selected subtitle messages were removed.
+- [x] Fix the authenticated iPhone assistant layout so the desktop sidebar never remains visible beside page content; use a full off-canvas drawer only.
+- [ ] Confirm the published `#/ai` layout from an authenticated owner iPhone session after owner-gate unlock; the automated regression test and unauthenticated route verification are complete, but they cannot inspect private assistant content.
+- [x] Keep the owner-code gate card centered and constrained to the iPhone viewport before the private sidebar can render.
+- [x] Define an owner-controlled integration catalog that distinguishes already authorized connectors, optional OAuth/API-key connections, and unsupported platforms without claiming universal automatic access.
+- [x] Build an Arabic-first Integration Center that shows connection state, data scope, and prohibited automatic actions for each platform.
+- [x] Add secure connection guidance and owner-scoped integration preferences without storing third-party credentials in DevForge.
+- [x] Verify the published Integration Center route after the deployment bundle includes `#/integrations`, then confirm its protected login state without using an owner session.
+- [x] Expand the Integration Center catalog across development, cloud, data, work, AI, analytics, marketing, automation, support, and domain providers while retaining read-only-by-default safeguards.
+- [x] Add a persistent Arabic-first language preference with direction-aware English support and an extensible translation catalog.
+- [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
+- [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
+- [x] Define a trusted-knowledge search policy for the AI assistant, including explicit user-triggered search, citations, source visibility, and no background browsing.
+- [ ] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
+- [x] Improve assistant response quality with structured answer guidance, transparent source status, and graceful fallbacks when no external research source is authorized.
+- [ ] Test research-mode privacy, provider boundaries, mobile usability, and publish the assistant-quality upgrade.
+- [x] Audit the existing iOS companion source and define the App Store boundary: signed build, developer account, listing, privacy disclosures, and final submission remain owner-controlled external steps.
+- [x] Design a mobile educational home and website-marketplace experience that lists only transparent catalog information and does not fabricate listings, reviews, availability, or payments.
+- [x] Extend the iOS companion source with the educational and marketplace navigation plus App Store-ready metadata, without claiming a signed IPA or App Store publication.
+- [x] Re-run and capture explicit iOS `npm test` and `tsc --noEmit` success after the educational and marketplace changes, then document the owner-controlled Apple Developer, TestFlight, App Store Connect, payment, and marketplace-review steps.
+- [x] Add focused test coverage for the educational and marketplace sections of the iOS home screen beyond route formatting.

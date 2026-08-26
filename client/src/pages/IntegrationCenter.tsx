@@ -1,0 +1,38 @@
+import DashboardLayout from "@/components/DashboardLayout";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { trpc } from "@/lib/trpc";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { integrationCatalog } from "@shared/integrationCatalog";
+import { CheckCircle2, KeyRound, Link2, LockKeyhole, Search, ShieldCheck } from "lucide-react";
+import React from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+
+export default function IntegrationCenter() {
+  const { direction, t } = useLanguage();
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("الكل");
+  const utils = trpc.useUtils();
+  const { data: preferences = [], isLoading, isError, refetch } = trpc.integrationCenter.list.useQuery();
+  const requestConnection = trpc.integrationCenter.request.useMutation({
+    onSuccess: () => { utils.integrationCenter.list.invalidate(); toast.success(`${t("requestRecorded")}. ${t("noAutomatedActions")}`); },
+    onError: error => toast.error(error.message || t("privatePreferencesError")),
+  });
+  const categories = useMemo(() => ["الكل", ...Array.from(new Set(integrationCatalog.map(item => item.category)))], []);
+  const filtered = useMemo(() => integrationCatalog.filter(item => (category === "الكل" || item.category === category) && `${item.name} ${item.category} ${item.description}`.toLowerCase().includes(query.trim().toLowerCase())), [category, query]);
+  const requested = new Map(preferences.map(item => [item.providerKey, item]));
+
+  const methodCopy = { oauth: t("needsOAuth"), "api-key": t("needsOwnerKey"), session: t("sessionAvailable") } as const;
+  return <DashboardLayout><div dir={direction} className="mx-auto max-w-6xl space-y-5">
+    <Card className="border-cyan-300/15 bg-slate-950/60 text-white"><CardHeader><div className="flex flex-wrap items-start justify-between gap-3"><div><Badge className="mb-3 border-cyan-300/20 bg-cyan-300/10 text-cyan-100">{t("integrationCenter")}</Badge><CardTitle className="text-2xl">{t("integrationTitle")}</CardTitle><CardDescription className="mt-2 max-w-3xl leading-7 text-slate-400">{t("integrationDescription")}</CardDescription></div><ShieldCheck className="h-9 w-9 text-cyan-300" /></div></CardHeader><CardContent className="grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-300"><LockKeyhole className="mb-2 h-4 w-4 text-cyan-300" />{t("noCredentials")}</div><div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-300"><Link2 className="mb-2 h-4 w-4 text-cyan-300" />{t("ownerScoped")}</div><div className="rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-slate-300"><KeyRound className="mb-2 h-4 w-4 text-cyan-300" />{t("noAutomatedActions")}</div></CardContent></Card>
+    <div className="relative"><Search className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-500" /><Input value={query} onChange={event => setQuery(event.target.value)} placeholder={t("searchIntegration")} className="h-11 border-white/10 bg-slate-950/60 pr-10 text-white" /></div>
+    <div className="flex gap-2 overflow-x-auto pb-1" aria-label={t("filterCategories")}>{categories.map(item => <Button key={item} size="sm" variant={category === item ? "default" : "outline"} className="shrink-0" onClick={() => setCategory(item)}>{item}</Button>)}</div>
+    {isError ? <Card className="border-rose-300/20 bg-rose-500/5"><CardContent className="flex items-center justify-between gap-3 p-4 text-sm text-rose-100"><span>{t("privatePreferencesError")}</span><Button variant="outline" onClick={() => refetch()}>{t("retry")}</Button></CardContent></Card> : null}
+    <div className="flex items-center justify-between gap-3 text-sm text-slate-400"><span>{t("showingProviders")} {filtered.length} {t("within")} {categories.length - 1} {t("categories")}.</span><span>{t("localFilter")}</span></div>
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{filtered.map(item => { const preference = requested.get(item.providerKey); return <Card key={item.providerKey} className="flex min-w-0 flex-col border-white/10 bg-slate-950/55 text-white"><CardHeader className="pb-3"><div className="flex items-center justify-between gap-2"><Badge variant="outline" className="border-white/15 text-slate-300">{item.category}</Badge>{preference ? <Badge className="bg-emerald-400/15 text-emerald-200"><CheckCircle2 className="ml-1 h-3.5 w-3.5" />{t("requestRecorded")}</Badge> : <Badge className="bg-slate-400/10 text-slate-300">{t("disconnected")}</Badge>}</div><CardTitle className="mt-3 text-lg">{item.name}</CardTitle><CardDescription className="min-h-12 leading-6 text-slate-400">{item.description}</CardDescription></CardHeader><CardContent className="mt-auto space-y-3"><p className="rounded-lg border border-white/8 bg-white/4 p-2 text-xs text-slate-300">{methodCopy[item.connectionMethod]} — {t("proposedScope")}: {item.requestedScope}</p><p className="text-xs leading-5 text-amber-100/80">{item.protectedBoundary}</p><Button className="w-full" variant={preference ? "outline" : "default"} disabled={requestConnection.isPending || Boolean(preference)} onClick={() => requestConnection.mutate({ providerKey: item.providerKey })}>{preference ? t("requestRecorded") : t("prepareSecureConnection")}</Button></CardContent></Card>; })}</div>
+    {!isLoading && filtered.length === 0 ? <p className="rounded-xl border border-white/10 p-5 text-center text-sm text-slate-400">{t("noMatchingProvider")}</p> : null}
+  </div></DashboardLayout>;
+}

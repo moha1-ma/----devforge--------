@@ -1,0 +1,1 @@
+ALTER TABLE `websiteBuilds` ADD `supabaseStarterStatus` enum('not-prepared','starter-added') DEFAULT 'not-prepared' NOT NULL;

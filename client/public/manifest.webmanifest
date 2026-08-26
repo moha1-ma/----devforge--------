@@ -1,0 +1,19 @@
+{
+  "name": "DevForge — منصة تطوير البرمجيات",
+  "short_name": "DevForge",
+  "description": "مساحة خاصة لإدارة مشاريع البرمجيات والمصادر والذكاء الاصطناعي المحلي.",
+  "start_url": "/#/workspace",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#0b1020",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/manus-storage/devforge-icon_1fdb1e8f.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

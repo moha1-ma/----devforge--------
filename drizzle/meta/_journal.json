@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1787588608327,
+      "tag": "0000_numerous_umar",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1787589004682,
+      "tag": "0001_sticky_gorilla_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1787589114633,
+      "tag": "0002_useful_power_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1787662554689,
+      "tag": "0003_wild_scrambler",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1787664539251,
+      "tag": "0004_dark_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1787664698385,
+      "tag": "0005_outgoing_quentin_quire",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1787673073686,
+      "tag": "0006_eminent_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1787674368531,
+      "tag": "0007_damp_meltdown",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1787677529462,
+      "tag": "0008_special_marvel_boy",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1787696208237,
+      "tag": "0009_busy_omega_red",
+      "breakpoints": true
+    }
+  ]
+}
