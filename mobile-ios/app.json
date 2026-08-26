@@ -11,7 +11,7 @@
     "backgroundColor": "#071A2B",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.devforge.platform",
+      "bundleIdentifier": "space.manus.devforgeapp.grp92cnd",
       "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false

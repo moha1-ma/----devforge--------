@@ -21,7 +21,7 @@
 
 ## متطلبات المالك قبل الإرسال
 
-1. حساب Apple Developer ومالك قانوني لـ bundle identifier `com.devforge.platform`.
+1. حساب Apple Developer ومالك قانوني لـ bundle identifier `space.manus.devforgeapp.grp92cnd`.
 2. بناء موقّع واختبار فعلي على iPhone، ثم رفعه عبر Xcode أو خدمة بناء يختارها المالك.
 3. صفحة متجر مكتملة: الاسم، الوصف، التصنيف، الكلمات المفتاحية، لقطات من تجربة حقيقية، رابط دعم، ورابط سياسة خصوصية عام.
 4. بيانات خصوصية دقيقة في App Store Connect لكل بيانات يجمعها التطبيق أو SDKs أو صفحة الويب المضمنة.

@@ -136,3 +136,6 @@
 - [x] Add and test meaningful native iPhone functionality that gives DevForge value beyond an embedded website, then document it accurately for App Review.
 - [ ] Prepare concrete, owner-approved public support and privacy-policy URLs plus review-access instructions before any App Store submission.
 - [ ] Guide the educational institution through Apple’s official fee-waiver request only after it proves eligibility and completes identity, legal, and account steps under its own control.
+- [ ] Complete the remaining technical App Store readiness work without creating accounts, entering personal data, accepting agreements, making payments, or submitting externally without the owner’s in-context confirmation.
+- [x] Prepare a review-ready App Store Connect handoff covering native functionality, privacy disclosures to verify, screenshots, review access, and mandatory public URLs without inventing organization details.
+- [x] Prepare a device-test checklist and review-evidence template for the first iPhone preview build without generating or distributing a build.

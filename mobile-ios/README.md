@@ -18,7 +18,11 @@
 
 ## إنشاء حزمة iOS لاحقًا
 
-يتطلب إنشاء IPA/TestFlight حساب Apple Developer، ومعرّف Bundle مسجّلًا باسم المالك، وشهادات توقيع. قبل أي بناء موزّع، استبدل `ios.bundleIdentifier` في `app.json` بمعرّف تملكه فعليًا ثم نفّذ البناء الموقّع ضمن حساب Apple الخاص بك. لا تعتمد على `com.devforge.platform` قبل التحقق من توفره وملكيته في حساب Apple.
+يتطلب إنشاء IPA/TestFlight حساب Apple Developer، ومعرّف Bundle مسجّلًا باسم المالك، وشهادات توقيع. يستخدم التطبيق الآن المعرّف الفريد `space.manus.devforgeapp.grp92cnd`؛ تحقّق من إمكان تسجيله وملكيته في حساب Apple قبل أي بناء موزّع. راجع [EAS_BUILD_HANDOFF.md](./EAS_BUILD_HANDOFF.md) لملفات إعداد البناء والأوامر التي لا تُنفذ تلقائيًا.
+
+قبل إدخال أي build في App Store Connect، راجع [APP_STORE_CONNECT_HANDOFF.md](./APP_STORE_CONNECT_HANDOFF.md) لتجهيز وصف المراجعة ولقطات الشاشة وإفصاحات الخصوصية وروابط الدعم المطلوبة.
+
+لاختبار أول build على iPhone وتسجيل الأدلة اللازمة للمراجعة، استخدم [DEVICE_TEST_AND_REVIEW_EVIDENCE.md](./DEVICE_TEST_AND_REVIEW_EVIDENCE.md).
 
 ## المسار المجاني وحدوده
 
