@@ -154,3 +154,7 @@
 - [x] Add data models and secure object storage for pending visitor submissions and attachments without executing code or exposing pending media publicly.
 - [x] Build a public Arabic-first submission page and an owner-only review queue with accept/reject actions and non-public attachment access.
 - [x] Add tests for upload policy, pending-content privacy, owner-only moderation, rejection handling, and responsive submission UI.
+- [x] Audit the current DevForge interface and define an owner-focused visual and interaction improvement plan for desktop and iPhone.
+- [x] Refine shared navigation, visual hierarchy, status feedback, and empty states without weakening owner access or moderation safeguards.
+- [x] Improve the Developer Center and visitor-sharing experiences for clarity, mobile usability, and accessible review workflows.
+- [x] Add or update rendered UI tests and mobile visual verification for the interface refinement.

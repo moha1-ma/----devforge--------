@@ -26,4 +26,11 @@ describe("روابط الصفحة الرئيسية", () => {
 
     expect(screen.getByRole("link", { name: /منشئ المواقع/ }).getAttribute("href")).toBe("#/website-studio");
   });
+
+  it("يعرض حالة هندسية منظمة ومدخل مشاركة زوار منفصل", () => {
+    render(<LanguageProvider><Router hook={useHashLocation} hrefs={toHashHref}><Home /></Router></LanguageProvider>);
+
+    expect(screen.getByText("مراجعات منظمة")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "شارك" }).getAttribute("href")).toBe("#/share");
+  });
 });

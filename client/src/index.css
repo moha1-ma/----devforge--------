@@ -80,6 +80,13 @@
   .flex { min-height: 0; min-width: 0; }
   .dev-shell { background: radial-gradient(circle at 84% -10%, rgba(34,211,238,.13), transparent 30%), radial-gradient(circle at 2% 45%, rgba(139,92,246,.12), transparent 28%), #0b1020; }
   .dev-orb { position: absolute; border-radius: 9999px; filter: blur(60px); }
+  .engineering-grid { background-image: linear-gradient(rgba(148,163,184,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.045) 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, black, transparent 92%); }
+  .signal-chip { display: inline-flex; align-items: center; gap: .45rem; border: 1px solid rgba(148,163,184,.16); border-radius: 9999px; background: rgba(15,23,42,.55); padding: .35rem .65rem; font-size: .69rem; font-weight: 700; color: rgba(226,232,240,.78); }
+  .signal-dot { width: .42rem; height: .42rem; border-radius: 9999px; background: rgb(34 211 238); box-shadow: 0 0 0 4px rgba(34,211,238,.08); }
+  .command-label { font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace; font-size: .7rem; letter-spacing: .12em; color: rgba(103,232,249,.78); text-transform: uppercase; }
+  .dev-shell textarea { background-image: linear-gradient(rgba(148,163,184,.026) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.026) 1px, transparent 1px); background-size: 22px 22px; }
+  .dev-shell textarea:focus, .dev-shell input:not([type="checkbox"]):focus, .dev-shell select:focus { box-shadow: 0 0 0 4px rgba(34,211,238,.08), inset 0 1px 0 rgba(255,255,255,.03); }
+  .dev-shell input[type="file"] { border-radius: .85rem; padding: .45rem; background: rgba(15,23,42,.32); }
   @media (min-width: 640px) { .container { padding-left: 1.5rem; padding-right: 1.5rem; } }
   @media (min-width: 1024px) { .container { padding-left: 2rem; padding-right: 2rem; max-width: 1280px; } }
 }
