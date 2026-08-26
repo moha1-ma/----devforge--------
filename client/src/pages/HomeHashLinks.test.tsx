@@ -1,10 +1,12 @@
 import React from "react";
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Home from "./Home";
+
+vi.mock("@/_core/hooks/useAuth", () => ({ useAuth: () => ({ user: null, loading: false, isAuthenticated: false, logout: vi.fn() }) }));
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -32,5 +34,6 @@ describe("روابط الصفحة الرئيسية", () => {
 
     expect(screen.getByText("مراجعات منظمة")).toBeTruthy();
     expect(screen.getByRole("link", { name: "شارك" }).getAttribute("href")).toBe("#/share");
+    expect(screen.getByRole("button", { name: /دخول الزوار/ })).toBeTruthy();
   });
 });

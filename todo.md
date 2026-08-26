@@ -158,3 +158,8 @@
 - [x] Refine shared navigation, visual hierarchy, status feedback, and empty states without weakening owner access or moderation safeguards.
 - [x] Improve the Developer Center and visitor-sharing experiences for clarity, mobile usability, and accessible review workflows.
 - [x] Add or update rendered UI tests and mobile visual verification for the interface refinement.
+- [x] Define visitor access and conversation flows, including clear privacy, moderation, and owner-response boundaries.
+- [x] Add scalable visitor-profile and conversation data models with protected owner procedures and visitor-scoped access.
+- [x] Add a functional visitor entry and messages surface to the public top navigation with professional status icons and accessible interaction states.
+- [x] Resolve direct-route 404 behavior by making public links compatible with the app’s hash routing and adding safe fallback guidance.
+- [x] Add tests for visitor isolation, messaging access, top-navigation actions, direct-route recovery, and iPhone usability.

@@ -22,6 +22,7 @@ import { TRPCError } from "@trpc/server";
 import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
 import { getPrivateVisitorAttachment, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
 import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
+import { closeVisitorConversation, listVisitorConversations, sendVisitorConversationMessage, startVisitorConversation } from "./visitorConversations";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -155,6 +156,12 @@ export const appRouter = router({
     listForOwner: ownerProcedure.query(({ ctx }) => listVisitorSubmissionsForOwner(ctx.user.id)),
     moderate: ownerProcedure.input(z.object({ submissionId: z.number().int().positive(), status: z.enum(["approved", "rejected"]), moderationNote: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateVisitorSubmission({ ownerId: ctx.user.id, ...input })),
     attachmentForOwner: ownerProcedure.input(z.object({ attachmentId: z.number().int().positive() })).query(({ ctx, input }) => getPrivateVisitorAttachment(ctx.user.id, input.attachmentId)),
+  }),
+  visitorConversations: router({
+    mine: protectedProcedure.query(({ ctx }) => listVisitorConversations({ userId: ctx.user.id, isOwner: ctx.user.openId === ENV.ownerOpenId })),
+    start: protectedProcedure.input(z.object({ subject: z.string().trim().min(3).max(180), content: z.string().trim().min(3).max(6000) })).mutation(({ ctx, input }) => startVisitorConversation({ visitorId: ctx.user.id, ...input })),
+    send: protectedProcedure.input(z.object({ conversationId: z.number().int().positive(), content: z.string().trim().min(1).max(6000) })).mutation(({ ctx, input }) => sendVisitorConversationMessage({ userId: ctx.user.id, isOwner: ctx.user.openId === ENV.ownerOpenId, ...input })),
+    close: ownerProcedure.input(z.object({ conversationId: z.number().int().positive() })).mutation(({ ctx, input }) => closeVisitorConversation({ userId: ctx.user.id, isOwner: true, ...input })),
   }),
 });
 

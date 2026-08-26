@@ -20,6 +20,7 @@ import IntegrationCenter from "./pages/IntegrationCenter";
 import DeveloperCenter from "./pages/DeveloperCenter";
 import VisitorSubmissionPage from "./pages/VisitorSubmissionPage";
 import VisitorReviewCenter from "./pages/VisitorReviewCenter";
+import VisitorMessagesPage from "./pages/VisitorMessagesPage";
 import Workspace from "./pages/Workspace";
 
 const toHashHref = (href: string) => `#${href}`;
@@ -46,6 +47,7 @@ function AppRoutes() {
         <Route path="/developer-center" component={DeveloperCenter} />
         <Route path="/share" component={VisitorSubmissionPage} />
         <Route path="/visitor-review" component={VisitorReviewCenter} />
+        <Route path="/visitor/messages" component={VisitorMessagesPage} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

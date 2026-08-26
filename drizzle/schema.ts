@@ -266,6 +266,28 @@ export const visitorSubmissionAttachments = mysqlTable("visitorSubmissionAttachm
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 }, table => [foreignKey({ name: "vs_attachment_submission_fk", columns: [table.submissionId], foreignColumns: [visitorSubmissions.id] })]);
 
+export const visitorConversations = mysqlTable("visitorConversations", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: int("visitorId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  subject: varchar("subject", { length: 180 }).notNull(),
+  status: mysqlEnum("status", ["open", "closed"]).default("open").notNull(),
+  lastMessageAt: timestamp("lastMessageAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const visitorConversationMessages = mysqlTable("visitorConversationMessages", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  senderId: int("senderId").notNull(),
+  senderRole: mysqlEnum("senderRole", ["visitor", "owner"]).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [
+  foreignKey({ name: "vcm_conv_fk", columns: [table.conversationId], foreignColumns: [visitorConversations.id] }).onDelete("cascade"),
+  foreignKey({ name: "vcm_sender_fk", columns: [table.senderId], foreignColumns: [users.id] }).onDelete("cascade"),
+]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -289,3 +311,5 @@ export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSele
 export type DeveloperReviewTask = typeof developerReviewTasks.$inferSelect;
 export type VisitorSubmission = typeof visitorSubmissions.$inferSelect;
 export type VisitorSubmissionAttachment = typeof visitorSubmissionAttachments.$inferSelect;
+export type VisitorConversation = typeof visitorConversations.$inferSelect;
+export type VisitorConversationMessage = typeof visitorConversationMessages.$inferSelect;

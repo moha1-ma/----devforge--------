@@ -1,13 +1,16 @@
 import React from "react";
+import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { startLogin } from "@/const";
 import { Badge } from "@/components/ui/badge";
 import IosInstallGuide from "@/components/IosInstallGuide";
 import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, ArrowUpLeft, Blocks, Bot, CheckCircle2, ChevronLeft, CloudCog, Code2, GitBranch, GitPullRequest, Layers3, Play, Rocket, ScanSearch, ShieldCheck, Sparkles, Terminal } from "lucide-react";
+import { ArrowLeft, ArrowUpLeft, Blocks, Bot, CheckCircle2, ChevronLeft, CloudCog, Code2, GitBranch, GitPullRequest, Layers3, MessageCircleMore, Play, Rocket, ScanSearch, ShieldCheck, Sparkles, Terminal, UserRound } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
   const { direction, t } = useLanguage();
+  const { user, loading } = useAuth();
   const operations = [
     { icon: GitPullRequest, title: t("fasterReview"), copy: t("fasterReviewCopy"), tone: "text-cyan-300" },
     { icon: Rocket, title: t("clearerReleases"), copy: t("clearerReleasesCopy"), tone: "text-violet-300" },
@@ -20,7 +23,7 @@ export default function Home() {
       <nav className="container relative z-10 flex h-20 items-center justify-between border-b border-white/8">
         <Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-300 text-slate-950 shadow-lg shadow-cyan-400/15"><Blocks className="h-5 w-5" /></span><span className="font-mono text-xl font-bold tracking-tight text-white">Dev<span className="text-cyan-300">Forge</span></span></Link>
         <div className="hidden items-center gap-7 text-sm text-slate-400 md:flex"><a href="#capabilities" className="hover:text-white">{t("capabilities")}</a><a href="#workflow" className="hover:text-white">{t("workflow")}</a><a href="#control" className="hover:text-white">{t("control")}</a></div>
-        <div className="flex items-center gap-2"><LanguageSelector compact /><Link href="/share"><Button variant="outline" className="hidden h-10 rounded-xl border-white/15 bg-white/3 px-4 text-white hover:bg-white/8 hover:text-white sm:inline-flex">شارك</Button></Link><Link href="/plans"><Button className="h-10 rounded-xl bg-white px-4 font-bold text-slate-950 hover:bg-cyan-100">{t("startJourney")} <ArrowLeft className="mr-2 h-4 w-4" /></Button></Link></div>
+        <div className="flex items-center gap-2"><LanguageSelector compact />{!loading && (user ? <Link href="/visitor/messages"><Button variant="outline" className="h-10 rounded-xl border-cyan-300/20 bg-cyan-300/8 px-3 text-cyan-100 hover:bg-cyan-300/15 hover:text-cyan-50"><MessageCircleMore className="h-4 w-4 sm:ml-2" /><span className="hidden sm:inline">مراسلاتي</span></Button></Link> : <Button onClick={() => startLogin()} variant="outline" className="h-10 rounded-xl border-white/15 bg-white/3 px-3 text-white hover:bg-white/8 hover:text-white"><UserRound className="h-4 w-4 sm:ml-2" /><span className="hidden sm:inline">دخول الزوار</span></Button>)}<Link href="/share"><Button variant="outline" className="hidden h-10 rounded-xl border-white/15 bg-white/3 px-4 text-white hover:bg-white/8 hover:text-white sm:inline-flex">شارك</Button></Link><Link href="/plans"><Button className="h-10 rounded-xl bg-white px-4 font-bold text-slate-950 hover:bg-cyan-100">{t("startJourney")} <ArrowLeft className="mr-2 h-4 w-4" /></Button></Link></div>
       </nav>
 
       <div className="container relative z-10"><IosInstallGuide /></div>
