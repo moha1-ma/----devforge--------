@@ -145,3 +145,8 @@
 - [x] Add owner-scoped persistence and protected AI proposal procedures for the Developer Center without file writes, command execution, deployment, secret access, or external account actions.
 - [x] Build an Arabic-first private Developer Center UI with organized proposal outputs, title generation, website-blueprint generation, and mobile support.
 - [x] Add server and rendered UI tests proving owner isolation, review-only output, prohibited-action rejection, and responsive behavior for the Developer Center.
+- [x] Define a safe multi-language capability catalog including Python and security/AI planning, with an explicit no-execution boundary instead of unlimited commands.
+- [x] Add owner-scoped review-only task-library records and protected proposal generation for language, security, and AI engineering tasks.
+- [x] Extend the private Developer Center UI with language selection, Python templates, security/AI planning modes, and clearly non-runnable task cards.
+- [x] Add tests that reject execution-oriented requests and verify language/task proposals remain owner-only, structured, and responsive.
+- [x] Define and implement a review-gated self-improvement cycle that produces a diagnosis, proposed changes, security impact, and tests without autonomously changing code, secrets, deployments, or accounts.

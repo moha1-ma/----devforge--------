@@ -15,10 +15,11 @@ import { addSupabaseStarter, createWebsiteBuild, listWebsiteBuilds, prepareWebsi
 import { listOwnerDomainCatalog, seedOwnerDomainCatalog, updateOwnerDomainStatus } from "./domainCatalog";
 import { listIntegrationPreferences, requestIntegrationPreference } from "./integrationCenter";
 import { researchModes } from "./aiResearchPolicy";
-import { developerCenterModes } from "./developerCenterPolicy";
-import { generateDeveloperCenterProposal, listDeveloperCenterProposals } from "./developerCenter";
+import { developerCenterFocuses, developerCenterModes } from "./developerCenterPolicy";
+import { generateDeveloperCenterProposal, listDeveloperCenterProposals, listDeveloperReviewTasks } from "./developerCenter";
 import { ENV } from "./_core/env";
 import { TRPCError } from "@trpc/server";
+import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -136,7 +137,8 @@ export const appRouter = router({
   }),
   developerCenter: router({
     list: ownerProcedure.query(({ ctx }) => listDeveloperCenterProposals(ctx.user.id)),
-    generate: ownerProcedure.input(z.object({ mode: z.enum(developerCenterModes), brief: z.string().trim().min(24).max(6000) })).mutation(({ ctx, input }) => generateDeveloperCenterProposal({ ownerId: ctx.user.id, ...input })),
+    listTasks: ownerProcedure.query(({ ctx }) => listDeveloperReviewTasks(ctx.user.id)),
+    generate: ownerProcedure.input(z.object({ mode: z.enum(developerCenterModes), languageKey: z.enum(developerLanguageKeys), focus: z.enum(developerCenterFocuses), brief: z.string().trim().min(24).max(6000) })).mutation(({ ctx, input }) => generateDeveloperCenterProposal({ ownerId: ctx.user.id, ...input })),
   }),
 });
 

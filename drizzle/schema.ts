@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -215,7 +215,9 @@ export const integrationPreferences = mysqlTable("integrationPreferences", {
 export const developerCenterProposals = mysqlTable("developerCenterProposals", {
   id: int("id").autoincrement().primaryKey(),
   ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
-  mode: mysqlEnum("mode", ["software", "website", "titles"]).notNull(),
+  mode: mysqlEnum("mode", ["software", "website", "titles", "security", "ai", "self-improvement"]).notNull(),
+  languageKey: varchar("languageKey", { length: 48 }).default("python").notNull(),
+  focus: mysqlEnum("focus", ["general", "security", "ai", "self-improvement"]).default("general").notNull(),
   brief: text("brief").notNull(),
   headline: varchar("headline", { length: 240 }).notNull(),
   proposalJson: text("proposalJson").notNull(),
@@ -224,6 +226,20 @@ export const developerCenterProposals = mysqlTable("developerCenterProposals", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
+
+export const developerReviewTasks = mysqlTable("developerReviewTasks", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  proposalId: int("proposalId").references(() => developerCenterProposals.id, { onDelete: "cascade" }),
+  taskKey: varchar("taskKey", { length: 80 }).notNull(),
+  category: mysqlEnum("category", ["analysis", "security", "testing", "ai", "architecture"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  objective: text("objective").notNull(),
+  requiresOwnerApproval: boolean("requiresOwnerApproval").default(true).notNull(),
+  status: mysqlEnum("status", ["proposed", "reviewed", "archived"]).default("proposed").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("developer_review_task_owner_key_unique").on(table.ownerId, table.taskKey)]);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
@@ -245,3 +261,4 @@ export type WebsiteBuild = typeof websiteBuilds.$inferSelect;
 export type DomainCatalogItem = typeof domainCatalogItems.$inferSelect;
 export type IntegrationPreference = typeof integrationPreferences.$inferSelect;
 export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSelect;
+export type DeveloperReviewTask = typeof developerReviewTasks.$inferSelect;

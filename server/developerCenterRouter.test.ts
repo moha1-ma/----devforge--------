@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const mocks = vi.hoisted(() => ({ listDeveloperCenterProposals: vi.fn(), generateDeveloperCenterProposal: vi.fn() }));
-vi.mock("./developerCenter", () => ({ listDeveloperCenterProposals: mocks.listDeveloperCenterProposals, generateDeveloperCenterProposal: mocks.generateDeveloperCenterProposal }));
+const mocks = vi.hoisted(() => ({ listDeveloperCenterProposals: vi.fn(), listDeveloperReviewTasks: vi.fn(), generateDeveloperCenterProposal: vi.fn() }));
+vi.mock("./developerCenter", () => ({ listDeveloperCenterProposals: mocks.listDeveloperCenterProposals, listDeveloperReviewTasks: mocks.listDeveloperReviewTasks, generateDeveloperCenterProposal: mocks.generateDeveloperCenterProposal }));
 
 import { ENV } from "./_core/env";
 import { appRouter } from "./routers";
@@ -22,6 +22,10 @@ describe("developerCenter router", () => {
 
     await expect(caller.developerCenter.list()).resolves.toEqual([]);
     expect(mocks.listDeveloperCenterProposals).toHaveBeenCalledWith(19);
+
+    mocks.listDeveloperReviewTasks.mockResolvedValue([]);
+    await expect(caller.developerCenter.listTasks()).resolves.toEqual([]);
+    expect(mocks.listDeveloperReviewTasks).toHaveBeenCalledWith(19);
   });
 
   it("rejects a different authenticated identity before reading any proposal", async () => {
