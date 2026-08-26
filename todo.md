@@ -163,3 +163,4 @@
 - [x] Add a functional visitor entry and messages surface to the public top navigation with professional status icons and accessible interaction states.
 - [x] Resolve direct-route 404 behavior by making public links compatible with the app’s hash routing and adding safe fallback guidance.
 - [x] Add tests for visitor isolation, messaging access, top-navigation actions, direct-route recovery, and iPhone usability.
+- [x] Connect each public capability card and action indicator to a safe, relevant DevForge route or an explicit available-state message, then test the behavior on desktop and iPhone.

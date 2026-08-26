@@ -35,5 +35,7 @@ describe("روابط الصفحة الرئيسية", () => {
     expect(screen.getByText("مراجعات منظمة")).toBeTruthy();
     expect(screen.getByRole("link", { name: "شارك" }).getAttribute("href")).toBe("#/share");
     expect(screen.getByRole("button", { name: /دخول الزوار/ })).toBeTruthy();
+    expect(screen.getByRole("link", { name: /فتح مسار المراجعة/ }).getAttribute("href")).toBe("#/plans");
+    expect(screen.getByRole("link", { name: /فتح مركز الجودة/ }).getAttribute("href")).toBe("#/developer-center");
   });
 });
