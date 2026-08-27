@@ -122,7 +122,7 @@
 - [x] Define a trusted-knowledge search policy for the AI assistant, including explicit user-triggered search, citations, source visibility, and no background browsing.
 - [x] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
 - [x] Improve assistant response quality with structured answer guidance, transparent source status, and graceful fallbacks when no external research source is authorized.
-- [ ] Test research-mode privacy, provider boundaries, mobile usability, and publish the assistant-quality upgrade.
+- [x] Test research-mode privacy, provider boundaries, mobile usability, and publish the assistant-quality upgrade.
 - [x] Audit the existing iOS companion source and define the App Store boundary: signed build, developer account, listing, privacy disclosures, and final submission remain owner-controlled external steps.
 - [x] Design a mobile educational home and website-marketplace experience that lists only transparent catalog information and does not fabricate listings, reviews, availability, or payments.
 - [x] Extend the iOS companion source with the educational and marketplace navigation plus App Store-ready metadata, without claiming a signed IPA or App Store publication.
