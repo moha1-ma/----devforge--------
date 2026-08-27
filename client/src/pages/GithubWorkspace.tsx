@@ -12,7 +12,7 @@ import { toast } from "sonner";
 export default function GithubWorkspace() {
   const { direction, t } = useLanguage();
   const utils = trpc.useUtils();
-  const { data: projects = [] } = trpc.projects.list.useQuery();
+  const { data: projects = [], isLoading: projectsLoading } = trpc.projects.list.useQuery();
   const [projectId, setProjectId] = useState<number | null>(null);
   const [repositoryFullName, setRepositoryFullName] = useState("");
   const [defaultBranch, setDefaultBranch] = useState("main");
@@ -40,10 +40,11 @@ export default function GithubWorkspace() {
   return (
     <DashboardLayout>
       <section dir={direction} className="space-y-6">
-        <div className="rounded-3xl border border-white/8 bg-gradient-to-l from-slate-900 to-slate-950 p-7">
+        <div className="rounded-3xl border border-white/8 bg-gradient-to-l from-slate-900 to-slate-950 p-5 sm:p-7">
           <Badge className="border border-white/15 bg-white/[0.07] text-white"><Github className="ml-1 h-3.5 w-3.5" /> {t("optionalGithub")}</Badge>
           <h1 className="mt-4 text-3xl font-bold text-white">{t("githubHero")}</h1>
           <p className="mt-3 max-w-3xl leading-8 text-slate-300">{t("githubHeroCopy")}</p>
+          <p role="status" className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 px-3 py-2 text-xs leading-6 text-cyan-100/85">اختيار المستودع يحفظ مرجعًا للمراجعة في DevForge فقط. لا يجري نسخًا أو استيرادًا أو كتابة أو دمجًا في GitHub تلقائيًا.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -53,11 +54,13 @@ export default function GithubWorkspace() {
         <section className="rounded-3xl border border-white/8 bg-white/[0.025] p-5 sm:p-6">
           <div className="flex items-center gap-3"><Github className="h-5 w-5 text-cyan-300" /><div><h2 className="font-bold text-white">{t("selectProjectRepository")}</h2><p className="mt-1 text-sm leading-6 text-slate-500">{t("selectRepositoryCopy")}</p></div></div>
           <form onSubmit={submit} className="mt-6 grid gap-4 md:grid-cols-[0.8fr_1.2fr_0.55fr_auto] md:items-end">
-            <div className="space-y-2"><Label htmlFor="github-project">{t("project")}</Label><select id="github-project" value={projectId ?? ""} onChange={event => setProjectId(Number(event.target.value))} className="h-11 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white"><option value="">{t("selectProject")}</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select></div>
+            <div className="space-y-2"><Label htmlFor="github-project">{t("project")}</Label><select id="github-project" value={projectId ?? ""} onChange={event => setProjectId(event.target.value ? Number(event.target.value) : null)} disabled={projectsLoading || !projects.length} className="h-11 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white disabled:cursor-not-allowed disabled:opacity-60"><option value="">{projectsLoading ? "يجري تحميل المشاريع…" : t("selectProject")}</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name}</option>)}</select>{!projectsLoading && !projects.length ? <p className="text-xs leading-5 text-amber-200">أنشئ مشروع DevForge أولًا ثم اختر المستودع الذي تريد مراجعته.</p> : null}</div>
             <div className="space-y-2"><Label htmlFor="github-repository">{t("repository")}</Label><Input id="github-repository" value={repositoryFullName} onChange={event => setRepositoryFullName(event.target.value)} placeholder="owner/repository or https://github.com/owner/repository" autoCapitalize="none" autoCorrect="off" className="h-11 border-white/10 bg-white/5 font-mono text-white" required /><p className="text-xs leading-5 text-slate-500">{t("githubUrlNormalized")} <span className="font-mono">owner/repository</span>.</p></div>
             <div className="space-y-2"><Label htmlFor="github-branch">{t("branchName")}</Label><Input id="github-branch" value={defaultBranch} onChange={event => setDefaultBranch(event.target.value)} autoCapitalize="none" autoCorrect="off" className="h-11 border-white/10 bg-white/5 font-mono text-white" required /></div>
-            <Button type="submit" disabled={!projectId || selectRepository.isPending} className="h-11 bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{t("saveSelection")}</Button>
+            <Button type="submit" disabled={!projectId || !repositoryFullName.trim() || !defaultBranch.trim() || selectRepository.isPending} className="h-11 bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{selectRepository.isPending ? "يجري حفظ المرجع…" : t("saveSelection")}</Button>
           </form>
+          {projectId && link.isLoading ? <p role="status" className="mt-4 rounded-xl border border-white/8 bg-white/[0.025] p-3 text-sm text-slate-400">يجري قراءة مرجع المستودع المحفوظ لهذه المساحة…</p> : null}
+          {projectId && link.isError ? <section role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/5 p-3 text-sm leading-7 text-rose-100"><p>تعذر قراءة مرجع المستودع الآن. لم تُجرَ أي عملية على GitHub.</p><Button type="button" size="sm" variant="outline" className="mt-3 border-rose-300/25 text-rose-100 hover:bg-rose-300/10 hover:text-rose-50" onClick={() => void link.refetch()}>إعادة تحميل المرجع</Button></section> : null}
           {link.data && <div className="mt-5 rounded-2xl border border-cyan-300/15 bg-cyan-300/5 p-4 text-sm text-cyan-100"><CheckCircle2 className="ml-2 inline h-4 w-4" /> {t("savedRepository")}: <span className="font-mono">{link.data.repositoryFullName}</span> · {t("branchName")} <span className="font-mono">{link.data.defaultBranch}</span> · {t("status")}: {t("pendingGithubAuth")}</div>}
         </section>
 

@@ -6,6 +6,8 @@ import AiWorkspace from "./AiWorkspace";
 
 let askMutate: ReturnType<typeof vi.fn>;
 let askOptions: { onSuccess?: (result: any) => Promise<void>; onError?: (error: Error) => void } | undefined;
+let threadsQuery: any;
+let messagesQuery: any;
 vi.mock("@/components/DashboardLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
 vi.mock("@/components/AIChatBox", () => ({ AIChatBox: ({ onSendMessage }: { onSendMessage: (text: string) => void }) => <button onClick={() => onSendMessage("اختبر الرد")}>إرسال للمساعد</button> }));
 vi.mock("@/lib/trpc", () => ({
@@ -13,8 +15,8 @@ vi.mock("@/lib/trpc", () => ({
     useUtils: () => ({ aiWorkspace: { listThreads: { invalidate: vi.fn() }, messages: { invalidate: vi.fn() } } }),
     projects: { list: { useQuery: () => ({ data: [] }) } },
     aiWorkspace: {
-      listThreads: { useQuery: () => ({ data: [{ id: 1, title: "مراجعة مستودع", provider: "managed" }] }) },
-      messages: { useQuery: () => ({ data: [] }) },
+      listThreads: { useQuery: () => threadsQuery },
+      messages: { useQuery: () => messagesQuery },
       createThread: { useMutation: () => ({ mutate: vi.fn() }) },
       ask: { useMutation: (options: typeof askOptions) => { askOptions = options; return { mutate: askMutate, isPending: false }; } },
     },
@@ -24,13 +26,14 @@ vi.mock("@/lib/trpc", () => ({
 
 describe("AiWorkspace", () => {
   afterEach(cleanup);
-  beforeEach(() => { askMutate = vi.fn(); askOptions = undefined; });
+  beforeEach(() => { askMutate = vi.fn(); askOptions = undefined; threadsQuery = { data: [{ id: 1, title: "مراجعة مستودع", provider: "managed" }], isLoading: false, isError: false, refetch: vi.fn() }; messagesQuery = { data: [], isLoading: false, isError: false, refetch: vi.fn() }; });
   it("renders the request-triggered managed assistant disclosure", () => {
     render(<LanguageProvider><AiWorkspace /></LanguageProvider>);
     expect(screen.getByText(/يُستدعى النموذج المُدار من الخادم فقط عند ضغط إرسال/)).toBeTruthy();
     expect(screen.getByText(/استخدام مُدار عند الطلب/)).toBeTruthy();
     expect(screen.getByText("سياق GitHub اختياري")).toBeTruthy();
     expect(screen.getByText(/لا يقرأ ملفات GitHub ولا يكتب أو يدفع أي تغييرات/)).toBeTruthy();
+    expect(screen.getByText(/يُستدعى النموذج المُدار فقط بعد إرسال رسالة منك/)).toBeTruthy();
   });
 
   it("keeps research explicit and records the requested mode with source disclosure", () => {
@@ -62,5 +65,30 @@ describe("AiWorkspace", () => {
     expect(retry.className).toContain("sm:w-auto");
     fireEvent.click(retry);
     expect(askMutate).toHaveBeenLastCalledWith(expect.objectContaining({ threadId: 1, content: "اختبر الرد", researchMode: "trusted-web" }));
+  });
+
+  it("surfaces private thread and message loading failures with a manual retry and no data-loss claim", () => {
+    const refetchThreads = vi.fn();
+    threadsQuery = { data: [], isLoading: false, isError: true, refetch: refetchThreads };
+    render(<LanguageProvider><AiWorkspace /></LanguageProvider>);
+    expect(screen.getByRole("alert").textContent).toContain("لم تُحذف أي رسالة");
+    fireEvent.click(screen.getByRole("button", { name: "إعادة المحاولة" }));
+    expect(refetchThreads).toHaveBeenCalledOnce();
+    cleanup();
+    const refetchMessages = vi.fn();
+    threadsQuery = { data: [{ id: 1, title: "مراجعة مستودع", provider: "managed" }], isLoading: false, isError: false, refetch: vi.fn() };
+    messagesQuery = { data: [], isLoading: false, isError: true, refetch: refetchMessages };
+    render(<LanguageProvider><AiWorkspace /></LanguageProvider>);
+    expect(screen.getByRole("alert").textContent).toContain("تعذر تحميل سجل هذه المحادثة");
+    fireEvent.click(screen.getByRole("button", { name: "إعادة تحميل الرسائل" }));
+    expect(refetchMessages).toHaveBeenCalledOnce();
+  });
+
+  it("retries a standard assistant request only after the owner presses the retry control", () => {
+    render(<LanguageProvider><AiWorkspace /></LanguageProvider>);
+    fireEvent.click(screen.getByText("إرسال للمساعد"));
+    act(() => { askOptions?.onError?.(new Error("تعذر إنشاء الرد")); });
+    fireEvent.click(screen.getByRole("button", { name: "إعادة إرسال الطلب" }));
+    expect(askMutate).toHaveBeenLastCalledWith(expect.objectContaining({ threadId: 1, content: "اختبر الرد", researchMode: "off" }));
   });
 });

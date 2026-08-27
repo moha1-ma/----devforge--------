@@ -15,7 +15,7 @@ import { toast } from "sonner";
 export default function AiWorkspace() {
   const { direction, t } = useLanguage();
   const utils = trpc.useUtils();
-  const { data: threads = [] } = trpc.aiWorkspace.listThreads.useQuery();
+  const { data: threads = [], isLoading: threadsLoading, isError: threadsFailed, refetch: refetchThreads } = trpc.aiWorkspace.listThreads.useQuery();
   const { data: projects = [] } = trpc.projects.list.useQuery();
   const [threadId, setThreadId] = useState<number | null>(null);
   const [title, setTitle] = useState("مناقشة تقنية جديدة");
@@ -25,7 +25,7 @@ export default function AiWorkspace() {
   const [useGithubContext, setUseGithubContext] = useState(false);
   const [researchMode, setResearchMode] = useState<"off" | "trusted-web">("off");
   const [researchResult, setResearchResult] = useState<{ disclosure: string; sources: string[] } | null>(null);
-  const [lastResearchRequest, setLastResearchRequest] = useState<{ threadId: number; content: string; githubProjectId?: number; researchMode: "trusted-web" } | null>(null);
+  const [lastAssistantRequest, setLastAssistantRequest] = useState<{ threadId: number; content: string; githubProjectId?: number; researchMode: "off" | "trusted-web" } | null>(null);
   const githubLink = trpc.githubWorkspace.getLink.useQuery({ projectId: githubProjectId ?? 0 }, { enabled: Boolean(githubProjectId) });
 
   useEffect(() => { if (!threadId && threads[0]) setThreadId(threads[0].id); }, [threadId, threads]);
@@ -47,6 +47,7 @@ export default function AiWorkspace() {
           <Badge className="border border-violet-300/20 bg-violet-300/10 text-violet-100"><LockKeyhole className="ml-1 h-3.5 w-3.5" /> {t("privateOwnerChat")}</Badge>
           <h1 className="mt-4 text-2xl font-bold text-white sm:text-3xl">{t("aiTitle")}</h1>
           <p className="mt-3 max-w-3xl leading-8 text-slate-300">{t("aiIntro")}</p>
+          <p role="status" aria-live="polite" className="mt-4 rounded-xl border border-violet-300/15 bg-slate-950/25 px-3 py-2 text-xs leading-6 text-violet-100/80">{askAssistant.isPending ? "يجري إعداد الرد الذي طلبته الآن. لا تُرسل المنصة طلبات جديدة في الخلفية." : "يُستدعى النموذج المُدار فقط بعد إرسال رسالة منك؛ لا تُحفظ مفاتيح مزود خارجي في الواجهة."}</p>
         </div>
 
         <div className="grid min-h-[520px] gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -62,13 +63,15 @@ export default function AiWorkspace() {
               </DialogContent>
             </Dialog>
             <div className="mt-4 space-y-2">
-              {threads.length ? threads.map(thread => <button key={thread.id} onClick={() => setThreadId(thread.id)} className={`w-full rounded-xl p-3 text-right ${threadId === thread.id ? "bg-violet-300/12 text-violet-100" : "text-slate-400 hover:bg-white/6"}`}><p className="truncate text-sm font-semibold">{thread.title}</p><p className="mt-1 text-[11px] text-slate-600">{thread.provider === "managed" ? t("managedAssistant") : t("previousRecord")}</p></button>) : <p className="rounded-xl border border-dashed border-white/10 p-4 text-sm leading-7 text-slate-600">{t("threadEmpty")}</p>}
+              {threadsLoading ? <p role="status" className="rounded-xl border border-white/8 bg-white/[0.025] p-4 text-sm leading-7 text-slate-400">يجري تحميل المحادثات الخاصة…</p> : threadsFailed ? <div role="alert" className="rounded-xl border border-rose-300/20 bg-rose-300/5 p-4 text-sm leading-7 text-rose-100"><p>تعذر تحميل المحادثات الآن. لم تُحذف أي رسالة.</p><Button type="button" variant="outline" size="sm" className="mt-3 border-rose-300/25 text-rose-100 hover:bg-rose-300/10 hover:text-rose-50" onClick={() => void refetchThreads()}>إعادة المحاولة</Button></div> : threads.length ? threads.map(thread => <button key={thread.id} onClick={() => setThreadId(thread.id)} className={`w-full rounded-xl p-3 text-right ${threadId === thread.id ? "bg-violet-300/12 text-violet-100" : "text-slate-400 hover:bg-white/6"}`}><p className="truncate text-sm font-semibold">{thread.title}</p><p className="mt-1 text-[11px] text-slate-600">{thread.provider === "managed" ? t("managedAssistant") : t("previousRecord")}</p></button>) : <p className="rounded-xl border border-dashed border-white/10 p-4 text-sm leading-7 text-slate-600">{t("threadEmpty")}</p>}
             </div>
           </aside>
 
           <article className="min-w-0 rounded-3xl border border-white/8 bg-slate-950/50 p-4 sm:p-6">
             {threadId ? <>
               <div className="flex items-center gap-3"><Bot className="h-6 w-6 text-violet-300" /><div><h2 className="font-bold text-white">{t("ownerChat")}</h2><p className="mt-1 text-sm text-slate-500">{t("aiNoExternal")}</p></div></div>
+              {messages.isLoading ? <p role="status" className="mt-4 rounded-xl border border-violet-300/15 bg-violet-300/5 p-3 text-sm leading-7 text-violet-100">يجري تحميل الرسائل الخاصة…</p> : null}
+              {messages.isError ? <section role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/5 p-3 text-sm leading-7 text-rose-100"><p>تعذر تحميل سجل هذه المحادثة. لم تُجرَ أي عملية خارجية.</p><Button type="button" variant="outline" size="sm" className="mt-3 border-rose-300/25 text-rose-100 hover:bg-rose-300/10 hover:text-rose-50" onClick={() => void messages.refetch()}>إعادة تحميل الرسائل</Button></section> : null}
 
               <section className="mt-5 rounded-2xl border border-white/8 bg-white/[0.025] p-4" aria-label={t("githubContext")}>
                 <div className="flex items-start gap-3"><Github className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" /><div className="min-w-0 flex-1"><h3 className="font-bold text-white">{t("githubContext")}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{t("githubContextCopy")}</p></div></div>
@@ -85,10 +88,10 @@ export default function AiWorkspace() {
 
               <section className="mt-4 flex gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" /><div><h3 className="font-bold text-white">{t("qualityAnswer")}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{t("qualityAnswerCopy")}</p></div></section>
 
-              {assistantError && <section role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/5 p-3 text-sm text-rose-100"><p>{assistantError}</p>{lastResearchRequest ? <Button type="button" variant="outline" size="sm" className="mt-3 w-full border-rose-300/25 text-rose-100 hover:bg-rose-300/10 hover:text-rose-50 sm:w-auto" disabled={askAssistant.isPending} onClick={() => { setAssistantError(""); askAssistant.mutate(lastResearchRequest); }}>إعادة محاولة البحث الموثق</Button> : null}</section>}
+              {assistantError && <section role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/5 p-3 text-sm text-rose-100"><p>{assistantError}</p>{lastAssistantRequest ? <Button type="button" variant="outline" size="sm" className="mt-3 w-full border-rose-300/25 text-rose-100 hover:bg-rose-300/10 hover:text-rose-50 sm:w-auto" disabled={askAssistant.isPending} onClick={() => { setAssistantError(""); askAssistant.mutate(lastAssistantRequest); }}>{lastAssistantRequest.researchMode === "trusted-web" ? "إعادة محاولة البحث الموثق" : "إعادة إرسال الطلب"}</Button> : null}</section>}
               {researchResult && <section className="mt-4 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.035] p-4" aria-label="مصادر البحث"><h3 className="font-bold text-emerald-100">حالة مصادر البحث</h3><p className="mt-1 text-sm leading-6 text-emerald-100/75">{researchResult.disclosure}</p>{researchResult.sources.length ? <div className="mt-3 flex flex-wrap gap-2">{researchResult.sources.map(source => <a key={source} href={source} target="_blank" rel="noreferrer" className="max-w-full truncate rounded-lg border border-emerald-300/20 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-300/10">{source}</a>)}</div> : null}</section>}
               {selectedGithubLink ? <p className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-3 text-xs leading-6 text-cyan-100">{t("githubAttached")}: <span className="font-mono">{selectedGithubLink.repositoryFullName}@{selectedGithubLink.defaultBranch}</span>. {t("noFetchGithub")}</p> : null}
-              <AIChatBox messages={(messages.data ?? []).map(message => ({ role: message.role, content: message.content }))} onSendMessage={(content: string) => { const request = { threadId, content, githubProjectId: selectedGithubLink ? githubProjectId ?? undefined : undefined, researchMode }; setAssistantError(""); setResearchResult(null); setLastResearchRequest(researchMode === "trusted-web" ? { ...request, researchMode: "trusted-web" } : null); askAssistant.mutate(request); }} isLoading={askAssistant.isPending} height="min(56vh, 540px)" placeholder={t("promptPlaceholder")} emptyStateMessage={t("chatEmpty")} suggestedPrompts={[t("promptWebsite"), t("promptReview"), t("promptApi")]} />
+              <AIChatBox messages={(messages.data ?? []).map(message => ({ role: message.role, content: message.content }))} onSendMessage={(content: string) => { const request = { threadId, content, githubProjectId: selectedGithubLink ? githubProjectId ?? undefined : undefined, researchMode }; setAssistantError(""); setResearchResult(null); setLastAssistantRequest(request); askAssistant.mutate(request); }} isLoading={askAssistant.isPending} height="min(56vh, 540px)" placeholder={t("promptPlaceholder")} emptyStateMessage={t("chatEmpty")} suggestedPrompts={[t("promptWebsite"), t("promptReview"), t("promptApi")]} />
             </> : <div className="grid h-full place-items-center text-center"><div><Sparkles className="mx-auto h-8 w-8 text-violet-300" /><h2 className="mt-4 font-bold text-white">{t("startPrivateChat")}</h2><p className="mt-2 max-w-md text-sm leading-7 text-slate-500">{t("startPrivateChatCopy")}</p></div></div>}
           </article>
         </div>

@@ -65,7 +65,7 @@
 - [x] Fix the reported iPhone layout overflow: replace the desktop sidebar behavior with a mobile-safe navigation pattern and give private pages full-width content.
 - [ ] Verify the repaired plans and Website Studio layouts at an iPhone viewport, then publish the mobile fix.
 - [x] Replace the disabled AI-notes behavior with an owner-scoped server-side assistant that responds only after user submission and discloses managed-model usage.
-- [ ] Add mobile-friendly AI chat states, usage disclosure, error handling, tests, and publish verification.
+- [x] Add mobile-friendly AI chat states, usage disclosure, error handling, tests, and publish verification.
 - [x] Define a transparent domain-catalog model for 20 proposed names, explicitly separated from verified registration, availability, and payment.
 - [x] Add a private domain-catalog record model and owner-scoped procedures for browsing and updating readiness states.
 - [x] Build a mobile-friendly Domain Gallery with 20 proposed names, filtering, verification preparation, and no misleading sale/availability claims.
@@ -240,3 +240,7 @@
 - [x] Add an owner-only continuity dashboard that reports the current platform health signal, controlled recovery guidance, and a local JavaScript diagnostic handoff without executing remediation automatically.
 - [x] Add a curated reliability-services catalog with official documentation and review-only connection requests, without claiming that every service is free, connected, or continuously monitoring.
 - [x] Add tests proving continuity status is owner-scoped, health probes remain bounded and read-only, and recovery proposals never execute or publish automatically.
+- [x] Improve the owner GitHub workspace entry with explicit repository-selection, review-plan, and manual-action states that remain clear on mobile.
+- [x] Add regression tests proving the GitHub workspace never clones, imports, pushes, merges, or writes to repositories without an explicit owner-approved workflow.
+- [ ] Verify the latest published `#/ai` route reaches its intended unauthenticated owner gate after the mobile-state update, without testing private content or invoking the model.
+- [x] Strengthen GitHub workspace regression tests to assert that selection and review-plan preparation do not invoke import, export, merge-save, clone, push, or other external-write procedures.
