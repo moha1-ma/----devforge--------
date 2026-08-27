@@ -16,6 +16,7 @@ import { WebView } from "react-native-webview";
 import { DEVFORGE_ORIGIN, isTrustedDevForgeNavigation, makeWorkspaceUrl, type DevForgeRoute } from "./lib/devforgeRoutes";
 import { mobileHomeSections } from "./lib/homeSections";
 import { createNativeBriefRecord, NATIVE_BRIEF_MAX_LENGTH, NATIVE_BRIEF_STORAGE_KEY, parseNativeBriefRecord } from "./lib/nativeBrief";
+import { WEB_PREVIEW_TIMEOUT_MS, completePreview, failPreview, retryPreview, startPreview } from "./lib/previewState";
 
 type WorkspaceTarget = {
   title: string;
@@ -36,8 +37,7 @@ const quickAccess: WorkspaceTarget[] = [
 
 export default function App() {
   const [activeTarget, setActiveTarget] = useState<WorkspaceTarget | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [webError, setWebError] = useState<string | null>(null);
+  const [preview, setPreview] = useState(() => startPreview());
   const workspaceUrl = useMemo(() => (activeTarget ? makeWorkspaceUrl(activeTarget.route) : null), [activeTarget]);
   const [nativeBrief, setNativeBrief] = useState("");
   const [briefStatus, setBriefStatus] = useState("يُحفظ هذا الموجز على جهازك فقط.");
@@ -63,6 +63,12 @@ export default function App() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!activeTarget || !workspaceUrl || !preview.loading) return;
+    const timeout = setTimeout(() => setPreview((current) => current.loading ? failPreview(current, "timeout") : current), WEB_PREVIEW_TIMEOUT_MS);
+    return () => clearTimeout(timeout);
+  }, [activeTarget, preview.attempt, preview.loading, workspaceUrl]);
 
   const saveNativeBrief = async () => {
     const result = createNativeBriefRecord(nativeBrief);
@@ -103,17 +109,18 @@ export default function App() {
       Alert.alert("يتطلب رابطًا منشورًا", "اربط التطبيق بعنوان HTTPS الخاص بهذه النسخة من DevForge عبر EXPO_PUBLIC_DEVFORGE_ORIGIN قبل فتح مساحة العمل.");
       return;
     }
-    setWebError(null);
-    setIsLoading(true);
+    setPreview((current) => startPreview(current.attempt));
     setActiveTarget(target);
   };
+  const returnToHome = () => { setActiveTarget(null); setPreview((current) => completePreview(current)); };
+  const retryWorkspace = () => setPreview((current) => retryPreview(current));
 
   if (activeTarget && workspaceUrl) {
     return (
       <SafeAreaView style={styles.workspaceScreen}>
         <StatusBar style="light" />
         <View style={styles.workspaceHeader}>
-          <Pressable accessibilityRole="button" accessibilityLabel="العودة إلى لوحة DevForge" onPress={() => setActiveTarget(null)} style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="العودة إلى لوحة DevForge" onPress={returnToHome} style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}>
             <Text style={styles.backButtonText}>العودة</Text>
           </Pressable>
           <View style={styles.workspaceHeading}>
@@ -122,7 +129,8 @@ export default function App() {
           </View>
         </View>
         <View style={styles.webViewFrame}>
-          <WebView
+          {preview.error ? <View style={styles.webFailure}><Text style={styles.webFailureTitle}>تعذر إكمال المعاينة</Text><Text style={styles.webErrorText}>{preview.error}</Text><View style={styles.webFailureActions}><Pressable accessibilityRole="button" accessibilityLabel="إعادة محاولة المعاينة" onPress={retryWorkspace} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}><Text style={styles.retryButtonText}>إعادة المحاولة</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="العودة إلى لوحة DevForge" onPress={returnToHome} style={({ pressed }) => [styles.returnButton, pressed && styles.pressed]}><Text style={styles.returnButtonText}>العودة</Text></Pressable></View></View> : <WebView
+            key={preview.attempt}
             source={{ uri: workspaceUrl }}
             originWhitelist={["https://*", "http://*"]}
             javaScriptEnabled
@@ -138,22 +146,19 @@ export default function App() {
               </View>
             )}
             onLoadStart={() => {
-              setWebError(null);
-              setIsLoading(true);
+              setPreview((current) => startPreview(current.attempt));
             }}
-            onLoadEnd={() => setIsLoading(false)}
+            onLoadEnd={() => setPreview((current) => completePreview(current))}
             onError={() => {
-              setIsLoading(false);
-              setWebError("تعذر فتح منصة DevForge. تحقق من اتصالك ومن أن الرابط المنشور صحيح، ثم حاول مرة أخرى.");
+              setPreview((current) => failPreview(current, "network"));
             }}
             onShouldStartLoadWithRequest={(request) => {
               const isAllowed = isTrustedDevForgeNavigation(request.url);
               if (!isAllowed) Alert.alert("رابط غير موثوق", "يسمح التطبيق فقط بمنصة DevForge المحددة وصفحات تسجيل الدخول الرسمية.");
               return isAllowed;
             }}
-          />
-          {isLoading ? <View pointerEvents="none" style={styles.loadingLine} /> : null}
-          {webError ? <View style={styles.webError}><Text style={styles.webErrorText}>{webError}</Text></View> : null}
+          />}
+          {preview.loading ? <View pointerEvents="none" style={styles.loadingLine} /> : null}
         </View>
       </SafeAreaView>
     );
@@ -236,7 +241,7 @@ export default function App() {
 
         <View style={styles.notice}>
           <Text style={styles.noticeTitle}>الخصوصية أولًا</Text>
-          <Text style={styles.noticeText}>لا يخزن هذا التطبيق كلمة مرورك أو رمز المالك أو مفاتيح الخدمات. تسجيل الدخول يبقى ضمن صفحة DevForge الآمنة.</Text>
+          <Text style={styles.noticeText}>لا يخزن هذا التطبيق كلمة مرورك أو رمز المالك أو مفاتيح الخدمات. تسجيل الدخول يبقى ضمن صفحة DevForge الآمنة. أدوات JavaScript التشخيصية وأي اقتران طرفية مستقبلي تخص المالك ولا تمنح تحكمًا دائمًا في هاتفك.</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -294,8 +299,14 @@ const styles = StyleSheet.create({
   webLoading: { alignItems: "center", backgroundColor: "#071A2B", flex: 1, gap: 14, justifyContent: "center" },
   webLoadingText: { color: "#C5D5E4", fontSize: 14 },
   loadingLine: { backgroundColor: "#37D6C0", height: 3, left: 0, position: "absolute", right: 0, top: 0 },
-  webError: { backgroundColor: "#3A1730", borderColor: "#CA668F", borderRadius: 12, borderWidth: 1, bottom: 18, left: 18, padding: 14, position: "absolute", right: 18 },
+  webFailure: { alignItems: "stretch", backgroundColor: "#0B2237", flex: 1, justifyContent: "center", padding: 24 },
+  webFailureTitle: { color: "#F5FAFF", fontSize: 20, fontWeight: "900", textAlign: "right" },
   webErrorText: { color: "#FFE7EF", fontSize: 13, lineHeight: 20, textAlign: "right" },
+  webFailureActions: { flexDirection: "row-reverse", gap: 10, marginTop: 20 },
+  retryButton: { alignItems: "center", backgroundColor: "#37D6C0", borderRadius: 12, flex: 1, paddingVertical: 13 },
+  retryButtonText: { color: "#06242C", fontSize: 14, fontWeight: "900" },
+  returnButton: { alignItems: "center", borderColor: "#51828A", borderRadius: 12, borderWidth: 1, flex: 1, paddingVertical: 13 },
+  returnButtonText: { color: "#D8EFF1", fontSize: 14, fontWeight: "800" },
   configurationNotice: { backgroundColor: "#183449", borderColor: "#3C6C83", borderRadius: 16, borderWidth: 1, marginTop: 20, padding: 16 },
   configurationNoticeTitle: { color: "#DFF8FF", fontSize: 14, fontWeight: "900", textAlign: "right" },
   configurationNoticeText: { color: "#B9D5E2", fontSize: 13, lineHeight: 21, marginTop: 6, textAlign: "right" },

@@ -211,3 +211,7 @@
 - [x] Design and implement a genuinely empty marketplace foundation that can accept future owner-created stores without fabricating users, stores, reviews, inventory, or payments.
 - [x] Evaluate safe persistent execution and device-terminal integration options without granting unattended access to accounts, devices, secrets, or financial actions.
 - [x] Document the owner-controlled financial-account and payment-connection boundary; do not create accounts, submit identity information, or initiate transfers.
+- [ ] Make the visible dashboard notifications control provide an explicit accessible unavailable-state message until a real notifications inbox is implemented.
+- [x] Replace the mobile companion’s indefinite preview loader with a bounded timeout, retry, and safe return path that does not expose developer tools to ordinary users.
+- [x] Add native-app tests for the preview timeout, retry action, and offline/error message without making external network requests.
+- [x] Clarify in the mobile companion that JavaScript experimentation and any future terminal pairing are owner-only tools, never an unattended device-control channel.
