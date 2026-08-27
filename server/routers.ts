@@ -14,6 +14,7 @@ import { verifyGithubImportForOwner } from "./githubImportVerification";
 import { addSupabaseStarter, createWebsiteBuild, listWebsiteBuilds, prepareWebsiteDomain } from "./websiteBuilder";
 import { listOwnerDomainCatalog, seedOwnerDomainCatalog, updateOwnerDomainStatus } from "./domainCatalog";
 import { listIntegrationPreferences, requestIntegrationPreference } from "./integrationCenter";
+import { listGlobalResearchSources, searchGlobalResearch } from "./globalResearch";
 import { researchModes } from "./aiResearchPolicy";
 import { developerCenterFocuses, developerCenterModes } from "./developerCenterPolicy";
 import { generateDeveloperCenterProposal, listDeveloperCenterProposals, listDeveloperReviewTasks } from "./developerCenter";
@@ -129,6 +130,10 @@ export const appRouter = router({
   integrationCenter: router({
     list: protectedProcedure.query(({ ctx }) => listIntegrationPreferences(ctx.user.id)),
     request: protectedProcedure.input(z.object({ providerKey: z.string().trim().min(2).max(80) })).mutation(({ ctx, input }) => requestIntegrationPreference({ ownerId: ctx.user.id, ...input })),
+  }),
+  globalResearch: router({
+    catalog: ownerProcedure.query(() => listGlobalResearchSources()),
+    search: ownerProcedure.input(z.object({ source: z.enum(["openalex", "crossref", "wikidata"]), query: z.string().trim().min(1).max(180) })).mutation(({ input }) => searchGlobalResearch(input)),
   }),
   websiteBuilder: router({
     list: protectedProcedure.query(({ ctx }) => listWebsiteBuilds(ctx.user.id)),

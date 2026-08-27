@@ -27,6 +27,7 @@ import JavaScriptWorkstation from "./pages/JavaScriptWorkstation";
 import PeriodicDevelopmentCenter from "./pages/PeriodicDevelopmentCenter";
 import Workspace from "./pages/Workspace";
 import ApiReferencePage from "./pages/ApiReferencePage";
+import GlobalResearchHub from "./pages/GlobalResearchHub";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/javascript-lab" component={JavaScriptWorkstation} />
         <Route path="/periodic-development" component={PeriodicDevelopmentCenter} />
         <Route path="/api" component={ApiReferencePage} />
+        <Route path="/global-research" component={GlobalResearchHub} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

@@ -201,3 +201,7 @@
 - [x] Add a rendered mobile-safe test for the trusted-web retry state and source-disclosure boundary.
 - [x] Prevent the API reference anchor from being interpreted as an invalid hash route, and provide a stable visible route to the public API reference.
 - [x] Add a routing regression test for the API reference entry point under hash-based navigation.
+- [x] Research and document verified public-interest data and search sources suitable for an owner-controlled DevForge catalog, including access and attribution boundaries.
+- [x] Build an owner-only global research hub that lets the owner choose vetted sources and open a query inside the platform without external write actions.
+- [x] Add a curated global API catalog that distinguishes public/no-key reference links from owner-configured connections, without embedding provider credentials.
+- [x] Add tests for owner-only access, safe outbound query URLs, source disclosure, and mobile rendering of the research hub.

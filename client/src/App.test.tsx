@@ -23,6 +23,7 @@ vi.mock("./pages/CommunityReviewCenter", () => ({ default: () => <div>مراجع
 vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة JavaScript</div> }));
 vi.mock("./pages/PeriodicDevelopmentCenter", () => ({ default: () => <div>مسودات دورية</div> }));
 vi.mock("./pages/ApiReferencePage", () => ({ default: () => <div>مرجع API عام</div> }));
+vi.mock("./pages/GlobalResearchHub", () => ({ default: () => <div>مركز بحث عالمي</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -85,5 +86,11 @@ describe("DevForge hash routing", () => {
     window.location.hash = "#/api";
     render(<App />);
     expect(screen.getByText("مرجع API عام")).toBeTruthy();
+  });
+
+  it("loads the owner global research hub from its hash URL", () => {
+    window.location.hash = "#/global-research";
+    render(<App />);
+    expect(screen.getByText("مركز بحث عالمي")).toBeTruthy();
   });
 });
