@@ -14,6 +14,8 @@ describe("IntegrationCenter", () => {
     render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
     expect(screen.getByText(/لا تعني البطاقة أن الحساب متصل/)).toBeTruthy();
     expect(screen.getByText(/لا تُحفظ كلمات المرور أو المفاتيح/)).toBeTruthy();
+    expect(screen.getAllByText("لا يلزم الدفع لتشغيل وظائف DevForge الأساسية").length).toBeGreaterThan(0);
+    expect(screen.getByText(/الخدمات الخارجية اختيارية/)).toBeTruthy();
     expect(screen.getByText("GitHub")).toBeTruthy();
   });
 
@@ -39,6 +41,9 @@ describe("IntegrationCenter", () => {
     expect(screen.getByText("Replit")).toBeTruthy();
     expect(screen.getByText("GitHub Codespaces")).toBeTruthy();
     expect(screen.getByText("StackBlitz")).toBeTruthy();
+    expect(screen.getByText("CodePen")).toBeTruthy();
+    expect(screen.getByText("JSFiddle")).toBeTruthy();
+    expect(screen.getAllByText("خيار مجاني أو طبقة مجانية").length).toBeGreaterThan(0);
     expect(screen.getByText(/لا ينشئ DevForge مساحة Replit/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "توثيق Replit" }).getAttribute("href")).toBe("https://docs.replit.com/features/integrations/overview");
   });

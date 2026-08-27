@@ -33,6 +33,8 @@ import MarketplaceReviewCenter from "./pages/MarketplaceReviewCenter";
 import AiTaskRouter from "./pages/AiTaskRouter";
 import TechnicalPartnerHub from "./pages/TechnicalPartnerHub";
 import ContinuityCenter from "./pages/ContinuityCenter";
+import ApiControlCenter from "./pages/ApiControlCenter";
+import MiniWorkstations from "./pages/MiniWorkstations";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -70,6 +72,8 @@ function AppRoutes() {
         <Route path="/ai-router" component={AiTaskRouter} />
         <Route path="/partners" component={TechnicalPartnerHub} />
         <Route path="/continuity" component={ContinuityCenter} />
+        <Route path="/api-control" component={ApiControlCenter} />
+        <Route path="/mini-workstations" component={MiniWorkstations} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

@@ -120,6 +120,9 @@
 - [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
 - [x] Add reviewed Arabic and English interface copy for the owner AI task router without translating task input or generated private workstreams.
+- [x] Add reviewed Arabic and English interface copy for the owner global research hub without translating research queries, source results, or error text returned by external sources.
+- [ ] Replace remaining hardcoded catalog, result-source, and empty-state interface strings in the Global Research Hub with reviewed Arabic and English keys, while preserving research queries and external-source text unchanged.
+- [ ] Expand Global Research Hub language tests to verify catalog labels, result labels, source-link labels, and empty states render in English without invoking a search.
 - [x] Add a responsive Instagram-inspired community feed section near the public page footer that renders only genuine approved submissions and never fabricates posts, creators, reactions, or engagement counts.
 - [x] Add a visitor submission path for permitted video uploads and media references, retaining consent, moderation, reporting, and privacy safeguards before any public appearance.
 - [x] Add a documented-news area that contains only verified source links and clear scope text; do not invent headlines or claim real-time coverage without a source.
@@ -253,3 +256,23 @@
 - [x] Add regression tests proving the GitHub workspace never clones, imports, pushes, merges, or writes to repositories without an explicit owner-approved workflow.
 - [x] Verify the latest published `#/ai` route reaches its intended unauthenticated owner gate after the mobile-state update, without testing private content or invoking the model.
 - [x] Strengthen GitHub workspace regression tests to assert that selection and review-plan preparation do not invoke import, export, merge-save, clone, push, or other external-write procedures.
+- [x] Audit user-facing DevForge paths to confirm core workspace, community, review, and local JavaScript flows do not require payment or financial setup.
+- [x] Expand the documented JavaScript and development-platform catalog with clearly labeled free or free-tier options, without promising permanent free availability or creating external accounts.
+- [x] Add clear copy that external provider connections, paid services, payments, and transfers are optional and never initiated by DevForge without an explicit owner action.
+- [x] Add tests covering the non-payment and manual-connection disclosure in the relevant public and owner interfaces.
+- [x] Audit user-facing DevForge branding and runtime references to remove nonessential Manus presentation while retaining the managed hosting, authentication, and secure server runtime required by the current project.
+- [x] Document the API-first boundary: public endpoints remain limited, owner tools remain authenticated, credentials remain server-side, and an external deployment or provider migration requires an explicit owner-approved scope.
+- [x] Add or improve API-reference copy and tests that distinguish the DevForge API contract from its current managed hosting implementation without claiming an unsupported independent backend.
+- [x] Inventory and document owner-visible DevForge API contracts, exposing only safe active origins, public/protected scope, and non-sensitive activity signals.
+- [x] Build an owner-only API control center with a clear “connection separation” review action that records intent only and never disconnects, changes hosting, creates credentials, or calls a third-party provider.
+- [x] Add router and UI tests proving API activity views remain owner-scoped, show no secrets or internal addresses, and do not perform write or connection actions automatically.
+- [x] Investigate the blank visual capture observed for the unauthenticated `#/api-control` preview, despite the expected login-gate text being present, before claiming visual verification complete.
+- [x] Define an owner-only miniature-workstation policy with a fixed maximum of ten review agents; prohibit self-replication, autonomous code changes, deployments, credential access, external account actions, and automatic merging.
+- [x] Design an owner-only Mini Workstations dashboard that shows bounded agent roles, proposal status, provenance, and a review queue instead of autonomous computer copies.
+- [ ] Add a review-only consolidation proposal when the owner explicitly requests it after ten completed drafts; it must not merge code, delete agents, or alter infrastructure.
+- [x] Add authorization and rendered UI tests proving mini workstations are owner-scoped, bounded, and cannot create agents, execute code, merge outputs, or perform external actions automatically.
+- [x] Configure exactly ten fixed owner-only miniature workstation roles: architecture, requirements, user experience, frontend review, backend review, security review, test planning, JavaScript diagnostics, research provenance, and release-readiness review.
+- [x] Define an optional GitHub handoff for a selected miniature-workstation output that requires an existing owner-selected repository and a fresh explicit confirmation for each write; do not implement automatic synchronization, repository creation, cloning, or credential storage.
+- [x] Add an owner-scoped miniature-workstation path memory that records the selected role, bounded request, generated result, provenance, timestamps, and review status without retaining secrets or creating background execution.
+- [x] Connect each miniature workstation to a server-side AI proposal only after an explicit owner-started request, with structured review-only output and no autonomous polling, agent-to-agent messaging, execution, or external writes.
+- [x] Make the miniature-workstation roles an explicit webpage-development team with JavaScript and Python review specializations, and provide Termux guidance as an owner-reviewed, non-connected handoff rather than device access or background execution.

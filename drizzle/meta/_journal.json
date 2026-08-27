@@ -162,6 +162,13 @@
       "when": 1787807726632,
       "tag": "0022_gifted_stellaris",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1787809624989,
+      "tag": "0023_cuddly_spacker_dave",
+      "breakpoints": true
     }
   ]
 }

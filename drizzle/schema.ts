@@ -241,6 +241,19 @@ export const developerReviewTasks = mysqlTable("developerReviewTasks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [uniqueIndex("developer_review_task_owner_key_unique").on(table.ownerId, table.taskKey)]);
 
+export const miniWorkstationPaths = mysqlTable("miniWorkstationPaths", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  stationKey: varchar("stationKey", { length: 48 }).notNull(),
+  request: text("request").notNull(),
+  headline: varchar("headline", { length: 240 }).notNull(),
+  outputJson: text("outputJson").notNull(),
+  model: varchar("model", { length: 120 }).notNull(),
+  reviewStatus: mysqlEnum("reviewStatus", ["completed", "reviewed", "archived"]).default("completed").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [index("mini_workstation_owner_status_idx").on(table.ownerId, table.reviewStatus), index("mini_workstation_owner_station_idx").on(table.ownerId, table.stationKey)]);
+
 export const visitorSubmissions = mysqlTable("visitorSubmissions", {
   id: int("id").autoincrement().primaryKey(),
   visitorAlias: varchar("visitorAlias", { length: 80 }),
@@ -346,6 +359,7 @@ export type DomainCatalogItem = typeof domainCatalogItems.$inferSelect;
 export type IntegrationPreference = typeof integrationPreferences.$inferSelect;
 export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSelect;
 export type DeveloperReviewTask = typeof developerReviewTasks.$inferSelect;
+export type MiniWorkstationPath = typeof miniWorkstationPaths.$inferSelect;
 export type VisitorSubmission = typeof visitorSubmissions.$inferSelect;
 export type VisitorSubmissionAttachment = typeof visitorSubmissionAttachments.$inferSelect;
 export type VisitorConversation = typeof visitorConversations.$inferSelect;

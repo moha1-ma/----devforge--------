@@ -18,6 +18,7 @@ vi.mock("./pages/ImageStudio", () => ({ default: () => <div>استوديو ال�
 vi.mock("./pages/WebsiteStudio", () => ({ default: () => <div>منشئ المواقع</div> }));
 vi.mock("./pages/DomainGallery", () => ({ default: () => <div>معرض النطاقات</div> }));
 vi.mock("./pages/DeveloperCenter", () => ({ default: () => <div>مركز المطور الذكي</div> }));
+vi.mock("./pages/MiniWorkstations", () => ({ default: () => <div>المحطات المصغرة الذكية</div> }));
 vi.mock("./pages/CommunityHub", () => ({ default: () => <div>مجتمع DevForge</div> }));
 vi.mock("./pages/CommunityReviewCenter", () => ({ default: () => <div>مراجعة مجتمع DevForge</div> }));
 vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة JavaScript</div> }));
@@ -63,6 +64,13 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("مركز المطور الذكي")).toBeTruthy();
+  });
+
+  it("loads the owner mini-workstations route from its hash URL", () => {
+    window.location.hash = "#/mini-workstations";
+    render(<App />);
+
+    expect(screen.getByText("المحطات المصغرة الذكية")).toBeTruthy();
   });
 
   it("loads community discovery and owner review from production-safe hash URLs", () => {

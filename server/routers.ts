@@ -31,6 +31,8 @@ import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
 import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, recordPeriodicDevelopmentScheduleError, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
 import { listMarketplaceReviewQueue, listMyMarketplaceStores, listPublicMarketplaceStores, moderateMarketplaceStore, requestMarketplaceStore } from "./marketplace";
+import { listMiniWorkstationPaths, runMiniWorkstation, updateMiniWorkstationPathReview } from "./miniWorkstations";
+import { miniWorkstationKeys } from "./miniWorkstationPolicy";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -155,6 +157,11 @@ export const appRouter = router({
     list: ownerProcedure.query(({ ctx }) => listDeveloperCenterProposals(ctx.user.id)),
     listTasks: ownerProcedure.query(({ ctx }) => listDeveloperReviewTasks(ctx.user.id)),
     generate: ownerProcedure.input(z.object({ mode: z.enum(developerCenterModes), languageKey: z.enum(developerLanguageKeys), focus: z.enum(developerCenterFocuses), brief: z.string().trim().min(24).max(6000) })).mutation(({ ctx, input }) => generateDeveloperCenterProposal({ ownerId: ctx.user.id, ...input })),
+  }),
+  miniWorkstations: router({
+    paths: ownerProcedure.query(({ ctx }) => listMiniWorkstationPaths(ctx.user.id)),
+    run: ownerProcedure.input(z.object({ stationKey: z.enum(miniWorkstationKeys), request: z.string().trim().min(24).max(4000) })).mutation(({ ctx, input }) => runMiniWorkstation({ ownerId: ctx.user.id, ...input })),
+    reviewPath: ownerProcedure.input(z.object({ id: z.number().int().positive(), reviewStatus: z.enum(["reviewed", "archived"]) })).mutation(({ ctx, input }) => updateMiniWorkstationPathReview({ ownerId: ctx.user.id, ...input })),
   }),
   visitorSubmissions: router({
     policy: publicProcedure.query(() => ({ copy: visitorSubmissionPolicyCopy, status: "owner-moderated" as const })),

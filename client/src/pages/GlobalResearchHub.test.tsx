@@ -10,7 +10,7 @@ vi.mock("@/lib/trpc", () => ({ trpc: { globalResearch: { catalog: { useQuery: ()
 
 describe("GlobalResearchHub", () => {
   beforeEach(() => { vi.clearAllMocks(); mocks.options = undefined; mocks.unifiedOptions = undefined; });
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.removeItem("devforge-language"); });
   it("shows curated source boundaries and sends an owner-requested search through the disclosed approved sources", () => {
     render(<LanguageProvider><GlobalResearchHub /></LanguageProvider>);
     expect(screen.getByText("مركز البحث العالمي")).toBeTruthy();
@@ -29,6 +29,21 @@ describe("GlobalResearchHub", () => {
     fireEvent.change(screen.getByLabelText("عبارة البحث"), { target: { value: "تعلم مسؤول" } });
     fireEvent.click(screen.getByRole("button", { name: "بحث داخل المنصة" }));
     expect(mocks.mutate).toHaveBeenCalledWith({ source: "openalex", query: "تعلم مسؤول" });
+  });
+  it("uses reviewed English interface copy without changing the owner-requested search contract", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><GlobalResearchHub /></LanguageProvider>);
+    expect(screen.getByText("Global research center")).toBeTruthy();
+    expect(screen.getByLabelText("Search phrase")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Search in DevForge" })).toBeTruthy();
+    expect(screen.getByLabelText("Data source catalog")).toBeTruthy();
+    expect(screen.getByText("Public API catalog")).toBeTruthy();
+    expect(mocks.mutate).not.toHaveBeenCalled();
+    expect(mocks.unifiedMutate).not.toHaveBeenCalled();
+    act(() => { mocks.unifiedOptions.onSuccess({ query: "responsible research", disclosure: "Read-only result", sources: [{ source: { name: "OpenAlex", documentationUrl: "https://help.openalex.org/api/", attribution: "OpenAlex" }, results: [] }] }); });
+    expect(screen.getByLabelText("Global search results")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Source" }).getAttribute("href")).toBe("https://help.openalex.org/api/");
+    expect(screen.getByText("This source returned no records for this phrase.")).toBeTruthy();
   });
   it("renders source disclosure and original result links without a direct write action", () => {
     render(<LanguageProvider><GlobalResearchHub /></LanguageProvider>);
