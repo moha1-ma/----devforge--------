@@ -289,3 +289,7 @@
 - [x] Audit every visible DevForge navigation entry and route for payment, subscription, billing, card, or financial-data collection; remove any unneeded inactive finance entry and document the user-facing no-payment boundary.
 - [x] Add regression coverage proving the owner navigation does not expose a Stripe or payment route and no payment-related procedure is invoked while rendering core screens.
 - [x] Document the JavaScript/TypeScript application template and owner-controlled API-management contract, clarifying that the manager is an optional review layer rather than a required runtime dependency.
+- [x] Define the three Aziz design-market collections: Aziz 1 website templates with a 180-item capacity, Aziz 2 business-card designs with a 1,500-item capacity, and Aziz 3 book-cover designs with a 5,000-item capacity; show actual approved item counts only and create no fictitious listings.
+- [x] Add owner-scoped design-asset records and a manual JavaScript/AI draft workflow that creates one reviewable design brief at a time, never runs continuously, generates no external media automatically, and exposes no payment flow.
+- [x] Build a responsive public market catalog and owner review surface for the Aziz collections, with empty states until genuine or owner-generated, licensed design assets are submitted and approved.
+- [x] Add tests proving the Aziz catalog has no fabricated products, prices, ratings, payments, automated generation, or background work and that design-review actions are owner-scoped.

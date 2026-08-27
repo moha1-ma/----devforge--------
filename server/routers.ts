@@ -31,6 +31,7 @@ import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
 import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, recordPeriodicDevelopmentScheduleError, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
 import { listMarketplaceReviewQueue, listMyMarketplaceStores, listPublicMarketplaceStores, moderateMarketplaceStore, requestMarketplaceStore } from "./marketplace";
+import { createAzizDesignDraft, listAzizMarketCollections, listOwnerAzizDesignAssets, listPublicAzizDesignAssets, updateAzizDesignReview } from "./azizDesigns";
 import { consolidateMiniWorkstationPaths, listMiniWorkstationPaths, runMiniWorkstation, updateMiniWorkstationPathReview } from "./miniWorkstations";
 import { miniWorkstationKeys } from "./miniWorkstationPolicy";
 import { getSiteNotificationPreferences, getUnreadSiteNotificationCount, listSiteNotifications, markAllSiteNotificationsRead, markSiteNotificationRead, updateSiteNotificationPreferences } from "./siteNotifications";
@@ -216,6 +217,13 @@ export const appRouter = router({
     requestStore: protectedProcedure.input(z.object({ slug: z.string().trim().min(3).max(72), name: z.string().trim().min(3).max(120), description: z.string().trim().min(20).max(700), category: z.string().trim().min(2).max(80) })).mutation(({ ctx, input }) => requestMarketplaceStore({ ownerId: ctx.user.id, ...input })),
     reviewQueue: ownerProcedure.query(() => listMarketplaceReviewQueue()),
     moderate: ownerProcedure.input(z.object({ storeId: z.number().int().positive(), status: z.enum(["approved", "rejected", "archived"]), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateMarketplaceStore({ ownerId: ctx.user.id, ...input })),
+  }),
+  azizMarket: router({
+    collections: publicProcedure.query(() => listAzizMarketCollections()),
+    publicAssets: publicProcedure.input(z.object({ collectionKey: z.enum(["aziz-1", "aziz-2", "aziz-3"]).optional() }).optional()).query(({ input }) => listPublicAzizDesignAssets(input?.collectionKey)),
+    mine: ownerProcedure.query(({ ctx }) => listOwnerAzizDesignAssets(ctx.user.id)),
+    createDraft: ownerProcedure.input(z.object({ collectionKey: z.enum(["aziz-1", "aziz-2", "aziz-3"]), title: z.string().trim().min(3).max(160), brief: z.string().trim().min(24).max(4000) })).mutation(({ ctx, input }) => createAzizDesignDraft({ ownerId: ctx.user.id, ...input })),
+    review: ownerProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["pending", "approved", "rejected", "archived"]), moderationNote: z.string().trim().max(500).optional(), mediaUrl: z.string().trim().url().max(1000).optional() })).mutation(({ ctx, input }) => updateAzizDesignReview({ ownerId: ctx.user.id, ...input })),
   }),
   codeAssistant: router({
     suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve", "diagnose"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),

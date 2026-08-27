@@ -1,0 +1,26 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { trpc } from "@/lib/trpc";
+import { ArrowRight, BookOpen, ExternalLink, LayoutTemplate, Palette, Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { Link } from "wouter";
+
+const collectionIcon = { "aziz-1": LayoutTemplate, "aziz-2": Palette, "aziz-3": BookOpen } as const;
+
+function readConcept(outputJson: string) {
+  try { const parsed = JSON.parse(outputJson) as { concept?: unknown }; return typeof parsed.concept === "string" ? parsed.concept : null; } catch { return null; }
+}
+
+export default function AzizMarketHub() {
+  const { direction } = useLanguage();
+  const [selected, setSelected] = useState<"aziz-1" | "aziz-2" | "aziz-3" | undefined>();
+  const collections = trpc.azizMarket.collections.useQuery();
+  const assets = trpc.azizMarket.publicAssets.useQuery(selected ? { collectionKey: selected } : undefined);
+  return <main dir={direction} className="dev-shell min-h-screen px-4 py-7 sm:px-6 sm:py-10"><section className="mx-auto max-w-7xl">
+    <header className="flex flex-wrap items-center justify-between gap-3"><Link href="/marketplace" className="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-cyan-100"><ArrowRight className="h-4 w-4" />العودة إلى السوق</Link><Badge className="border border-emerald-300/20 bg-emerald-300/10 text-emerald-100">لا أسعار ولا مدفوعات</Badge></header>
+    <section className="mt-6 overflow-hidden rounded-[2rem] border border-amber-300/20 bg-gradient-to-l from-amber-300/10 via-slate-950 to-violet-400/10 p-6 sm:p-9"><p className="command-label">AZIZ / DESIGN MARKET</p><h1 className="mt-3 text-3xl font-bold text-white sm:text-4xl">سوق تصميمات عزوز</h1><p className="mt-3 max-w-3xl leading-8 text-slate-300">مجموعات تصميم قابلة للتوسع مبنية على JavaScript. الأرقام التالية سعات مستهدفة، أما العناصر المنشورة فلا تظهر إلا إذا كانت حقيقية ومعتمدة من المالك.</p></section>
+    <section aria-label="مجموعات سوق عزوز" className="mt-5 grid gap-4 md:grid-cols-3">{collections.isLoading ? <p className="text-sm text-slate-400">يجري تحميل المجموعات…</p> : collections.data?.map(collection => { const Icon = collectionIcon[collection.key]; const active = selected === collection.key; return <button type="button" key={collection.key} onClick={() => setSelected(active ? undefined : collection.key)} className={`rounded-3xl border p-5 text-right transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300 ${active ? "border-amber-300/55 bg-amber-300/[0.1]" : "border-white/10 bg-slate-950/65 hover:bg-white/[0.04]"}`}><div className="flex items-center justify-between gap-3"><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/[0.06] text-amber-200"><Icon className="h-5 w-5" /></span><Badge variant="outline" className="border-white/15 text-slate-300">{collection.approvedCount} / {collection.capacity}</Badge></div><h2 className="mt-5 text-xl font-bold text-white">{collection.name}</h2><p className="mt-2 text-sm leading-7 text-slate-400">{collection.description}</p><p className="mt-4 text-xs text-amber-100/70">انقر لتصفية الأصول المعتمدة فقط</p></button>; })}</section>
+    <section className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-5 sm:p-6"><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="flex items-center gap-2 text-xl font-bold text-white"><Sparkles className="h-5 w-5 text-amber-300" />التصاميم المعتمدة</h2><p className="mt-2 text-sm leading-7 text-slate-500">لا توجد معاينات اصطناعية أو تقييمات أو أسعار. كل بطاقة أدناه تمثل أصلًا اعتمده المالك.</p></div>{selected ? <Button variant="outline" onClick={() => setSelected(undefined)} className="border-white/15 text-slate-300 hover:bg-white/10 hover:text-white">إظهار الكل</Button> : null}</div><div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{assets.isLoading ? <p className="text-sm text-slate-400">يجري تحميل التصاميم المعتمدة…</p> : assets.data?.length ? assets.data.map(asset => <article key={asset.id} className="rounded-2xl border border-white/10 bg-white/[0.025] p-4"><Badge variant="outline" className="border-amber-300/25 text-amber-100">{asset.assetType}</Badge><h3 className="mt-3 font-bold text-white">{asset.title}</h3><p className="mt-2 line-clamp-4 text-sm leading-7 text-slate-400">{readConcept(asset.outputJson) ?? "وصف التصميم متاح بعد مراجعة المالك."}</p>{asset.mediaUrl ? <a href={asset.mediaUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 text-sm font-bold text-cyan-200 hover:text-cyan-100">فتح مرجع التصميم <ExternalLink className="h-3.5 w-3.5" /></a> : null}</article>) : <div className="col-span-full rounded-2xl border border-dashed border-white/10 p-9 text-center"><Palette className="mx-auto h-7 w-7 text-amber-300" /><h3 className="mt-3 font-bold text-white">السوق ينتظر أول أصل تصميم حقيقي</h3><p className="mt-2 text-sm leading-7 text-slate-500">يمكن للمالك إنشاء مسودة واحدة ومراجعتها، ثم نشرها فقط بعد إضافة مرجع HTTPS يثبت مصدر التصميم وحق استخدامه.</p></div>}</div></section>
+  </section></main>;
+}

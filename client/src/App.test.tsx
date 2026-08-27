@@ -28,6 +28,8 @@ vi.mock("./pages/ApiReferencePage", () => ({ default: () => <div>مرجع API ع
 vi.mock("./pages/GlobalResearchHub", () => ({ default: () => <div>مركز بحث عالمي</div> }));
 vi.mock("./pages/MarketplaceHub", () => ({ default: () => <div>سوق المتاجر</div> }));
 vi.mock("./pages/MarketplaceReviewCenter", () => ({ default: () => <div>مراجعة السوق</div> }));
+vi.mock("./pages/AzizMarketHub", () => ({ default: () => <div>سوق تصميمات عزوز</div> }));
+vi.mock("./pages/AzizDesignReviewCenter", () => ({ default: () => <div>مراجعة سوق عزوز</div> }));
 vi.mock("./pages/AiTaskRouter", () => ({ default: () => <div>موجّه الذكاء الصناعي</div> }));
 vi.mock("./pages/TechnicalPartnerHub", () => ({ default: () => <div>الشركاء التقنيون</div> }));
 vi.mock("./pages/ContinuityCenter", () => ({ default: () => <div>مركز الاستمرارية</div> }));
@@ -94,6 +96,16 @@ describe("DevForge hash routing", () => {
 
     expect(screen.getByText("غير موجود")).toBeTruthy();
     expect(screen.queryByText("مختبر Stripe")).toBeNull();
+  });
+
+  it("loads the public Aziz market and the owner review route from hash URLs", () => {
+    window.location.hash = "#/aziz-market";
+    const { unmount } = render(<App />);
+    expect(screen.getByText("سوق تصميمات عزوز")).toBeTruthy();
+    unmount();
+    window.location.hash = "#/aziz-market-review";
+    render(<App />);
+    expect(screen.getByText("مراجعة سوق عزوز")).toBeTruthy();
   });
 
   it("loads community discovery and owner review from production-safe hash URLs", () => {

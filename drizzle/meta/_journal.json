@@ -176,6 +176,13 @@
       "when": 1787810393308,
       "tag": "0024_dapper_alex_power",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1787813476339,
+      "tag": "0025_omniscient_junta",
+      "breakpoints": true
     }
   ]
 }

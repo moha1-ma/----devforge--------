@@ -36,6 +36,8 @@ import ApiControlCenter from "./pages/ApiControlCenter";
 import JavaScriptMigrationCenter from "./pages/JavaScriptMigrationCenter";
 import MiniWorkstations from "./pages/MiniWorkstations";
 import NotificationCenter from "./pages/NotificationCenter";
+import AzizMarketHub from "./pages/AzizMarketHub";
+import AzizDesignReviewCenter from "./pages/AzizDesignReviewCenter";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -69,6 +71,8 @@ function AppRoutes() {
         <Route path="/global-research" component={GlobalResearchHub} />
         <Route path="/marketplace" component={MarketplaceHub} />
         <Route path="/marketplace-review" component={MarketplaceReviewCenter} />
+        <Route path="/aziz-market" component={AzizMarketHub} />
+        <Route path="/aziz-market-review" component={AzizDesignReviewCenter} />
         <Route path="/ai-router" component={AiTaskRouter} />
         <Route path="/partners" component={TechnicalPartnerHub} />
         <Route path="/continuity" component={ContinuityCenter} />
