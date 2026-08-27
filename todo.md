@@ -121,8 +121,8 @@
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
 - [x] Add reviewed Arabic and English interface copy for the owner AI task router without translating task input or generated private workstreams.
 - [x] Add reviewed Arabic and English interface copy for the owner global research hub without translating research queries, source results, or error text returned by external sources.
-- [ ] Replace remaining hardcoded catalog, result-source, and empty-state interface strings in the Global Research Hub with reviewed Arabic and English keys, while preserving research queries and external-source text unchanged.
-- [ ] Expand Global Research Hub language tests to verify catalog labels, result labels, source-link labels, and empty states render in English without invoking a search.
+- [x] Replace remaining hardcoded catalog, result-source, and empty-state interface strings in the Global Research Hub with reviewed Arabic and English keys, while preserving research queries and external-source text unchanged.
+- [x] Expand Global Research Hub language tests to verify catalog labels, result labels, source-link labels, and empty states render in English without invoking a search.
 - [x] Add a responsive Instagram-inspired community feed section near the public page footer that renders only genuine approved submissions and never fabricates posts, creators, reactions, or engagement counts.
 - [x] Add a visitor submission path for permitted video uploads and media references, retaining consent, moderation, reporting, and privacy safeguards before any public appearance.
 - [x] Add a documented-news area that contains only verified source links and clear scope text; do not invent headlines or claim real-time coverage without a source.
@@ -280,3 +280,4 @@
 - [x] Define an owner-controlled in-site notification model with read state, category, timestamp, and audience scope; keep email, push, SMS, and third-party delivery disabled until separately configured.
 - [x] Build a protected notification center and preference controls, then connect relevant DevForge events without fabricating alerts or exposing private user activity.
 - [x] Add server and UI tests for notification authorization, read-state updates, internal-link validation, and no automatic external delivery; Stripe test scope was canceled before setup.
+- [x] Add reviewed Arabic and English interface keys and a language-rendering test for the owner notification center, without translating notification bodies or other private event data.

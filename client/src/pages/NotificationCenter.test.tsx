@@ -36,4 +36,14 @@ describe("NotificationCenter", () => {
     expect(document.body.textContent).toMatch(/لا بريد، ولا SMS، ولا إشعار جهاز/);
     expect(document.body.textContent).not.toMatch(/Bearer |service_role|127\.0\.0\.1/);
   });
+
+  it("uses reviewed English interface copy without translating private notification content", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><NotificationCenter /></LanguageProvider>);
+    expect(screen.getByText("Notification center")).toBeTruthy();
+    expect(screen.getByText("Recent notifications")).toBeTruthy();
+    expect(screen.getByText("Inside DevForge only")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Mark as read" })).toBeTruthy();
+    expect(screen.getByText("تنتظر مراجعتك داخل المنصة.")).toBeTruthy();
+  });
 });
