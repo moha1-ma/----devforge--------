@@ -221,3 +221,5 @@
 - [ ] Add tests for owner-only access, task-bound input/output limits, review-only routing, and mobile rendering of the AI router.
 - [x] Diagnose the publishing-preview loader reported on iPhone, distinguishing platform preview status from DevForge production delivery without introducing external account connections.
 - [x] Add a clear bounded recovery state for any DevForge-controlled mobile preview/load failure and verify the public production route remains directly reachable.
+- [x] Update the PWA service-worker lifecycle so a newly published DevForge bundle replaces stale cached navigation safely and exposes a clear update path.
+- [x] Add regression coverage for the service-worker cache version and the client update notification without relying on a live external browser session.

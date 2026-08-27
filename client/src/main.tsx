@@ -7,13 +7,13 @@ import superjson from "superjson";
 import App from "./App";
 import { startLogin } from "./const";
 import { shouldLogUnhandledApiError } from "./lib/apiErrorHandling";
+import { registerDevForgeServiceWorker } from "./lib/serviceWorkerUpdate";
 import "./index.css";
+import { toast } from "sonner";
 
-if (import.meta.env.PROD && "serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/service-worker.js").catch(error => console.warn("[PWA] Service worker registration skipped", error));
-  });
-}
+registerDevForgeServiceWorker((apply) => {
+  toast.info("يتوفر تحديث جديد لـ DevForge.", { action: { label: "تحديث الآن", onClick: apply } });
+});
 
 const queryClient = new QueryClient();
 
