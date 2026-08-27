@@ -22,6 +22,7 @@ vi.mock("./pages/CommunityHub", () => ({ default: () => <div>مجتمع DevForge
 vi.mock("./pages/CommunityReviewCenter", () => ({ default: () => <div>مراجعة مجتمع DevForge</div> }));
 vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة JavaScript</div> }));
 vi.mock("./pages/PeriodicDevelopmentCenter", () => ({ default: () => <div>مسودات دورية</div> }));
+vi.mock("./pages/ApiReferencePage", () => ({ default: () => <div>مرجع API عام</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -78,5 +79,11 @@ describe("DevForge hash routing", () => {
     window.location.hash = "#/periodic-development";
     render(<App />);
     expect(screen.getByText("مسودات دورية")).toBeTruthy();
+  });
+
+  it("loads the public API reference from its stable hash URL", () => {
+    window.location.hash = "#/api";
+    render(<App />);
+    expect(screen.getByText("مرجع API عام")).toBeTruthy();
   });
 });

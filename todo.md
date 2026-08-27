@@ -199,3 +199,5 @@
 - [x] Add tests proving file diagnostics remain owner-scoped, bounded, and require explicit manual application.
 - [x] Add a clear, bounded retry path for an owner-requested trusted-web search failure without changing research mode or exposing credentials.
 - [x] Add a rendered mobile-safe test for the trusted-web retry state and source-disclosure boundary.
+- [x] Prevent the API reference anchor from being interpreted as an invalid hash route, and provide a stable visible route to the public API reference.
+- [x] Add a routing regression test for the API reference entry point under hash-based navigation.

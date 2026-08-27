@@ -46,7 +46,7 @@ describe("روابط الصفحة الرئيسية", () => {
 
     const endpoint = "https://devforgeapp-grp92cnd.manus.space/api/trpc";
     expect(screen.getByText(endpoint)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /فتح مدخل API/ }).getAttribute("href")).toBe(endpoint);
+    expect(screen.getByRole("link", { name: /عرض صفحة API/ }).getAttribute("href")).toBe("#/api");
     expect(document.body.textContent).not.toMatch(/api[_ -]?key|authorization: bearer|sk_[a-z0-9]/i);
   });
 });
