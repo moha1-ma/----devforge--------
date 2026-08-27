@@ -1,5 +1,5 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Router } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
@@ -35,6 +35,7 @@ describe("روابط الصفحة الرئيسية", () => {
 
     expect(screen.getByText("مراجعات منظمة")).toBeTruthy();
     expect(screen.getByRole("link", { name: "المجتمعات" }).getAttribute("href")).toBe("#/community");
+    expect(screen.getByRole("link", { name: "السوق" }).getAttribute("href")).toBe("#/marketplace");
     expect(screen.getByRole("link", { name: "شارك" }).getAttribute("href")).toBe("#/share");
     expect(screen.getByRole("button", { name: /دخول الزوار/ })).toBeTruthy();
     expect(screen.getByRole("link", { name: /فتح مسار المراجعة/ }).getAttribute("href")).toBe("#/plans");
@@ -48,5 +49,14 @@ describe("روابط الصفحة الرئيسية", () => {
     expect(screen.getByText(endpoint)).toBeTruthy();
     expect(screen.getByRole("link", { name: /عرض صفحة API/ }).getAttribute("href")).toBe("#/api");
     expect(document.body.textContent).not.toMatch(/api[_ -]?key|authorization: bearer|sk_[a-z0-9]/i);
+  });
+
+  it("يمرر روابط أقسام الصفحة داخل الصفحة ولا يحولها إلى مسار هاش غير صالح", () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", { configurable: true, value: scrollIntoView });
+    render(<LanguageProvider><Router hook={useHashLocation} hrefs={toHashHref}><Home /></Router></LanguageProvider>);
+    fireEvent.click(screen.getByTestId("home-section-capabilities"));
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    expect(window.location.hash).toBe("");
   });
 });

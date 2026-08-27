@@ -320,6 +320,10 @@ export const githubMergePlans = mysqlTable("githubMergePlans", {
   id: int("id").autoincrement().primaryKey(), ownerId: int("ownerId").notNull(), toolName: varchar("toolName", { length: 120 }).notNull(), brief: text("brief").notNull(), sourceJson: text("sourceJson").notNull(), planJson: text("planJson").notNull(), reviewStatus: mysqlEnum("reviewStatus", ["draft", "acknowledged", "dismissed"]).default("draft").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [index("gmp_owner_status_idx").on(table.ownerId, table.reviewStatus), foreignKey({ name: "gmp_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade")]);
 
+export const marketplaceStores = mysqlTable("marketplaceStores", {
+  id: int("id").autoincrement().primaryKey(), ownerId: int("ownerId").notNull(), slug: varchar("slug", { length: 72 }).notNull(), name: varchar("name", { length: 120 }).notNull(), description: varchar("description", { length: 700 }).notNull(), category: varchar("category", { length: 80 }).notNull(), status: mysqlEnum("status", ["draft", "pending", "approved", "rejected", "archived"]).default("draft").notNull(), reviewerId: int("reviewerId"), moderationNote: varchar("moderationNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("marketplace_store_slug_unique").on(table.slug), index("marketplace_store_status_idx").on(table.status, table.updatedAt), index("marketplace_store_owner_idx").on(table.ownerId, table.updatedAt), foreignKey({ name: "marketplace_store_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "marketplace_store_reviewer_fk", columns: [table.reviewerId], foreignColumns: [users.id] }).onDelete("set null")]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -353,3 +357,4 @@ export type CommunityReport = typeof communityReports.$inferSelect;
 export type PeriodicDevelopmentJob = typeof periodicDevelopmentJobs.$inferSelect;
 export type PeriodicDevelopmentDraftRecord = typeof periodicDevelopmentDrafts.$inferSelect;
 export type GithubMergePlan = typeof githubMergePlans.$inferSelect;
+export type MarketplaceStore = typeof marketplaceStores.$inferSelect;

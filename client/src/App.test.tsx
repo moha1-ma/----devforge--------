@@ -24,6 +24,8 @@ vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة J
 vi.mock("./pages/PeriodicDevelopmentCenter", () => ({ default: () => <div>مسودات دورية</div> }));
 vi.mock("./pages/ApiReferencePage", () => ({ default: () => <div>مرجع API عام</div> }));
 vi.mock("./pages/GlobalResearchHub", () => ({ default: () => <div>مركز بحث عالمي</div> }));
+vi.mock("./pages/MarketplaceHub", () => ({ default: () => <div>سوق المتاجر</div> }));
+vi.mock("./pages/MarketplaceReviewCenter", () => ({ default: () => <div>مراجعة السوق</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -92,5 +94,15 @@ describe("DevForge hash routing", () => {
     window.location.hash = "#/global-research";
     render(<App />);
     expect(screen.getByText("مركز بحث عالمي")).toBeTruthy();
+  });
+
+  it("loads the empty marketplace and its owner review route from hash URLs", () => {
+    window.location.hash = "#/marketplace";
+    const { unmount } = render(<App />);
+    expect(screen.getByText("سوق المتاجر")).toBeTruthy();
+    unmount();
+    window.location.hash = "#/marketplace-review";
+    render(<App />);
+    expect(screen.getByText("مراجعة السوق")).toBeTruthy();
   });
 });

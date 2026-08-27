@@ -30,6 +30,7 @@ import { prepareVerifiedMergePlan, saveVerifiedMergePlan } from "./githubMergeSe
 import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
 import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, recordPeriodicDevelopmentScheduleError, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
+import { listMarketplaceReviewQueue, listMyMarketplaceStores, listPublicMarketplaceStores, moderateMarketplaceStore, requestMarketplaceStore } from "./marketplace";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -188,6 +189,13 @@ export const appRouter = router({
     report: protectedProcedure.input(z.object({ targetType: z.enum(["community", "post", "member"]), targetId: z.number().int().positive(), reason: z.string().trim().min(6).max(500) })).mutation(({ ctx, input }) => reportCommunityTarget({ reporterId: ctx.user.id, ...input })),
     reviewQueue: ownerProcedure.query(() => listCommunityReviewQueue()),
     moderate: ownerProcedure.input(z.object({ target: z.enum(["community", "membership", "post", "report"]), id: z.number().int().positive(), status: z.enum(["approved", "rejected", "archived", "blocked", "resolved", "dismissed"]), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateCommunityItem({ ownerId: ctx.user.id, ...input })),
+  }),
+  marketplace: router({
+    publicStores: publicProcedure.query(() => listPublicMarketplaceStores()),
+    mine: protectedProcedure.query(({ ctx }) => listMyMarketplaceStores(ctx.user.id)),
+    requestStore: protectedProcedure.input(z.object({ slug: z.string().trim().min(3).max(72), name: z.string().trim().min(3).max(120), description: z.string().trim().min(20).max(700), category: z.string().trim().min(2).max(80) })).mutation(({ ctx, input }) => requestMarketplaceStore({ ownerId: ctx.user.id, ...input })),
+    reviewQueue: ownerProcedure.query(() => listMarketplaceReviewQueue()),
+    moderate: ownerProcedure.input(z.object({ storeId: z.number().int().positive(), status: z.enum(["approved", "rejected", "archived"]), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateMarketplaceStore({ ownerId: ctx.user.id, ...input })),
   }),
   codeAssistant: router({
     suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve", "diagnose"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),

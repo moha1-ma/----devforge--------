@@ -205,3 +205,9 @@
 - [x] Build an owner-only global research hub that lets the owner choose vetted sources and open a query inside the platform without external write actions.
 - [x] Add a curated global API catalog that distinguishes public/no-key reference links from owner-configured connections, without embedding provider credentials.
 - [x] Add tests for owner-only access, safe outbound query URLs, source disclosure, and mobile rendering of the research hub.
+- [x] Verify the production domain serves the latest global-research bundle and diagnose any delayed or stale deployment before claiming live availability.
+- [x] Audit and repair available navigation actions so each visible DevForge control leads to a relevant route or an explicit unavailable-state message.
+- [x] Extend owner-controlled messaging, profile, and community surfaces with scalable review and privacy boundaries without exposing private data.
+- [x] Design and implement a genuinely empty marketplace foundation that can accept future owner-created stores without fabricating users, stores, reviews, inventory, or payments.
+- [x] Evaluate safe persistent execution and device-terminal integration options without granting unattended access to accounts, devices, secrets, or financial actions.
+- [x] Document the owner-controlled financial-account and payment-connection boundary; do not create accounts, submit identity information, or initiate transfers.
