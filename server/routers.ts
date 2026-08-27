@@ -23,6 +23,8 @@ import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
 import { getPrivateVisitorAttachment, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
 import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
 import { closeVisitorConversation, listVisitorConversations, sendVisitorConversationMessage, startVisitorConversation } from "./visitorConversations";
+import { createCommunityPost, createCommunityRequest, getMyMemberProfile, listApprovedCommunities, listCommunityPosts, listCommunityReviewQueue, listMyCommunityMemberships, moderateCommunityItem, reportCommunityTarget, requestCommunityMembership, saveMemberProfile, searchDiscoverableMembers } from "./communities";
+import { createCodeSuggestion } from "./codeCompletion";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -162,6 +164,23 @@ export const appRouter = router({
     start: protectedProcedure.input(z.object({ subject: z.string().trim().min(3).max(180), content: z.string().trim().min(3).max(6000) })).mutation(({ ctx, input }) => startVisitorConversation({ visitorId: ctx.user.id, ...input })),
     send: protectedProcedure.input(z.object({ conversationId: z.number().int().positive(), content: z.string().trim().min(1).max(6000) })).mutation(({ ctx, input }) => sendVisitorConversationMessage({ userId: ctx.user.id, isOwner: ctx.user.openId === ENV.ownerOpenId, ...input })),
     close: ownerProcedure.input(z.object({ conversationId: z.number().int().positive() })).mutation(({ ctx, input }) => closeVisitorConversation({ userId: ctx.user.id, isOwner: true, ...input })),
+  }),
+  communityHub: router({
+    myProfile: protectedProcedure.query(({ ctx }) => getMyMemberProfile(ctx.user.id)),
+    saveProfile: protectedProcedure.input(z.object({ alias: z.string().trim().min(3).max(48), bio: z.string().trim().max(500).optional(), skills: z.string().trim().max(240).optional(), discoveryEnabled: z.boolean() })).mutation(({ ctx, input }) => saveMemberProfile({ userId: ctx.user.id, ...input })),
+    memberSearch: protectedProcedure.input(z.object({ query: z.string().trim().max(80) })).query(({ input }) => searchDiscoverableMembers(input.query)),
+    communities: protectedProcedure.query(() => listApprovedCommunities()),
+    createCommunity: protectedProcedure.input(z.object({ name: z.string().trim().min(3).max(100), description: z.string().trim().min(12).max(3000) })).mutation(({ ctx, input }) => createCommunityRequest({ userId: ctx.user.id, ...input })),
+    myMemberships: protectedProcedure.query(({ ctx }) => listMyCommunityMemberships(ctx.user.id)),
+    requestMembership: protectedProcedure.input(z.object({ communityId: z.number().int().positive() })).mutation(({ ctx, input }) => requestCommunityMembership({ userId: ctx.user.id, ...input })),
+    posts: protectedProcedure.input(z.object({ communityId: z.number().int().positive() })).query(({ ctx, input }) => listCommunityPosts({ userId: ctx.user.id, ...input })),
+    createPost: protectedProcedure.input(z.object({ communityId: z.number().int().positive(), title: z.string().trim().min(3).max(180), content: z.string().trim().min(12).max(6000) })).mutation(({ ctx, input }) => createCommunityPost({ userId: ctx.user.id, ...input })),
+    report: protectedProcedure.input(z.object({ targetType: z.enum(["community", "post", "member"]), targetId: z.number().int().positive(), reason: z.string().trim().min(6).max(500) })).mutation(({ ctx, input }) => reportCommunityTarget({ reporterId: ctx.user.id, ...input })),
+    reviewQueue: ownerProcedure.query(() => listCommunityReviewQueue()),
+    moderate: ownerProcedure.input(z.object({ target: z.enum(["community", "membership", "post", "report"]), id: z.number().int().positive(), status: z.enum(["approved", "rejected", "archived", "blocked", "resolved", "dismissed"]), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateCommunityItem({ ownerId: ctx.user.id, ...input })),
+  }),
+  codeAssistant: router({
+    suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),
   }),
 });
 

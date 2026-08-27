@@ -16,7 +16,7 @@ import {
 import { startLogin } from "@/const";
 import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/useMobile";
-import { Bell, Blocks, Boxes, BrainCircuit, Cable, Code2, CreditCard, FolderKanban, Github, GitPullRequest, Globe2, ImagePlus, LayoutTemplate, ListChecks, LogOut, Menu, MessageSquareHeart, Rocket, Sparkles } from "lucide-react";
+import { Bell, Blocks, Boxes, BrainCircuit, Cable, Code2, CreditCard, FolderKanban, Github, GitPullRequest, Globe2, ImagePlus, LayoutTemplate, ListChecks, LogOut, Menu, MessageSquareHeart, Rocket, Sparkles, UsersRound } from "lucide-react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import OwnerCodeGate from "./OwnerCodeGate";
@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isMobile = useIsMobile();
   const { direction, t, isFullyTranslated } = useLanguage();
   const menuItems = [
-    { icon: Boxes, label: t("overview"), path: "/workspace" }, { icon: FolderKanban, label: t("projects"), path: "/projects" }, { icon: Code2, label: t("workItems"), path: "/work-items" }, { icon: GitPullRequest, label: t("pullRequests"), path: "/pull-requests" }, { icon: Rocket, label: t("releases"), path: "/releases" }, { icon: ListChecks, label: t("buildPlans"), path: "/plans" }, { icon: Blocks, label: t("codeWorkspace"), path: "/code" }, { icon: Sparkles, label: t("aiAssistant"), path: "/ai" }, { icon: BrainCircuit, label: "مركز المطور الذكي", path: "/developer-center" }, { icon: MessageSquareHeart, label: "مراجعة مشاركات الزوار", path: "/visitor-review" }, { icon: ImagePlus, label: t("imageStudio"), path: "/image-studio" }, { icon: LayoutTemplate, label: t("websiteBuilder"), path: "/website-studio" }, { icon: Globe2, label: t("domainGallery"), path: "/domains" }, { icon: Github, label: "GitHub", path: "/github" }, { icon: Cable, label: t("integrations"), path: "/integrations" }, { icon: CreditCard, label: t("stripeLab"), path: "/stripe-lab" },
+    { icon: Boxes, label: t("overview"), path: "/workspace" }, { icon: FolderKanban, label: t("projects"), path: "/projects" }, { icon: Code2, label: t("workItems"), path: "/work-items" }, { icon: GitPullRequest, label: t("pullRequests"), path: "/pull-requests" }, { icon: Rocket, label: t("releases"), path: "/releases" }, { icon: ListChecks, label: t("buildPlans"), path: "/plans" }, { icon: Blocks, label: t("codeWorkspace"), path: "/code" }, { icon: Sparkles, label: t("aiAssistant"), path: "/ai" }, { icon: BrainCircuit, label: "مركز المطور الذكي", path: "/developer-center" }, { icon: MessageSquareHeart, label: "مراجعة مشاركات الزوار", path: "/visitor-review" }, { icon: UsersRound, label: "مراجعة المجتمعات", path: "/community-review" }, { icon: ImagePlus, label: t("imageStudio"), path: "/image-studio" }, { icon: LayoutTemplate, label: t("websiteBuilder"), path: "/website-studio" }, { icon: Globe2, label: t("domainGallery"), path: "/domains" }, { icon: Github, label: "GitHub", path: "/github" }, { icon: Cable, label: t("integrations"), path: "/integrations" }, { icon: CreditCard, label: t("stripeLab"), path: "/stripe-lab" },
   ];
   const initialSidebarOpen = !isMobile;
 

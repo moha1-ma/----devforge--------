@@ -18,6 +18,7 @@ vi.mock("@/lib/trpc", () => ({
       save: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
       remove: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
     },
+    codeAssistant: { suggest: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) } },
   },
 }));
 

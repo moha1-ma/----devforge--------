@@ -1,0 +1,6 @@
+import { describe, expect, it, vi } from "vitest";
+const mocks = vi.hoisted(() => ({ readPrivateSourceFile: vi.fn(), invokeLLM: vi.fn() }));
+vi.mock("./privateWorkspace", () => ({ readPrivateSourceFile: mocks.readPrivateSourceFile }));
+vi.mock("./_core/llm", () => ({ invokeLLM: mocks.invokeLLM }));
+import { createCodeSuggestion } from "./codeCompletion";
+describe("code completion service", () => { it("verifies file ownership and returns a review-only completion without saving code", async () => { mocks.readPrivateSourceFile.mockResolvedValue({ file: { id: 8, path: "src/main.py", language: "python" }, content: "persisted" }); mocks.invokeLLM.mockResolvedValue({ choices: [{ message: { content: JSON.stringify({ reviewOnly: true, operation: "complete", suggestion: "value", explanation: "يكمل الإرجاع.", risks: [], tests: ["اختبر الفرع"] }) } }] }); const result = await createCodeSuggestion({ ownerId: 4, sourceFileId: 8, content: "def run():\n  return ", cursorOffset: 20, mode: "complete" }); expect(mocks.readPrivateSourceFile).toHaveBeenCalledWith(4, 8); expect(mocks.invokeLLM).toHaveBeenCalledOnce(); expect(result).toMatchObject({ reviewOnly: true, suggestion: "value", sourceFileId: 8 }); }); });

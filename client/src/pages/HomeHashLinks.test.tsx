@@ -33,6 +33,7 @@ describe("روابط الصفحة الرئيسية", () => {
     render(<LanguageProvider><Router hook={useHashLocation} hrefs={toHashHref}><Home /></Router></LanguageProvider>);
 
     expect(screen.getByText("مراجعات منظمة")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "المجتمعات" }).getAttribute("href")).toBe("#/community");
     expect(screen.getByRole("link", { name: "شارك" }).getAttribute("href")).toBe("#/share");
     expect(screen.getByRole("button", { name: /دخول الزوار/ })).toBeTruthy();
     expect(screen.getByRole("link", { name: /فتح مسار المراجعة/ }).getAttribute("href")).toBe("#/plans");

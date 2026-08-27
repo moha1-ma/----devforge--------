@@ -288,6 +288,26 @@ export const visitorConversationMessages = mysqlTable("visitorConversationMessag
   foreignKey({ name: "vcm_sender_fk", columns: [table.senderId], foreignColumns: [users.id] }).onDelete("cascade"),
 ]);
 
+export const memberProfiles = mysqlTable("memberProfiles", {
+  id: int("id").autoincrement().primaryKey(), userId: int("userId").notNull(), alias: varchar("alias", { length: 48 }).notNull(), bio: varchar("bio", { length: 500 }), skills: varchar("skills", { length: 240 }), discoveryEnabled: boolean("discoveryEnabled").default(false).notNull(), status: mysqlEnum("status", ["active", "restricted"]).default("active").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("member_profile_user_unique").on(table.userId), foreignKey({ name: "mp_user_fk", columns: [table.userId], foreignColumns: [users.id] }).onDelete("cascade")]);
+
+export const communities = mysqlTable("communities", {
+  id: int("id").autoincrement().primaryKey(), ownerId: int("ownerId").notNull(), name: varchar("name", { length: 100 }).notNull(), description: text("description").notNull(), status: mysqlEnum("status", ["pending", "approved", "rejected", "archived"]).default("pending").notNull(), moderatorId: int("moderatorId"), moderationNote: varchar("moderationNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [foreignKey({ name: "comm_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "comm_mod_fk", columns: [table.moderatorId], foreignColumns: [users.id] }).onDelete("set null")]);
+
+export const communityMemberships = mysqlTable("communityMemberships", {
+  id: int("id").autoincrement().primaryKey(), communityId: int("communityId").notNull(), userId: int("userId").notNull(), role: mysqlEnum("role", ["owner", "member"]).default("member").notNull(), status: mysqlEnum("status", ["pending", "approved", "rejected", "blocked"]).default("pending").notNull(), reviewerId: int("reviewerId"), moderationNote: varchar("moderationNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("comm_member_unique").on(table.communityId, table.userId), foreignKey({ name: "cm_comm_fk", columns: [table.communityId], foreignColumns: [communities.id] }).onDelete("cascade"), foreignKey({ name: "cm_user_fk", columns: [table.userId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "cm_reviewer_fk", columns: [table.reviewerId], foreignColumns: [users.id] }).onDelete("set null")]);
+
+export const communityPosts = mysqlTable("communityPosts", {
+  id: int("id").autoincrement().primaryKey(), communityId: int("communityId").notNull(), authorId: int("authorId").notNull(), title: varchar("title", { length: 180 }).notNull(), content: text("content").notNull(), status: mysqlEnum("status", ["pending", "approved", "rejected", "archived"]).default("pending").notNull(), reviewerId: int("reviewerId"), moderationNote: varchar("moderationNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [foreignKey({ name: "cp_comm_fk", columns: [table.communityId], foreignColumns: [communities.id] }).onDelete("cascade"), foreignKey({ name: "cp_author_fk", columns: [table.authorId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "cp_reviewer_fk", columns: [table.reviewerId], foreignColumns: [users.id] }).onDelete("set null")]);
+
+export const communityReports = mysqlTable("communityReports", {
+  id: int("id").autoincrement().primaryKey(), reporterId: int("reporterId").notNull(), targetType: mysqlEnum("targetType", ["community", "post", "member"]).notNull(), targetId: int("targetId").notNull(), reason: varchar("reason", { length: 500 }).notNull(), status: mysqlEnum("status", ["open", "resolved", "dismissed"]).default("open").notNull(), handlerId: int("handlerId"), resolutionNote: varchar("resolutionNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [foreignKey({ name: "cr_reporter_fk", columns: [table.reporterId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "cr_handler_fk", columns: [table.handlerId], foreignColumns: [users.id] }).onDelete("set null")]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -313,3 +333,8 @@ export type VisitorSubmission = typeof visitorSubmissions.$inferSelect;
 export type VisitorSubmissionAttachment = typeof visitorSubmissionAttachments.$inferSelect;
 export type VisitorConversation = typeof visitorConversations.$inferSelect;
 export type VisitorConversationMessage = typeof visitorConversationMessages.$inferSelect;
+export type MemberProfile = typeof memberProfiles.$inferSelect;
+export type Community = typeof communities.$inferSelect;
+export type CommunityMembership = typeof communityMemberships.$inferSelect;
+export type CommunityPost = typeof communityPosts.$inferSelect;
+export type CommunityReport = typeof communityReports.$inferSelect;

@@ -8,14 +8,14 @@ export async function submitVisitorContribution(input: { visitorAlias?: string; 
   const validated = validateVisitorSubmission(input);
   const db = await getDb();
   if (!db) throw new Error("قاعدة البيانات غير متاحة حاليًا");
-  await db.insert(visitorSubmissions).values({ visitorAlias: validated.visitorAlias, category: input.category, title: validated.title, content: validated.content, consentAccepted: true, status: "pending" });
-  const [submission] = await db.select().from(visitorSubmissions).orderBy(desc(visitorSubmissions.id)).limit(1);
-  if (!submission) throw new Error("تعذر حفظ المشاركة");
+  const [created] = await db.insert(visitorSubmissions).values({ visitorAlias: validated.visitorAlias, category: input.category, title: validated.title, content: validated.content, consentAccepted: true, status: "pending" }).$returningId();
+  const submissionId = created?.id;
+  if (!submissionId) throw new Error("تعذر حفظ المشاركة");
   for (const attachment of validated.attachments) {
-    const uploaded = await storagePut(`visitor-submissions/pending/${submission.id}/${attachment.safeName}`, attachment.data, attachment.mimeType);
-    await db.insert(visitorSubmissionAttachments).values({ submissionId: submission.id, kind: attachment.kind, safeName: attachment.safeName, mimeType: attachment.mimeType, sizeBytes: attachment.sizeBytes, storageKey: uploaded.key });
+    const uploaded = await storagePut(`visitor-submissions/pending/${submissionId}/${attachment.safeName}`, attachment.data, attachment.mimeType);
+    await db.insert(visitorSubmissionAttachments).values({ submissionId, kind: attachment.kind, safeName: attachment.safeName, mimeType: attachment.mimeType, sizeBytes: attachment.sizeBytes, storageKey: uploaded.key });
   }
-  return { id: submission.id, status: "pending" as const };
+  return { id: submissionId, status: "pending" as const };
 }
 
 export async function listVisitorSubmissionsForOwner(ownerId: number) {

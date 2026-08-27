@@ -164,3 +164,17 @@
 - [x] Resolve direct-route 404 behavior by making public links compatible with the app’s hash routing and adding safe fallback guidance.
 - [x] Add tests for visitor isolation, messaging access, top-navigation actions, direct-route recovery, and iPhone usability.
 - [x] Connect each public capability card and action indicator to a safe, relevant DevForge route or an explicit available-state message, then test the behavior on desktop and iPhone.
+- [x] Restore and repair the visitor sharing controls with explicit validation, success, retry feedback, and exact attachment-to-submission association.
+- [x] Define and build consent-based member discovery, communities, memberships, posts, reports, and owner moderation after the project restore.
+- [ ] Inspect the available global-search capability and document an owner-triggered, citation-first boundary for the AI assistant.
+- [ ] Add an authenticated owner-only research action that retrieves read-only global sources, preserves source URLs, and never runs external actions.
+- [ ] Extend the Arabic AI Workspace with explicit research request, source disclosure, loading/error/retry states, and no autonomous searching.
+- [ ] Add regression tests for sharing, search authorization, source output, failure handling, community privacy, and responsive interfaces.
+- [x] Define a review-only code-completion policy that limits context, prohibits execution, and distinguishes completion from applying edits.
+- [x] Add owner-scoped code-completion and code-improvement proposal procedures with structured outputs and error handling.
+- [x] Extend the Arabic code editor with current-line completion, stronger improvement suggestions, visible proposal previews, and explicit apply controls.
+- [ ] Add regression tests proving completion is private, not automatically applied or executed, and usable on desktop and mobile.
+- [x] Define a scalable social-network core with member visibility, community ownership, post moderation, reports, and strict visitor isolation.
+- [x] Add searchable opt-in profiles, moderated communities, membership requests, approved-only public posts, and owner review procedures.
+- [x] Build Arabic-first community discovery and discussion interfaces with clear join, post, report, and review states.
+- [x] Add an owner-only moderation center and regression tests covering privacy, role scope, pending-content isolation, and mobile community flows.
