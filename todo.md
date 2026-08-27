@@ -242,5 +242,5 @@
 - [x] Add tests proving continuity status is owner-scoped, health probes remain bounded and read-only, and recovery proposals never execute or publish automatically.
 - [x] Improve the owner GitHub workspace entry with explicit repository-selection, review-plan, and manual-action states that remain clear on mobile.
 - [x] Add regression tests proving the GitHub workspace never clones, imports, pushes, merges, or writes to repositories without an explicit owner-approved workflow.
-- [ ] Verify the latest published `#/ai` route reaches its intended unauthenticated owner gate after the mobile-state update, without testing private content or invoking the model.
+- [x] Verify the latest published `#/ai` route reaches its intended unauthenticated owner gate after the mobile-state update, without testing private content or invoking the model.
 - [x] Strengthen GitHub workspace regression tests to assert that selection and review-plan preparation do not invoke import, export, merge-save, clone, push, or other external-write procedures.
