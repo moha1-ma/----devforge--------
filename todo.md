@@ -302,3 +302,4 @@
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the public Aziz Design Market without changing approved counts, creating listings, or exposing prices, ratings, or payments.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the isolated JavaScript Workstation without translating editor input, execution output, or local repair-proposal data.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Integration Center’s category controls and documentation links without changing provider data, connection state, or review-only safeguards.
+- [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the GitHub Workspace without translating owner input or private merge-plan output, or enabling repository writes, cloning, imports, or automatic merges.

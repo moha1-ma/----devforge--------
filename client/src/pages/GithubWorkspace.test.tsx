@@ -19,7 +19,7 @@ vi.mock("@/lib/trpc", () => ({
 }));
 
 describe("GithubWorkspace", () => {
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.clear(); });
   beforeEach(() => vi.clearAllMocks());
   it("keeps repository selection available but blocks connection execution", () => {
     render(<LanguageProvider><GithubWorkspace /></LanguageProvider>);
@@ -30,6 +30,16 @@ describe("GithubWorkspace", () => {
     expect((screen.getByRole("button", { name: /انتظار مصادقة GitHub الصريحة/ }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByRole("heading", { name: "خطة دمج موحّدة للمراجعة" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "إنشاء خطة المراجعة" })).toBeTruthy();
+    expect(actionMocks.selectRepository).not.toHaveBeenCalled();
+    expect(actionMocks.prepareMerge).not.toHaveBeenCalled();
+  });
+
+  it("renders reviewed English merge controls without invoking a GitHub action", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><GithubWorkspace /></LanguageProvider>);
+    expect(screen.getByRole("heading", { name: "Unified merge plan for review" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Create review plan" })).toBeTruthy();
+    expect(screen.getByText(/does not clone, import, write, or merge/)).toBeTruthy();
     expect(actionMocks.selectRepository).not.toHaveBeenCalled();
     expect(actionMocks.prepareMerge).not.toHaveBeenCalled();
   });
