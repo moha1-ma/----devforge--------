@@ -45,10 +45,10 @@ describe("روابط الصفحة الرئيسية", () => {
   it("يعرض مرجع API المنشور من دون أي مادة اعتماد", () => {
     render(<LanguageProvider><Router hook={useHashLocation} hrefs={toHashHref}><Home /></Router></LanguageProvider>);
 
-    const endpoint = "https://devforgeapp-grp92cnd.manus.space/api/trpc";
+    const endpoint = `${window.location.origin}/api/trpc`;
     expect(screen.getByText(endpoint)).toBeTruthy();
     expect(screen.getByRole("link", { name: /عرض صفحة API/ }).getAttribute("href")).toBe("#/api");
-    expect(document.body.textContent).not.toMatch(/api[_ -]?key|authorization: bearer|sk_[a-z0-9]/i);
+    expect(document.body.textContent).not.toMatch(/manus\.space|api[_ -]?key|authorization: bearer|sk_[a-z0-9]/i);
   });
 
   it("يمرر روابط أقسام الصفحة داخل الصفحة ولا يحولها إلى مسار هاش غير صالح", () => {

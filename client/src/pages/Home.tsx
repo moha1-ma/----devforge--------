@@ -9,7 +9,7 @@ import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, ArrowUpLeft, Blocks, Bot, CheckCircle2, ChevronLeft, CloudCog, Code2, ExternalLink, GitBranch, GitPullRequest, Layers3, MessageCircleMore, Play, Rocket, ScanSearch, ShieldCheck, Sparkles, Store, Terminal, UserRound, UsersRound } from "lucide-react";
 import { Link } from "wouter";
 
-const DEVFORGE_API_ENDPOINT = "https://devforgeapp-grp92cnd.manus.space/api/trpc";
+const DEVFORGE_API_ENDPOINT = typeof window === "undefined" ? "/api/trpc" : `${window.location.origin}/api/trpc`;
 
 export default function Home() {
   const { direction, t } = useLanguage();
