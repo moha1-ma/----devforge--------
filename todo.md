@@ -298,3 +298,4 @@
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Continuity Center without enabling monitoring, changing health signals, or translating provider URLs.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the JavaScript Migration Center without changing active-origin contracts, review intent, hosting, or data-transfer boundaries.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Technical Partner Hub without changing partner data, official links, or review-only connection boundaries.
+- [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Aziz Design Review Center without creating listings, media, prices, payments, or automatic approvals.

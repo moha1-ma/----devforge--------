@@ -1,6 +1,7 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import AzizDesignReviewCenter from "./AzizDesignReviewCenter";
 
 const createDraft = vi.fn();
@@ -10,9 +11,9 @@ vi.mock("@/lib/trpc", () => ({ trpc: { useUtils: () => ({ azizMarket: { collecti
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 describe("AzizDesignReviewCenter", () => {
-  afterEach(() => { cleanup(); vi.clearAllMocks(); });
+  afterEach(() => { cleanup(); localStorage.clear(); vi.clearAllMocks(); });
   it("does not generate until the owner supplies a valid brief and explicitly starts one draft", () => {
-    render(<AzizDesignReviewCenter />);
+    render(<LanguageProvider><AzizDesignReviewCenter /></LanguageProvider>);
     expect(createDraft).not.toHaveBeenCalled();
     expect(review).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "إعداد مسودة للمراجعة" }).hasAttribute("disabled")).toBe(true);
@@ -22,5 +23,14 @@ describe("AzizDesignReviewCenter", () => {
     fireEvent.click(screen.getByRole("button", { name: "إعداد مسودة للمراجعة" }));
     expect(createDraft).toHaveBeenCalledWith({ collectionKey: "aziz-1", title: "موقع مؤسسة تعليمية", brief });
     expect(document.body.textContent).toMatch(/لا تنشئ وسائط أو أسعارًا أو دفعًا/);
+  });
+
+  it("renders reviewed English market-review controls without creating a draft", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><AzizDesignReviewCenter /></LanguageProvider>);
+    expect(screen.getByRole("heading", { name: "Aziz market review" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Prepare a draft for review" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByText("There are no drafts yet. The market does not create fictitious items instead.")).toBeTruthy();
+    expect(createDraft).not.toHaveBeenCalled();
   });
 });
