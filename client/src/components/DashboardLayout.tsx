@@ -18,8 +18,10 @@ import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/useMobile";
 import { Bell, Blocks, Boxes, BrainCircuit, Cable, Code2, CreditCard, FolderKanban, Github, GitPullRequest, Globe2, ImagePlus, LayoutTemplate, ListChecks, LogOut, Menu, MessageSquareHeart, Rocket, Search, Sparkles, Store, TimerReset, TerminalSquare, UsersRound } from "lucide-react";
 import { useLocation } from "wouter";
+import { toast } from "sonner";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import OwnerCodeGate from "./OwnerCodeGate";
+import { getNotificationsUnavailableMessage } from "@/lib/notifications";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { loading, user, logout } = useAuth();
@@ -83,7 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <header className="relative flex h-16 items-center justify-between overflow-hidden border-b border-white/8 px-4 sm:h-20 sm:px-5 md:px-8">
             <div className="engineering-grid pointer-events-none absolute inset-0 opacity-45" />
             <div className="relative"><p className="command-label">{t("engineeringControlRoom")}</p><div className="mt-1 flex flex-wrap items-center gap-2"><h2 className="text-lg font-bold text-white">{menuItems.find(item => item.path === location)?.label || t("workspace")}</h2><span className="signal-chip hidden sm:inline-flex"><span className="signal-dot" />مراجعة منظمة</span></div></div>
-            <div className="relative flex items-center gap-2 sm:gap-3"><LanguageSelector compact />{isMobile && <SidebarTrigger className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-300 hover:bg-white/8 hover:text-white" aria-label={t("openNavigation")}><Menu className="h-4 w-4" /></SidebarTrigger>}<button className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/7 hover:text-white" aria-label={t("notifications")}><Bell className="h-4 w-4" /></button></div>
+            <div className="relative flex items-center gap-2 sm:gap-3"><LanguageSelector compact />{isMobile && <SidebarTrigger className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-300 hover:bg-white/8 hover:text-white" aria-label={t("openNavigation")}><Menu className="h-4 w-4" /></SidebarTrigger>}<button type="button" onClick={() => toast.info(getNotificationsUnavailableMessage())} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/7 hover:text-white" aria-label={t("notifications")}><Bell className="h-4 w-4" /></button></div>
           </header>
           <main className="min-w-0 max-w-full overflow-x-hidden p-4 sm:p-5 md:p-8">{!isFullyTranslated && <p role="status" className="mb-4 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs leading-6 text-amber-100/85" dir="rtl">{t("languageFallback")}</p>}{children}</main>
         </SidebarInset>
