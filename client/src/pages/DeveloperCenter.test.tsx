@@ -6,16 +6,17 @@ import DeveloperCenter from "./DeveloperCenter";
 const generate = vi.fn();
 let proposalsQuery: any = { data: [], isLoading: false, error: null };
 let tasksQuery: any = { data: [] };
+let language = "ar";
 
 vi.mock("@/components/DashboardLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
-vi.mock("@/contexts/LanguageContext", () => ({ useLanguage: () => ({ direction: "rtl" }) }));
+vi.mock("@/contexts/LanguageContext", () => ({ useLanguage: () => ({ direction: language === "en" ? "ltr" : "rtl", language }) }));
 vi.mock("@/lib/trpc", () => ({ trpc: {
   useUtils: () => ({ developerCenter: { list: { invalidate: vi.fn() }, listTasks: { invalidate: vi.fn() } } }),
   developerCenter: { list: { useQuery: () => proposalsQuery }, listTasks: { useQuery: () => tasksQuery }, generate: { useMutation: () => ({ mutate: generate, isPending: false }) } },
 } }));
 
 describe("DeveloperCenter", () => {
-  afterEach(() => { cleanup(); vi.clearAllMocks(); proposalsQuery = { data: [], isLoading: false, error: null }; tasksQuery = { data: [] }; });
+  afterEach(() => { cleanup(); vi.clearAllMocks(); proposalsQuery = { data: [], isLoading: false, error: null }; tasksQuery = { data: [] }; language = "ar"; });
 
   it("offers Python by default and sends only a structured review proposal", () => {
     render(<DeveloperCenter />);
@@ -33,5 +34,14 @@ describe("DeveloperCenter", () => {
     fireEvent.click(screen.getByRole("button", { name: /دورة تحسين ذاتي/ }));
     expect(screen.getByText(/تشخيص ومقترحات واختبارات وموافقة قبل أي تغيير يدوي/)).toBeTruthy();
     expect(screen.getByText(/ليست أوامر قابلة للتشغيل/)).toBeTruthy();
+  });
+
+  it("renders reviewed English labels while preserving the private request as owner-entered text", () => {
+    language = "en";
+    render(<DeveloperCenter />);
+    expect(screen.getByText("AI Developer Center")).toBeTruthy();
+    expect(screen.getAllByText("Software architect")).toHaveLength(2);
+    expect(screen.getByLabelText("Proposed design language")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Create proposal" })).toBeTruthy();
   });
 });

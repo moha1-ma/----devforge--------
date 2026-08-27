@@ -119,6 +119,7 @@
 - [x] Add a persistent Arabic-first language preference with direction-aware English support and an extensible translation catalog.
 - [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
+- [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the AI Developer Center without translating owner-entered briefs or generated private proposals.
 - [x] Add reviewed Arabic and English interface copy for the owner AI task router without translating task input or generated private workstreams.
 - [x] Add reviewed Arabic and English interface copy for the owner global research hub without translating research queries, source results, or error text returned by external sources.
 - [x] Replace remaining hardcoded catalog, result-source, and empty-state interface strings in the Global Research Hub with reviewed Arabic and English keys, while preserving research queries and external-source text unchanged.
