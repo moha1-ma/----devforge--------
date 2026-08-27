@@ -7,7 +7,7 @@ function getText(content: string | Array<{ type: "text"; text: string } | { type
 export async function createCodeSuggestion(input: { ownerId: number; sourceFileId: number; content: string; cursorOffset: number; mode: CodeSuggestionMode }) {
   const owned = await readPrivateSourceFile(input.ownerId, input.sourceFileId);
   const context = prepareCodeSuggestionContext(input.content, input.cursorOffset);
-  const intent = input.mode === "complete" ? "أكمل النص البرمجي الناقص عند موضع المؤشر فقط. لا تعِد النص السابق." : "اقترح نسخة محسنة للجزء المحيط بالمؤشر فقط. حافظ على هدفه ولا توسع النطاق.";
+  const intent = input.mode === "complete" ? "أكمل النص البرمجي الناقص عند موضع المؤشر فقط. لا تعِد النص السابق." : input.mode === "diagnose" ? "شخّص عطلًا محتملاً أو تحسينًا ذا أولوية في الجزء المحيط بالمؤشر، ثم اقترح إصلاحًا محدودًا فقط. لا تدّعِ التنفيذ أو الاختبار." : "اقترح نسخة محسنة للجزء المحيط بالمؤشر فقط. حافظ على هدفه ولا توسع النطاق.";
   const response = await invokeLLM({ model: "gpt-5-mini", maxCompletionTokens: 500, reasoning: { effort: "minimal" }, responseFormat: codeSuggestionOutputSchema, messages: [{ role: "system", content: codeSuggestionSafetyInstruction }, { role: "user", content: `العملية: ${input.mode}\nاللغة: ${owned.file.language}\nالمسار: ${owned.file.path}\n${intent}\n\nالنص قبل المؤشر:\n---\n${context.before}\n---\n\nالنص بعد المؤشر:\n---\n${context.after}\n---` }] });
   const suggestion = parseCodeSuggestion(getText(response.choices[0]?.message.content ?? ""), input.mode);
   return { ...suggestion, language: owned.file.language, sourceFileId: owned.file.id };

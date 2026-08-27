@@ -185,7 +185,7 @@ export const appRouter = router({
     moderate: ownerProcedure.input(z.object({ target: z.enum(["community", "membership", "post", "report"]), id: z.number().int().positive(), status: z.enum(["approved", "rejected", "archived", "blocked", "resolved", "dismissed"]), note: z.string().trim().max(500).optional() })).mutation(({ ctx, input }) => moderateCommunityItem({ ownerId: ctx.user.id, ...input })),
   }),
   codeAssistant: router({
-    suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),
+    suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve", "diagnose"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),
   }),
   githubMerge: router({
     prepare: ownerProcedure.input(z.object({ toolName: z.string().trim().min(3).max(120), repositories: z.array(z.string().trim().min(1).max(300)).min(1).max(12), brief: z.string().trim().max(2000).optional() })).mutation(async ({ ctx, input }) => saveVerifiedMergePlan(ctx.user.id, await prepareVerifiedMergePlan(input))),

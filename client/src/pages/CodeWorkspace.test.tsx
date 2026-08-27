@@ -54,4 +54,14 @@ describe("CodeWorkspace", () => {
     await waitFor(() => expect((screen.getByRole("textbox") as HTMLTextAreaElement).value).toContain("42;"));
     expect(mocks.save).not.toHaveBeenCalled();
   });
+
+  it("offers private file diagnostics as a manual repair draft without autosaving", () => {
+    render(<LanguageProvider><CodeWorkspace /></LanguageProvider>);
+    expect(screen.getByLabelText("تشخيص الملف")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "تشخيص الملف" }));
+    expect(mocks.suggest).toHaveBeenCalledWith(expect.objectContaining({ sourceFileId: 4, mode: "diagnose" }));
+    act(() => { mocks.suggestionOptions.onSuccess({ operation: "diagnose", suggestion: "const answer = fallback;", explanation: "قيمة غير مكتملة", risks: ["راجع fallback"], tests: ["اختبر القيمة الفارغة"] }); });
+    expect(screen.getByText("تشخيص وإصلاح مقترح للملف")).toBeTruthy();
+    expect(mocks.save).not.toHaveBeenCalled();
+  });
 });

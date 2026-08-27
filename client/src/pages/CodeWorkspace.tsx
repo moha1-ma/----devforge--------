@@ -8,10 +8,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { detectSourceLanguage } from "@shared/sourceFilePolicy";
-import { CheckCircle2, Code2, Download, FileCode2, FilePlus2, History, Import, Loader2, PanelRightOpen, Play, Save, ShieldCheck, Trash2, Upload, WandSparkles } from "lucide-react";
+import { CheckCircle2, Download, FileCode2, FilePlus2, FileSearch, History, Loader2, PanelRightOpen, Play, Save, ShieldCheck, Trash2, Upload, WandSparkles } from "lucide-react";
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
+
+type Suggestion = {
+  suggestion: string;
+  explanation: string;
+  risks: string[];
+  tests: string[];
+  operation: "complete" | "improve" | "diagnose";
+};
 
 function downloadTextFile(name: string, content: string) {
   const url = URL.createObjectURL(new Blob([content], { type: "text/plain;charset=utf-8" }));
@@ -24,7 +32,7 @@ function downloadTextFile(name: string, content: string) {
 
 export default function CodeWorkspace() {
   const [location] = useLocation();
-  const { direction, language: selectedLanguage, t } = useLanguage();
+  const { direction, t } = useLanguage();
   const utils = trpc.useUtils();
   const { data: projects = [], isLoading: projectsLoading } = trpc.projects.list.useQuery();
   const [projectId, setProjectId] = useState<number | null>(null);
@@ -34,7 +42,7 @@ export default function CodeWorkspace() {
   const [path, setPath] = useState("src/main.py");
   const [newContent, setNewContent] = useState("");
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [suggestion, setSuggestion] = useState<{ suggestion: string; explanation: string; risks: string[]; tests: string[]; operation: "complete" | "improve" } | null>(null);
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [suggestionCursor, setSuggestionCursor] = useState(0);
   const editorRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -44,31 +52,62 @@ export default function CodeWorkspace() {
     if (requestedProject && requestedProject !== projectId) setProjectId(requestedProject);
     else if (!projectId && projects[0]) setProjectId(projects[0].id);
   }, [projectId, projects, requestedProjectId]);
+
   const filesQuery = trpc.sourceFiles.list.useQuery({ projectId: projectId ?? 0 }, { enabled: Boolean(projectId) });
   const fileQuery = trpc.sourceFiles.read.useQuery({ sourceFileId: selectedFileId ?? 0 }, { enabled: Boolean(selectedFileId) });
   const revisionsQuery = trpc.sourceFiles.revisions.useQuery({ sourceFileId: selectedFileId ?? 0 }, { enabled: Boolean(selectedFileId) });
   const createFile = trpc.sourceFiles.create.useMutation({
-    onSuccess: async file => { await utils.sourceFiles.list.invalidate(); setSelectedFileId(file.id); setNewFileOpen(false); setPath("src/main.py"); setNewContent(""); toast.success(t("fileSaved")); },
+    onSuccess: async file => {
+      await utils.sourceFiles.list.invalidate();
+      setSelectedFileId(file.id);
+      setNewFileOpen(false);
+      setPath("src/main.py");
+      setNewContent("");
+      toast.success(t("fileSaved"));
+    },
     onError: error => toast.error(error.message),
   });
   const saveFile = trpc.sourceFiles.save.useMutation({
-    onSuccess: async () => { await Promise.all([utils.sourceFiles.read.invalidate(), utils.sourceFiles.list.invalidate(), utils.sourceFiles.revisions.invalidate()]); toast.success(t("revisionSaved")); },
+    onSuccess: async () => {
+      await Promise.all([utils.sourceFiles.read.invalidate(), utils.sourceFiles.list.invalidate(), utils.sourceFiles.revisions.invalidate()]);
+      toast.success(t("revisionSaved"));
+    },
     onError: error => toast.error(error.message),
   });
   const removeFile = trpc.sourceFiles.remove.useMutation({
-    onSuccess: async () => { await utils.sourceFiles.list.invalidate(); setSelectedFileId(null); setEditorContent(""); toast.success(t("fileRemoved")); },
+    onSuccess: async () => {
+      await utils.sourceFiles.list.invalidate();
+      setSelectedFileId(null);
+      setEditorContent("");
+      toast.success(t("fileRemoved"));
+    },
     onError: error => toast.error(error.message),
   });
   const requestSuggestion = trpc.codeAssistant.suggest.useMutation({
-    onSuccess: response => { setSuggestion(response); toast.success(response.operation === "complete" ? "تم تجهيز إكمال السطر للمراجعة." : "تم تجهيز اقتراح التحسين للمراجعة."); },
+    onSuccess: response => {
+      setSuggestion(response);
+      toast.success(response.operation === "complete" ? "تم تجهيز إكمال السطر للمراجعة." : response.operation === "diagnose" ? "تم تجهيز تشخيص وإصلاح مقترح للمراجعة." : "تم تجهيز اقتراح التحسين للمراجعة.");
+    },
     onError: error => toast.error(error.message),
   });
 
-  useEffect(() => { if (fileQuery.data) setEditorContent(fileQuery.data.content); }, [fileQuery.data]);
+  useEffect(() => {
+    if (fileQuery.data) setEditorContent(fileQuery.data.content);
+  }, [fileQuery.data]);
+
   const selectedFile = fileQuery.data?.file;
   const language = selectedFile?.language ?? detectSourceLanguage(path);
   const canPreview = language === "html" && Boolean(editorContent.trim());
   const codeLabel = useMemo(() => selectedFile ? `${selectedFile.path} · ${selectedFile.language}` : t("chooseFile"), [selectedFile, t]);
+  const diagnostics = useMemo(() => {
+    const lines = editorContent ? editorContent.split("\n") : [];
+    return {
+      lines: lines.length,
+      characters: editorContent.length,
+      longLines: lines.filter(line => line.length > 120).length,
+      todoMarkers: (editorContent.match(/\b(?:TODO|FIXME|HACK)\b/gi) ?? []).length,
+    };
+  }, [editorContent]);
 
   function submitNewFile(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -88,13 +127,14 @@ export default function CodeWorkspace() {
     reader.readAsText(uploaded);
   }
 
-  function askForSuggestion(mode: "complete" | "improve") {
+  function askForSuggestion(mode: Suggestion["operation"]) {
     if (!selectedFile) return;
     const cursorOffset = editorRef.current?.selectionStart ?? editorContent.length;
     setSuggestionCursor(cursorOffset);
     setSuggestion(null);
     requestSuggestion.mutate({ sourceFileId: selectedFile.id, content: editorContent, cursorOffset, mode });
   }
+
   function applySuggestion() {
     if (!suggestion) return;
     setEditorContent(current => `${current.slice(0, suggestionCursor)}${suggestion.suggestion}${current.slice(suggestionCursor)}`);
@@ -102,10 +142,22 @@ export default function CodeWorkspace() {
     toast.success("أُدرجت المسودة في المحرر فقط. احفظها يدويًا بعد المراجعة.");
   }
 
-  return <DashboardLayout><section dir={direction} className="space-y-5"><div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end"><div><Badge className="border border-cyan-300/20 bg-cyan-300/10 text-cyan-100"><ShieldCheck className="ml-1 h-3.5 w-3.5" /> {t("privateOwnerSpace")}</Badge><h1 className="mt-4 text-3xl font-bold text-white">{t("codeSources")}</h1><p className="mt-2 max-w-2xl leading-7 text-slate-400">{t("codeSourcesCopy")}</p></div><div className="flex flex-wrap gap-3"><label className="inline-flex h-11 cursor-pointer items-center rounded-xl border border-white/12 bg-white/[0.03] px-4 text-sm font-semibold text-white hover:bg-white/8"><Upload className="ml-2 h-4 w-4" /> {t("importText")}<input type="file" accept=".py,.html,.htm,.css,.js,.jsx,.ts,.tsx,.json,.md,.markdown,.yaml,.yml,.toml,.xml,.sql,.sh,.txt,.java,.c,.cpp,.h,.cs,.go,.rs,.php,.rb,.swift,.kt,.kts,.dart,.vue,.svelte" className="hidden" onChange={importTextFile} /></label><Dialog open={newFileOpen} onOpenChange={setNewFileOpen}><DialogTrigger asChild><Button className="bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200"><FilePlus2 className="ml-2 h-4 w-4" /> {t("newFile")}</Button></DialogTrigger><DialogContent dir={direction} className="border-white/10 bg-slate-950 text-white sm:max-w-lg"><form onSubmit={submitNewFile}><DialogHeader><DialogTitle>{t("addPrivateTextFile")}</DialogTitle><DialogDescription className="text-slate-400">{t("addPrivateTextFileCopy")}</DialogDescription></DialogHeader><div className="space-y-4 py-5"><div className="space-y-2"><Label htmlFor="source-path">{t("projectPath")}</Label><Input id="source-path" value={path} onChange={event => setPath(event.target.value)} className="border-white/10 bg-white/5 font-mono text-white" required /></div><div className="space-y-2"><Label htmlFor="source-content">{t("content")}</Label><Textarea id="source-content" value={newContent} onChange={event => setNewContent(event.target.value)} className="min-h-52 border-white/10 bg-white/5 font-mono text-sm text-white" /></div></div><DialogFooter><Button type="submit" disabled={createFile.isPending} className="bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{createFile.isPending ? t("saving") : t("saveFile")}</Button></DialogFooter></form></DialogContent></Dialog></div></div>
+  return <DashboardLayout><section dir={direction} className="space-y-5">
+    <div className="flex flex-col justify-between gap-4 xl:flex-row xl:items-end">
+      <div><Badge className="border border-cyan-300/20 bg-cyan-300/10 text-cyan-100"><ShieldCheck className="ml-1 h-3.5 w-3.5" /> {t("privateOwnerSpace")}</Badge><h1 className="mt-4 text-3xl font-bold text-white">{t("codeSources")}</h1><p className="mt-2 max-w-2xl leading-7 text-slate-400">{t("codeSourcesCopy")}</p></div>
+      <div className="flex flex-wrap gap-3">
+        <label className="inline-flex h-11 cursor-pointer items-center rounded-xl border border-white/12 bg-white/[0.03] px-4 text-sm font-semibold text-white hover:bg-white/8"><Upload className="ml-2 h-4 w-4" /> {t("importText")}<input type="file" accept=".py,.html,.htm,.css,.js,.jsx,.ts,.tsx,.json,.md,.markdown,.yaml,.yml,.toml,.xml,.sql,.sh,.txt,.java,.c,.cpp,.h,.cs,.go,.rs,.php,.rb,.swift,.kt,.kts,.dart,.vue,.svelte" className="hidden" onChange={importTextFile} /></label>
+        <Dialog open={newFileOpen} onOpenChange={setNewFileOpen}><DialogTrigger asChild><Button className="bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200"><FilePlus2 className="ml-2 h-4 w-4" /> {t("newFile")}</Button></DialogTrigger><DialogContent dir={direction} className="border-white/10 bg-slate-950 text-white sm:max-w-lg"><form onSubmit={submitNewFile}><DialogHeader><DialogTitle>{t("addPrivateTextFile")}</DialogTitle><DialogDescription className="text-slate-400">{t("addPrivateTextFileCopy")}</DialogDescription></DialogHeader><div className="space-y-4 py-5"><div className="space-y-2"><Label htmlFor="source-path">{t("projectPath")}</Label><Input id="source-path" value={path} onChange={event => setPath(event.target.value)} className="border-white/10 bg-white/5 font-mono text-white" required /></div><div className="space-y-2"><Label htmlFor="source-content">{t("content")}</Label><Textarea id="source-content" value={newContent} onChange={event => setNewContent(event.target.value)} className="min-h-52 border-white/10 bg-white/5 font-mono text-sm text-white" /></div></div><DialogFooter><Button type="submit" disabled={createFile.isPending} className="bg-cyan-300 font-bold text-slate-950 hover:bg-cyan-200">{createFile.isPending ? t("saving") : t("saveFile")}</Button></DialogFooter></form></DialogContent></Dialog>
+      </div>
+    </div>
     <div className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-3 md:flex-row md:items-center"><span className="text-sm font-semibold text-slate-300">{t("project")}:</span><select value={projectId ?? ""} onChange={event => { setProjectId(Number(event.target.value)); setSelectedFileId(null); }} className="h-10 min-w-52 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm text-white"><option value="">{projectsLoading ? t("loadingProjects") : t("selectProject")}</option>{projects.map(project => <option key={project.id} value={project.id}>{project.name} · {project.key}</option>)}</select>{!projects.length && !projectsLoading && <Link href="/projects" className="text-sm font-semibold text-cyan-200 hover:text-cyan-100">{t("createFirstProject")}</Link>}<span className="mr-auto text-xs text-slate-500">{t("textFilesOnly")} · 512 KB</span></div>
-    <div className="grid min-h-[620px] gap-4 xl:grid-cols-[260px_minmax(0,1fr)_250px]"><aside className="rounded-3xl border border-white/8 bg-white/[0.025] p-3"><div className="mb-3 flex items-center justify-between px-2"><p className="text-sm font-bold text-white">ملفات المشروع</p><FileCode2 className="h-4 w-4 text-cyan-300" /></div><div className="space-y-1">{filesQuery.isLoading ? <Loader2 className="mx-auto mt-12 h-5 w-5 animate-spin text-cyan-300" /> : filesQuery.data?.length ? filesQuery.data.map(file => <button key={file.id} onClick={() => setSelectedFileId(file.id)} className={`w-full rounded-xl px-3 py-3 text-right transition ${selectedFileId === file.id ? "bg-cyan-300/12 text-cyan-100" : "text-slate-400 hover:bg-white/6 hover:text-white"}`}><span className="block truncate font-mono text-xs">{file.path}</span><span className="mt-1 block text-[11px] text-slate-600">{file.language} · r{file.revisionCount}</span></button>) : <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs leading-6 text-slate-600">لا توجد ملفات بعد. أضف ملفًا أو استورد ملفًا نصيًا.</p>}</div></aside>
-      <article className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/8 bg-slate-950/60"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-3"><div><p className="font-mono text-xs text-cyan-200">{codeLabel}</p><p className="mt-1 text-[11px] text-slate-600">الحفظ ينشئ مراجعة جديدة ولا يشغّل الكود.</p></div><div className="flex flex-wrap gap-2">{selectedFile && <><Button onClick={() => askForSuggestion("complete")} disabled={requestSuggestion.isPending || !editorContent} variant="outline" className="h-9 border-violet-300/25 bg-violet-300/5 text-violet-100 hover:bg-violet-300/10 hover:text-white"><WandSparkles className="ml-1 h-3.5 w-3.5" />إكمال السطر</Button><Button onClick={() => askForSuggestion("improve")} disabled={requestSuggestion.isPending || !editorContent} variant="outline" className="h-9 border-cyan-300/25 bg-cyan-300/5 text-cyan-100 hover:bg-cyan-300/10 hover:text-white">تحسين السياق</Button></>}{canPreview && <Button onClick={() => setPreviewOpen(value => !value)} variant="outline" className="h-9 border-white/10 bg-white/[0.03] text-white hover:bg-white/8 hover:text-white"><Play className="ml-1 h-3.5 w-3.5" /> معاينة HTML</Button>}<Button onClick={() => selectedFile && downloadTextFile(selectedFile.path, editorContent)} disabled={!selectedFile} variant="outline" className="h-9 border-white/10 bg-white/[0.03] text-white hover:bg-white/8 hover:text-white"><Download className="ml-1 h-3.5 w-3.5" /> تنزيل</Button><Button onClick={() => selectedFile && saveFile.mutate({ sourceFileId: selectedFile.id, content: editorContent, note: "حفظ من المحرر" })} disabled={!selectedFile || saveFile.isPending} className="h-9 bg-cyan-300 text-slate-950 hover:bg-cyan-200"><Save className="ml-1 h-3.5 w-3.5" /> حفظ</Button></div></div>{selectedFile ? <div className="grid min-h-0 flex-1 grid-rows-[minmax(280px,1fr)_auto]">{suggestion && <section className="border-b border-violet-300/15 bg-violet-300/[0.04] p-4" aria-label="اقتراح كود للمراجعة"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-violet-100">{suggestion.operation === "complete" ? "إكمال مقترح للسطر الحالي" : "تحسين مقترح للسياق الحالي"}</p><p className="mt-1 text-xs leading-5 text-slate-400">{suggestion.explanation}</p></div><Button size="sm" onClick={applySuggestion} className="bg-violet-300 text-slate-950 hover:bg-violet-200"><CheckCircle2 className="ml-1 h-4 w-4" />إدراج المسودة</Button></div><pre className="mt-3 max-h-40 overflow-auto rounded-xl border border-white/10 bg-slate-950/80 p-3 text-left text-xs leading-6 text-cyan-100" dir="ltr">{suggestion.suggestion}</pre><p className="mt-2 text-[11px] text-amber-100">لا يُحفظ أو يُشغّل أي اقتراح تلقائيًا. راجعه ثم اختر الحفظ يدويًا.</p></section>}<Textarea ref={editorRef} value={editorContent} onChange={event => setEditorContent(event.target.value)} spellCheck={false} className="min-h-80 resize-none rounded-none border-0 bg-transparent p-5 font-mono text-sm leading-7 text-slate-100 focus-visible:ring-0" />{previewOpen && <iframe title="HTML preview" sandbox="" srcDoc={editorContent} className="h-56 border-t border-white/8 bg-white" />}</div> : <div className="grid flex-1 place-items-center p-8 text-center"><div><PanelRightOpen className="mx-auto h-8 w-8 text-cyan-300" /><h2 className="mt-4 font-bold text-white">افتح ملفًا من المشروع</h2><p className="mt-2 max-w-sm text-sm leading-7 text-slate-500">ستظهر هنا مساحة تحرير خاصة، مع معاينة HTML مقيدة وتنزيل للمحتوى.</p></div></div>}</article>
-      <aside className="rounded-3xl border border-white/8 bg-white/[0.025] p-4"><div className="flex items-center gap-2"><History className="h-4 w-4 text-violet-300" /><p className="text-sm font-bold text-white">المراجعات</p></div><div className="mt-4 space-y-3">{revisionsQuery.data?.length ? revisionsQuery.data.map(revision => <div key={revision.id} className="rounded-2xl bg-white/[0.035] p-3"><p className="font-mono text-xs text-violet-200">r{revision.revisionNumber}</p><p className="mt-2 text-xs leading-5 text-slate-500">{revision.note || "بدون ملاحظة"}</p><p className="mt-2 text-[11px] text-slate-600">{new Date(revision.createdAt).toLocaleString("ar")}</p></div>) : <p className="text-sm leading-7 text-slate-600">اختر ملفًا لعرض تاريخه.</p>}</div>{selectedFile && <Button onClick={() => { if (confirm(`حذف ${selectedFile.path} من فهرس المشروع؟`)) removeFile.mutate({ sourceFileId: selectedFile.id }); }} variant="outline" className="mt-6 w-full border-rose-400/20 bg-rose-400/5 text-rose-200 hover:bg-rose-400/10 hover:text-rose-100"><Trash2 className="ml-2 h-4 w-4" /> حذف من المشروع</Button>}</aside></div>
+    <div className="grid min-h-[620px] gap-4 xl:grid-cols-[260px_minmax(0,1fr)_250px]">
+      <aside className="rounded-3xl border border-white/8 bg-white/[0.025] p-3"><div className="mb-3 flex items-center justify-between px-2"><p className="text-sm font-bold text-white">ملفات المشروع</p><FileCode2 className="h-4 w-4 text-cyan-300" /></div><div className="space-y-1">{filesQuery.isLoading ? <Loader2 className="mx-auto mt-12 h-5 w-5 animate-spin text-cyan-300" /> : filesQuery.data?.length ? filesQuery.data.map(file => <button key={file.id} onClick={() => setSelectedFileId(file.id)} className={`w-full rounded-xl px-3 py-3 text-right transition ${selectedFileId === file.id ? "bg-cyan-300/12 text-cyan-100" : "text-slate-400 hover:bg-white/6 hover:text-white"}`}><span className="block truncate font-mono text-xs">{file.path}</span><span className="mt-1 block text-[11px] text-slate-600">{file.language} · r{file.revisionCount}</span></button>) : <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-xs leading-6 text-slate-600">لا توجد ملفات بعد. أضف ملفًا أو استورد ملفًا نصيًا.</p>}</div></aside>
+      <article className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-white/8 bg-slate-950/60">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 px-4 py-3"><div><p className="font-mono text-xs text-cyan-200">{codeLabel}</p><p className="mt-1 text-[11px] text-slate-600">الحفظ ينشئ مراجعة جديدة ولا يشغّل الكود.</p></div><div className="flex flex-wrap gap-2">{selectedFile && <><Button onClick={() => askForSuggestion("complete")} disabled={requestSuggestion.isPending || !editorContent} variant="outline" className="h-9 border-violet-300/25 bg-violet-300/5 text-violet-100 hover:bg-violet-300/10 hover:text-white"><WandSparkles className="ml-1 h-3.5 w-3.5" />إكمال السطر</Button><Button onClick={() => askForSuggestion("improve")} disabled={requestSuggestion.isPending || !editorContent} variant="outline" className="h-9 border-cyan-300/25 bg-cyan-300/5 text-cyan-100 hover:bg-cyan-300/10 hover:text-white">تحسين السياق</Button><Button onClick={() => askForSuggestion("diagnose")} disabled={requestSuggestion.isPending || !editorContent} variant="outline" className="h-9 border-amber-300/25 bg-amber-300/5 text-amber-100 hover:bg-amber-300/10 hover:text-white"><FileSearch className="ml-1 h-3.5 w-3.5" />تشخيص الملف</Button></>}{canPreview && <Button onClick={() => setPreviewOpen(value => !value)} variant="outline" className="h-9 border-white/10 bg-white/[0.03] text-white hover:bg-white/8 hover:text-white"><Play className="ml-1 h-3.5 w-3.5" /> معاينة HTML</Button>}<Button onClick={() => selectedFile && downloadTextFile(selectedFile.path, editorContent)} disabled={!selectedFile} variant="outline" className="h-9 border-white/10 bg-white/[0.03] text-white hover:bg-white/8 hover:text-white"><Download className="ml-1 h-3.5 w-3.5" /> تنزيل</Button><Button onClick={() => selectedFile && saveFile.mutate({ sourceFileId: selectedFile.id, content: editorContent, note: "حفظ من المحرر" })} disabled={!selectedFile || saveFile.isPending} className="h-9 bg-cyan-300 text-slate-950 hover:bg-cyan-200"><Save className="ml-1 h-3.5 w-3.5" /> حفظ</Button></div></div>
+        {selectedFile ? <div className="grid min-h-0 flex-1 grid-rows-[minmax(280px,1fr)_auto]"><section aria-label="تشخيص الملف" className="grid gap-2 border-b border-amber-300/10 bg-amber-300/[0.025] p-4 sm:grid-cols-4"><p className="sm:col-span-4 text-xs leading-5 text-amber-100">مؤشرات محلية للملف فقط. استخدم «تشخيص الملف» لمسودة إصلاح محدودة؛ لا تُعدل هذه المؤشرات الملف ولا ترسله تلقائيًا.</p>{[["الأسطر", diagnostics.lines], ["الأحرف", diagnostics.characters], ["أسطر طويلة", diagnostics.longLines], ["TODO / FIXME", diagnostics.todoMarkers]].map(([label, value]) => <div key={String(label)} className="rounded-xl border border-white/8 bg-slate-950/40 px-3 py-2"><p className="text-[11px] text-slate-500">{label}</p><p className="mt-1 font-mono text-sm text-amber-100">{value}</p></div>)}</section>{suggestion && <section className="border-b border-violet-300/15 bg-violet-300/[0.04] p-4" aria-label="اقتراح كود للمراجعة"><div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-bold text-violet-100">{suggestion.operation === "complete" ? "إكمال مقترح للسطر الحالي" : suggestion.operation === "diagnose" ? "تشخيص وإصلاح مقترح للملف" : "تحسين مقترح للسياق الحالي"}</p><p className="mt-1 text-xs leading-5 text-slate-400">{suggestion.explanation}</p></div><Button size="sm" onClick={applySuggestion} className="bg-violet-300 text-slate-950 hover:bg-violet-200"><CheckCircle2 className="ml-1 h-4 w-4" />إدراج المسودة</Button></div><pre className="mt-3 max-h-40 overflow-auto rounded-xl border border-white/10 bg-slate-950/80 p-3 text-left text-xs leading-6 text-cyan-100" dir="ltr">{suggestion.suggestion}</pre><p className="mt-2 text-[11px] text-amber-100">لا يُحفظ أو يُشغّل أي اقتراح تلقائيًا. راجعه ثم اختر الحفظ يدويًا.</p></section>}<Textarea ref={editorRef} value={editorContent} onChange={event => setEditorContent(event.target.value)} spellCheck={false} className="min-h-80 resize-none rounded-none border-0 bg-transparent p-5 font-mono text-sm leading-7 text-slate-100 focus-visible:ring-0" />{previewOpen && <iframe title="HTML preview" sandbox="" srcDoc={editorContent} className="h-56 border-t border-white/8 bg-white" />}</div> : <div className="grid flex-1 place-items-center p-8 text-center"><div><PanelRightOpen className="mx-auto h-8 w-8 text-cyan-300" /><h2 className="mt-4 font-bold text-white">افتح ملفًا من المشروع</h2><p className="mt-2 max-w-sm text-sm leading-7 text-slate-500">ستظهر هنا مساحة تحرير خاصة، مع معاينة HTML مقيدة وتنزيل للمحتوى.</p></div></div>}
+      </article>
+      <aside className="rounded-3xl border border-white/8 bg-white/[0.025] p-4"><div className="flex items-center gap-2"><History className="h-4 w-4 text-violet-300" /><p className="text-sm font-bold text-white">المراجعات</p></div><div className="mt-4 space-y-3">{revisionsQuery.data?.length ? revisionsQuery.data.map(revision => <div key={revision.id} className="rounded-2xl bg-white/[0.035] p-3"><p className="font-mono text-xs text-violet-200">r{revision.revisionNumber}</p><p className="mt-2 text-xs leading-5 text-slate-500">{revision.note || "بدون ملاحظة"}</p><p className="mt-2 text-[11px] text-slate-600">{new Date(revision.createdAt).toLocaleString("ar")}</p></div>) : <p className="text-sm leading-7 text-slate-600">اختر ملفًا لعرض تاريخه.</p>}</div>{selectedFile && <Button onClick={() => { if (confirm(`حذف ${selectedFile.path} من فهرس المشروع؟`)) removeFile.mutate({ sourceFileId: selectedFile.id }); }} variant="outline" className="mt-6 w-full border-rose-400/20 bg-rose-400/5 text-rose-200 hover:bg-rose-400/10 hover:text-rose-100"><Trash2 className="ml-2 h-4 w-4" /> حذف من المشروع</Button>}</aside>
+    </div>
   </section></DashboardLayout>;
 }

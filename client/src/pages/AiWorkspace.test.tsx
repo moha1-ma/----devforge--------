@@ -50,4 +50,17 @@ describe("AiWorkspace", () => {
     act(() => { askOptions?.onError?.(new Error("تعذر الوصول إلى البحث")); });
     expect(screen.getByRole("alert").textContent).toContain("تعذر الوصول إلى البحث");
   });
+
+  it("retries only the last explicit trusted-web request through a mobile-safe control", () => {
+    render(<LanguageProvider><AiWorkspace /></LanguageProvider>);
+    fireEvent.click(screen.getByLabelText("اطلب بحثًا موثوقًا لهذه الرسالة"));
+    fireEvent.click(screen.getByText("إرسال للمساعد"));
+    act(() => { askOptions?.onError?.(new Error("تعذر الوصول إلى البحث")); });
+
+    const retry = screen.getByRole("button", { name: "إعادة محاولة البحث الموثق" });
+    expect(retry.className).toContain("w-full");
+    expect(retry.className).toContain("sm:w-auto");
+    fireEvent.click(retry);
+    expect(askMutate).toHaveBeenLastCalledWith(expect.objectContaining({ threadId: 1, content: "اختبر الرد", researchMode: "trusted-web" }));
+  });
 });

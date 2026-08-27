@@ -193,3 +193,9 @@
 - [x] Add a rendered test confirming the in-app API reference uses the published endpoint and contains no credential material.
 - [x] Ensure a periodic-development job cannot remain marked active if Heartbeat creation fails, and present a retryable failure state.
 - [x] Add a regression test covering failed Heartbeat creation during periodic-development activation.
+- [x] Add a bounded retry path for owner-requested trusted-web research failures without changing research mode or exposing credentials.
+- [x] Add a rendered mobile-safe test for the trusted-web retry state and source-disclosure boundary.
+- [x] Add an owner-only file diagnostic that summarizes validated private source files and produces a review-only repair proposal without executing or overwriting them.
+- [x] Add tests proving file diagnostics remain owner-scoped, bounded, and require explicit manual application.
+- [x] Add a clear, bounded retry path for an owner-requested trusted-web search failure without changing research mode or exposing credentials.
+- [x] Add a rendered mobile-safe test for the trusted-web retry state and source-disclosure boundary.
