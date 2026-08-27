@@ -11,7 +11,7 @@ vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("wouter", () => ({ useLocation: () => ["/continuity", mocks.navigate] }));
 
 describe("ContinuityCenter", () => {
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.clear(); });
   it("shows a bounded local health signal and explicitly excludes automatic remediation", () => {
     render(<LanguageProvider><ContinuityCenter /></LanguageProvider>);
     expect(screen.getByRole("heading", { name: "مركز الاستمرارية" })).toBeTruthy();
@@ -27,5 +27,13 @@ describe("ContinuityCenter", () => {
     expect(screen.getAllByRole("link", { name: "التوثيق الرسمي" })[0].getAttribute("href")).toBe("https://uptimerobot.com/api/");
     fireEvent.click(screen.getAllByRole("button", { name: "طلب مراجعة الربط" })[0]);
     expect(mocks.mutate).toHaveBeenCalledWith({ providerKey: "uptimerobot" });
+  });
+
+  it("renders reviewed English controls while retaining provider documentation links", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><ContinuityCenter /></LanguageProvider>);
+    expect(screen.getByRole("heading", { name: "Continuity Center" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Check again" })).toBeTruthy();
+    expect(screen.getAllByRole("link", { name: "Official documentation" })[0].getAttribute("href")).toBe("https://uptimerobot.com/api/");
   });
 });

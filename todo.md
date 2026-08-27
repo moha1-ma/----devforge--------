@@ -295,3 +295,4 @@
 - [x] Build a responsive public market catalog and owner review surface for the Aziz collections, with empty states until genuine or owner-generated, licensed design assets are submitted and approved.
 - [x] Add tests proving the Aziz catalog has no fabricated products, prices, ratings, payments, automated generation, or background work and that design-review actions are owner-scoped.
 - [x] Replace the remaining fixed hosting-domain API address on the public home screen with the active origin and add a regression test that it contains no static hosting domain or credential.
+- [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Continuity Center without enabling monitoring, changing health signals, or translating provider URLs.
