@@ -28,7 +28,7 @@ import { createCodeSuggestion } from "./codeCompletion";
 import { prepareVerifiedMergePlan, saveVerifiedMergePlan } from "./githubMergeService";
 import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
-import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
+import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, recordPeriodicDevelopmentScheduleError, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -194,12 +194,21 @@ export const appRouter = router({
     status: ownerProcedure.query(({ ctx }) => getPeriodicDevelopmentJob(ctx.user.id)),
     drafts: ownerProcedure.query(({ ctx }) => listPeriodicDevelopmentDrafts(ctx.user.id)),
     configure: ownerProcedure.input(z.object({ cadence: z.enum(["hourly", "every-6-hours"]) })).mutation(async ({ ctx, input }) => {
-      let job = await savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: input.cadence, status: "active" });
       const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
       const cron = getPeriodicDevelopmentCron(input.cadence);
-      if (job.scheduleCronTaskUid) await updateHeartbeatJob(job.scheduleCronTaskUid, { cron, enable: true, description: "مسودات تطوير DevForge للمراجعة فقط" }, sessionToken);
-      else { const schedule = await createHeartbeatJob({ name: `periodic-development-${job.id}`, cron, path: "/api/scheduled/periodic-development", description: "ينتج مسودات تطوير DevForge للمراجعة فقط" }, sessionToken); job = await attachPeriodicDevelopmentSchedule({ ownerId: ctx.user.id, taskUid: schedule.taskUid }); }
-      return job;
+      const current = await getPeriodicDevelopmentJob(ctx.user.id);
+      try {
+        if (current?.scheduleCronTaskUid) {
+          await updateHeartbeatJob(current.scheduleCronTaskUid, { cron, enable: true, description: "مسودات تطوير DevForge للمراجعة فقط" }, sessionToken);
+          return savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: input.cadence, status: "active" });
+        }
+        const job = await savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: input.cadence, status: "paused" });
+        const schedule = await createHeartbeatJob({ name: `periodic-development-${job.id}`, cron, path: "/api/scheduled/periodic-development", description: "ينتج مسودات تطوير DevForge للمراجعة فقط" }, sessionToken);
+        return attachPeriodicDevelopmentSchedule({ ownerId: ctx.user.id, taskUid: schedule.taskUid });
+      } catch (error) {
+        await recordPeriodicDevelopmentScheduleError({ ownerId: ctx.user.id, error });
+        throw error;
+      }
     }),
     pause: ownerProcedure.mutation(async ({ ctx }) => { const job = await getPeriodicDevelopmentJob(ctx.user.id); if (!job) throw new Error("لا توجد مهمة تطوير دورية مهيأة"); const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? ""; if (job.scheduleCronTaskUid) await updateHeartbeatJob(job.scheduleCronTaskUid, { enable: false }, sessionToken); return savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: job.cadence, status: "paused" }); }),
     reviewDraft: ownerProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["acknowledged", "dismissed"]) })).mutation(({ ctx, input }) => updatePeriodicDevelopmentDraft({ ownerId: ctx.user.id, ...input })),

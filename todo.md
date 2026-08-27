@@ -191,3 +191,5 @@
 - [x] Make the periodic-development handler idempotent across cron retries, retaining an actionable error state without duplicating generated drafts.
 - [x] Add a clear DevForge API reference inside the platform with the endpoint, public/protected distinction, and explicit no-secret disclosure.
 - [x] Add a rendered test confirming the in-app API reference uses the published endpoint and contains no credential material.
+- [x] Ensure a periodic-development job cannot remain marked active if Heartbeat creation fails, and present a retryable failure state.
+- [x] Add a regression test covering failed Heartbeat creation during periodic-development activation.
