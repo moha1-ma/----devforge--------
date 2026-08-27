@@ -1,0 +1,1 @@
+ALTER TABLE `visitorSubmissions` ADD `mediaReferenceUrl` varchar(1000);

@@ -251,6 +251,7 @@ export const visitorSubmissions = mysqlTable("visitorSubmissions", {
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
   moderatorId: int("moderatorId").references(() => users.id, { onDelete: "set null" }),
   moderationNote: varchar("moderationNote", { length: 500 }),
+  mediaReferenceUrl: varchar("mediaReferenceUrl", { length: 1000 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

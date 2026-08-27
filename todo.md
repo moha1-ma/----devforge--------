@@ -120,6 +120,14 @@
 - [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
 - [x] Add reviewed Arabic and English interface copy for the owner AI task router without translating task input or generated private workstreams.
+- [x] Add a responsive Instagram-inspired community feed section near the public page footer that renders only genuine approved submissions and never fabricates posts, creators, reactions, or engagement counts.
+- [x] Add a visitor submission path for permitted video uploads and media references, retaining consent, moderation, reporting, and privacy safeguards before any public appearance.
+- [x] Add a documented-news area that contains only verified source links and clear scope text; do not invent headlines or claim real-time coverage without a source.
+- [x] Add progressive manual “load more” pagination for approved feed content, stopping cleanly when no more records exist rather than simulating infinite content.
+- [x] Apply an accessible black-and-gold visual treatment to relevant modal dialogs and add regression tests for feed visibility, submission moderation, pagination, and modal behavior.
+- [x] Add an optional, allowlisted video or image reference URL to visitor submissions, validating its protocol and provider before owner review; reject arbitrary embeds and never display the reference before approval.
+- [x] Implement server-backed cursor pagination for approved visitor media and approved community posts, and wire “load more” to fetch the next bounded page rather than slicing a fixed initial result.
+- [x] Add service and router tests proving the public visitor-media feed excludes pending or rejected submissions, code attachments, storage keys, and private owner review data.
 - [x] Define a trusted-knowledge search policy for the AI assistant, including explicit user-triggered search, citations, source visibility, and no background browsing.
 - [x] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
 - [x] Improve assistant response quality with structured answer guidance, transparent source status, and graceful fallbacks when no external research source is authorized.

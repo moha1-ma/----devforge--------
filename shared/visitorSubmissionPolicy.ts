@@ -13,6 +13,17 @@ const mediaRules: Record<string, { kind: "image" | "video"; maxBytes: number }> 
 
 export type VisitorAttachmentInput = { name: string; mimeType: string; base64: string };
 export type ValidatedVisitorAttachment = { kind: "image" | "video" | "code"; safeName: string; mimeType: string; data: Buffer; sizeBytes: number };
+const allowedMediaReferenceHosts = ["youtube.com", "youtu.be", "vimeo.com", "loom.com"];
+
+export function validateMediaReferenceUrl(value?: string) {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  let url: URL;
+  try { url = new URL(raw); } catch { throw new Error("رابط الوسائط غير صالح"); }
+  const host = url.hostname.toLowerCase();
+  if (url.protocol !== "https:" || !allowedMediaReferenceHosts.some(allowed => host === allowed || host.endsWith(`.${allowed}`))) throw new Error("رابط الوسائط يجب أن يكون من مزود فيديو مسموح وباستخدام HTTPS");
+  return url.toString();
+}
 
 function safeAttachmentName(name: string) {
   const cleaned = name.trim().replaceAll("\\", "/").split("/").pop() || "attachment";
@@ -40,10 +51,11 @@ export function validateVisitorAttachment(input: VisitorAttachmentInput): Valida
   return { kind: "code", safeName: source.path, mimeType: "text/plain; charset=utf-8", data: Buffer.from(content, "utf8"), sizeBytes: source.sizeBytes };
 }
 
-export function validateVisitorSubmission(input: { visitorAlias?: string; category: "opinion" | "media" | "code" | "project"; title: string; content: string; consentAccepted: boolean; attachments: VisitorAttachmentInput[] }) {
+export function validateVisitorSubmission(input: { visitorAlias?: string; category: "opinion" | "media" | "code" | "project"; title: string; content: string; mediaReferenceUrl?: string; consentAccepted: boolean; attachments: VisitorAttachmentInput[] }) {
   const title = input.title.trim();
   const content = input.content.trim();
   const visitorAlias = input.visitorAlias?.trim() || undefined;
+  const mediaReferenceUrl = validateMediaReferenceUrl(input.mediaReferenceUrl);
   if (!input.consentAccepted) throw new Error("يتطلب الإرسال الموافقة على سياسة المراجعة والخصوصية");
   if (title.length < 3 || title.length > 180) throw new Error("عنوان المشاركة يجب أن يكون بين 3 و180 حرفًا");
   if (content.length < 12 || content.length > 6000) throw new Error("وصف المشاركة يجب أن يكون بين 12 و6000 حرف");
@@ -51,7 +63,7 @@ export function validateVisitorSubmission(input: { visitorAlias?: string; catego
   if (input.attachments.length > MAX_VISITOR_ATTACHMENTS) throw new Error("عدد المرفقات يتجاوز الحد المسموح");
   const attachments = input.attachments.map(validateVisitorAttachment);
   if (attachments.reduce((total, item) => total + item.sizeBytes, 0) > MAX_VISITOR_TOTAL_BYTES) throw new Error("الحجم الكلي للمرفقات يتجاوز الحد المسموح");
-  return { visitorAlias, title, content, attachments };
+  return { visitorAlias, title, content, mediaReferenceUrl, attachments };
 }
 
 export const visitorSubmissionPolicyCopy = "المشاركات والمرفقات تبقى معلّقة ولا تصبح عامة تلقائيًا. لا ترسل بيانات شخصية أو أسرارًا أو محتوى لا تملك حق مشاركته. لا تُشغّل ملفات الكود وتُراجع يدويًا قبل أي نشر.";

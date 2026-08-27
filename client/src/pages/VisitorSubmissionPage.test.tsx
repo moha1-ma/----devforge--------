@@ -19,7 +19,7 @@ describe("VisitorSubmissionPage", () => {
     expect(screen.getByRole("status").textContent).toContain("فعّل مربع الموافقة");
     fireEvent.click(screen.getByRole("checkbox"));
     fireEvent.click(button);
-    expect(submit).toHaveBeenCalledWith({ visitorAlias: undefined, category: "opinion", title: "اقتراح تعليمي", content: "هذه فكرة واضحة لتحسين التجربة التعليمية للزوار.", consentAccepted: true, attachments: [] });
+    expect(submit).toHaveBeenCalledWith({ visitorAlias: undefined, category: "opinion", title: "اقتراح تعليمي", content: "هذه فكرة واضحة لتحسين التجربة التعليمية للزوار.", mediaReferenceUrl: undefined, consentAccepted: true, attachments: [] });
     expect(screen.getByRole("status").textContent).toContain("تم استلام مشاركتك");
   });
   it("rejects an invalid attachment before sending it", () => {
@@ -38,5 +38,15 @@ describe("VisitorSubmissionPage", () => {
     expect(screen.getByRole("status").textContent).toContain("تعذر الاتصال");
     fireEvent.click(screen.getByRole("button", { name: "حاول الإرسال مجددًا" }));
     expect(submit).toHaveBeenCalledTimes(2);
+  });
+  it("passes an allowlisted media reference only as a pending review field", () => {
+    render(<VisitorSubmissionPage />);
+    fireEvent.change(screen.getByLabelText("عنوان المشاركة"), { target: { value: "فيديو تعليمي" } });
+    fireEvent.change(screen.getByLabelText("وصف المشاركة"), { target: { value: "مشاركة مرئية صالحة تنتظر مراجعة المالك قبل الظهور." } });
+    fireEvent.change(screen.getByLabelText("رابط وسيط اختياري"), { target: { value: "https://www.youtube.com/watch?v=example" } });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "إرسال للمراجعة" }));
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining({ mediaReferenceUrl: "https://www.youtube.com/watch?v=example" }));
+    expect(screen.getByRole("status").textContent).toContain("معلّقة");
   });
 });

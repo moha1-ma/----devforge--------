@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const mocks = vi.hoisted(() => ({ submitVisitorContribution: vi.fn(), listVisitorSubmissionsForOwner: vi.fn(), moderateVisitorSubmission: vi.fn(), getPrivateVisitorAttachment: vi.fn() }));
+const mocks = vi.hoisted(() => ({ submitVisitorContribution: vi.fn(), listApprovedVisitorFeed: vi.fn(), listVisitorSubmissionsForOwner: vi.fn(), moderateVisitorSubmission: vi.fn(), getPrivateVisitorAttachment: vi.fn() }));
 vi.mock("./visitorSubmissions", () => mocks);
 
 import { ENV } from "./_core/env";
@@ -12,6 +12,8 @@ function createContext(openId: string | null): TrpcContext {
 }
 
 describe("visitor submissions router", () => {
+  beforeEach(() => vi.clearAllMocks());
+
   it("permits anonymous submission but requires the provisioned owner for moderation data", async () => {
     mocks.submitVisitorContribution.mockResolvedValue({ id: 4, status: "pending" });
     const publicCaller = appRouter.createCaller(createContext(null));
@@ -28,5 +30,13 @@ describe("visitor submissions router", () => {
     await expect(otherCaller.visitorSubmissions.listForOwner()).rejects.toThrow("مخصصة للمالك فقط");
     await expect(otherCaller.visitorSubmissions.moderate({ submissionId: 4, status: "approved" })).rejects.toThrow("مخصصة للمالك فقط");
     expect(mocks.moderateVisitorSubmission).not.toHaveBeenCalled();
+  });
+
+  it("exposes only the bounded approved-media feed to an anonymous reader", async () => {
+    mocks.listApprovedVisitorFeed.mockResolvedValue({ items: [], nextCursor: null });
+    const result = await appRouter.createCaller(createContext(null)).visitorSubmissions.approvedFeed({ limit: 6 });
+    expect(result).toEqual({ items: [], nextCursor: null });
+    expect(mocks.listApprovedVisitorFeed).toHaveBeenCalledWith({ limit: 6 });
+    expect(mocks.listVisitorSubmissionsForOwner).not.toHaveBeenCalled();
   });
 });

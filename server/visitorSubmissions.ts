@@ -1,14 +1,14 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray, lt } from "drizzle-orm";
 import { visitorSubmissionAttachments, visitorSubmissions } from "../drizzle/schema";
 import { validateVisitorSubmission, type VisitorAttachmentInput } from "../shared/visitorSubmissionPolicy";
 import { getDb } from "./db";
-import { storageGetSignedUrl, storagePut } from "./storage";
+import { storageGet, storageGetSignedUrl, storagePut } from "./storage";
 
-export async function submitVisitorContribution(input: { visitorAlias?: string; category: "opinion" | "media" | "code" | "project"; title: string; content: string; consentAccepted: boolean; attachments: VisitorAttachmentInput[] }) {
+export async function submitVisitorContribution(input: { visitorAlias?: string; category: "opinion" | "media" | "code" | "project"; title: string; content: string; mediaReferenceUrl?: string; consentAccepted: boolean; attachments: VisitorAttachmentInput[] }) {
   const validated = validateVisitorSubmission(input);
   const db = await getDb();
   if (!db) throw new Error("قاعدة البيانات غير متاحة حاليًا");
-  const [created] = await db.insert(visitorSubmissions).values({ visitorAlias: validated.visitorAlias, category: input.category, title: validated.title, content: validated.content, consentAccepted: true, status: "pending" }).$returningId();
+  const [created] = await db.insert(visitorSubmissions).values({ visitorAlias: validated.visitorAlias, category: input.category, title: validated.title, content: validated.content, mediaReferenceUrl: validated.mediaReferenceUrl, consentAccepted: true, status: "pending" }).$returningId();
   const submissionId = created?.id;
   if (!submissionId) throw new Error("تعذر حفظ المشاركة");
   for (const attachment of validated.attachments) {
@@ -23,6 +23,38 @@ export async function listVisitorSubmissionsForOwner(ownerId: number) {
   if (!db) return [];
   const submissions = await db.select().from(visitorSubmissions).orderBy(desc(visitorSubmissions.updatedAt)).limit(100);
   return Promise.all(submissions.map(async submission => ({ ...submission, attachments: await db.select().from(visitorSubmissionAttachments).where(eq(visitorSubmissionAttachments.submissionId, submission.id)) })));
+}
+
+export async function listApprovedVisitorFeed(input: { cursor?: number; limit?: number } = {}) {
+  const db = await getDb();
+  if (!db) throw new Error("قاعدة البيانات غير متاحة حاليًا");
+  const limit = Math.min(Math.max(input.limit ?? 6, 1), 12);
+  const filter = input.cursor
+    ? and(eq(visitorSubmissions.status, "approved"), lt(visitorSubmissions.id, input.cursor))
+    : eq(visitorSubmissions.status, "approved");
+  const page = await db.select().from(visitorSubmissions).where(filter).orderBy(desc(visitorSubmissions.createdAt), desc(visitorSubmissions.id)).limit(limit + 1);
+  const items = page.filter(item => item.status === "approved").slice(0, limit);
+  const attachmentRows = items.length
+    ? await db.select().from(visitorSubmissionAttachments).where(inArray(visitorSubmissionAttachments.submissionId, items.map(item => item.id)))
+    : [];
+  const publicAttachments = await Promise.all(attachmentRows
+    .filter(attachment => attachment.kind === "image" || attachment.kind === "video")
+    .map(async attachment => ({ id: attachment.id, submissionId: attachment.submissionId, kind: attachment.kind as "image" | "video", mimeType: attachment.mimeType, safeName: attachment.safeName, url: (await storageGet(attachment.storageKey)).url })));
+  return {
+    items: items.map(item => ({
+      id: item.id,
+      visitorAlias: item.visitorAlias,
+      category: item.category,
+      title: item.title,
+      content: item.content,
+      mediaReferenceUrl: item.mediaReferenceUrl,
+      createdAt: item.createdAt,
+      attachments: publicAttachments
+        .filter(attachment => attachment.submissionId === item.id)
+        .map(({ submissionId: _submissionId, ...attachment }) => attachment),
+    })),
+    nextCursor: page.length > limit ? items.at(-1)?.id ?? null : null,
+  };
 }
 
 export async function moderateVisitorSubmission(input: { ownerId: number; submissionId: number; status: "approved" | "rejected"; moderationNote?: string }) {

@@ -21,7 +21,7 @@ import { generateDeveloperCenterProposal, listDeveloperCenterProposals, listDeve
 import { ENV } from "./_core/env";
 import { TRPCError } from "@trpc/server";
 import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
-import { getPrivateVisitorAttachment, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
+import { getPrivateVisitorAttachment, listApprovedVisitorFeed, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
 import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
 import { closeVisitorConversation, listVisitorConversations, sendVisitorConversationMessage, startVisitorConversation } from "./visitorConversations";
 import { createCommunityPost, createCommunityRequest, getMyMemberProfile, listApprovedCommunities, listCommunityPosts, listCommunityReviewQueue, listMyCommunityMemberships, listPublicCommunityFeed, moderateCommunityItem, reportCommunityTarget, requestCommunityMembership, saveMemberProfile, searchDiscoverableMembers } from "./communities";
@@ -158,11 +158,13 @@ export const appRouter = router({
   }),
   visitorSubmissions: router({
     policy: publicProcedure.query(() => ({ copy: visitorSubmissionPolicyCopy, status: "owner-moderated" as const })),
+    approvedFeed: publicProcedure.input(z.object({ cursor: z.number().int().positive().optional(), limit: z.number().int().min(1).max(12).optional() }).optional()).query(({ input }) => listApprovedVisitorFeed(input)),
     submit: publicProcedure.input(z.object({
       visitorAlias: z.string().trim().max(80).optional(),
       category: z.enum(["opinion", "media", "code", "project"]),
       title: z.string().trim().min(3).max(180),
       content: z.string().trim().min(12).max(6000),
+      mediaReferenceUrl: z.string().trim().max(1000).optional(),
       consentAccepted: z.literal(true),
       attachments: z.array(z.object({ name: z.string().trim().min(1).max(180), mimeType: z.string().trim().min(1).max(120), base64: z.string().min(1).max(24_000_000) })).max(4),
     })).mutation(({ input }) => submitVisitorContribution(input)),
@@ -177,7 +179,7 @@ export const appRouter = router({
     close: ownerProcedure.input(z.object({ conversationId: z.number().int().positive() })).mutation(({ ctx, input }) => closeVisitorConversation({ userId: ctx.user.id, isOwner: true, ...input })),
   }),
   communityHub: router({
-    publicFeed: publicProcedure.query(() => listPublicCommunityFeed()),
+    publicFeed: publicProcedure.input(z.object({ cursor: z.number().int().positive().optional(), limit: z.number().int().min(1).max(12).optional() }).optional()).query(({ input }) => listPublicCommunityFeed(input)),
     myProfile: protectedProcedure.query(({ ctx }) => getMyMemberProfile(ctx.user.id)),
     saveProfile: protectedProcedure.input(z.object({ alias: z.string().trim().min(3).max(48), bio: z.string().trim().max(500).optional(), skills: z.string().trim().max(240).optional(), discoveryEnabled: z.boolean() })).mutation(({ ctx, input }) => saveMemberProfile({ userId: ctx.user.id, ...input })),
     memberSearch: protectedProcedure.input(z.object({ query: z.string().trim().max(80) })).query(({ input }) => searchDiscoverableMembers(input.query)),
