@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { prepareMergePlan } from "./githubMergePolicy";
+describe("github merge plan policy", () => { it("creates a review-only plan from unique normalized repository selections", () => { const plan = prepareMergePlan({ toolName: "أداة التعلم", repositories: ["https://github.com/acme/ui-kit", "acme/api"], brief: "اجمع الوحدات في أداة تعليمية." }); expect(plan.repositories).toEqual(["acme/ui-kit", "acme/api"]); expect(plan.safeguards.join(" ")).toContain("لا تستنسخ"); }); it("rejects duplicate or oversized repository selections", () => { expect(() => prepareMergePlan({ toolName: "أداة", repositories: ["acme/a", "https://github.com/acme/a"] })).toThrow("أكثر من مرة"); }); });

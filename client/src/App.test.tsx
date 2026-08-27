@@ -18,6 +18,10 @@ vi.mock("./pages/ImageStudio", () => ({ default: () => <div>استوديو ال�
 vi.mock("./pages/WebsiteStudio", () => ({ default: () => <div>منشئ المواقع</div> }));
 vi.mock("./pages/DomainGallery", () => ({ default: () => <div>معرض النطاقات</div> }));
 vi.mock("./pages/DeveloperCenter", () => ({ default: () => <div>مركز المطور الذكي</div> }));
+vi.mock("./pages/CommunityHub", () => ({ default: () => <div>مجتمع DevForge</div> }));
+vi.mock("./pages/CommunityReviewCenter", () => ({ default: () => <div>مراجعة مجتمع DevForge</div> }));
+vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة JavaScript</div> }));
+vi.mock("./pages/PeriodicDevelopmentCenter", () => ({ default: () => <div>مسودات دورية</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -52,5 +56,27 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("مركز المطور الذكي")).toBeTruthy();
+  });
+
+  it("loads community discovery and owner review from production-safe hash URLs", () => {
+    window.location.hash = "#/community";
+    const { unmount } = render(<App />);
+    expect(screen.getByText("مجتمع DevForge")).toBeTruthy();
+    unmount();
+    window.location.hash = "#/community-review";
+    render(<App />);
+    expect(screen.getByText("مراجعة مجتمع DevForge")).toBeTruthy();
+  });
+
+  it("loads the isolated JavaScript workstation from its hash URL", () => {
+    window.location.hash = "#/javascript-lab";
+    render(<App />);
+    expect(screen.getByText("محطة JavaScript")).toBeTruthy();
+  });
+
+  it("loads the periodic development center from its hash URL", () => {
+    window.location.hash = "#/periodic-development";
+    render(<App />);
+    expect(screen.getByText("مسودات دورية")).toBeTruthy();
   });
 });

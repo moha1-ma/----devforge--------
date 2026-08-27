@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { startLogin } from "@/const";
 import { Badge } from "@/components/ui/badge";
 import IosInstallGuide from "@/components/IosInstallGuide";
+import CommunityFeed from "@/components/CommunityFeed";
 import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, ArrowUpLeft, Blocks, Bot, CheckCircle2, ChevronLeft, CloudCog, Code2, GitBranch, GitPullRequest, Layers3, MessageCircleMore, Play, Rocket, ScanSearch, ShieldCheck, Sparkles, Terminal, UserRound, UsersRound } from "lucide-react";
 import { Link } from "wouter";
@@ -36,6 +37,8 @@ export default function Home() {
       </section>
 
       <section id="capabilities" className="container relative z-10 py-10 lg:py-20"><div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end"><div><p className="font-mono text-xs font-bold tracking-[0.2em] text-cyan-300">{t("builtForFlow")}</p><h2 className="mt-3 text-3xl font-bold text-white">{t("everyDecision")}</h2></div><p className="max-w-md leading-7 text-slate-500">{t("contextCopy")}</p></div><div className="grid gap-4 md:grid-cols-3">{operations.map(operation => <Link href={operation.path} key={operation.title} className="group rounded-3xl border border-white/8 bg-white/[0.03] p-7 transition duration-200 hover:-translate-y-1 hover:border-cyan-300/20 hover:bg-white/[0.05]"><operation.icon className={`h-6 w-6 ${operation.tone}`} /><h3 className="mt-10 text-xl font-bold text-white">{operation.title}</h3><p className="mt-3 leading-7 text-slate-500">{operation.copy}</p><span className="mt-8 inline-flex items-center text-sm font-bold text-slate-300 transition group-hover:text-cyan-200">{operation.action} <ArrowUpLeft className="mr-1 h-4 w-4" /></span></Link>)}</div></section>
+
+      <CommunityFeed />
 
       <section id="workflow" className="container relative z-10 py-20"><div className="grid gap-8 rounded-[2rem] border border-white/8 bg-gradient-to-l from-white/[0.05] to-transparent p-7 md:p-10 lg:grid-cols-[0.8fr_1.2fr]"><div><p className="font-mono text-xs font-bold tracking-[0.2em] text-violet-300">{t("deliveryLoop")}</p><h2 className="mt-4 text-3xl font-bold leading-tight text-white">{t("firstTask")}<br />{t("auditableLaunch")}</h2><p className="mt-5 leading-8 text-slate-400">{t("workflowCopy")}</p></div><div className="grid gap-3 sm:grid-cols-2">{workflow.map(step => <div key={step.n} className="rounded-2xl border border-white/8 bg-slate-950/45 p-5"><span className="font-mono text-xs text-cyan-300">{step.n}</span><h3 className="mt-5 text-lg font-bold text-white">{step.title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{step.copy}</p></div>)}</div></div></section>
 

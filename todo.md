@@ -178,3 +178,13 @@
 - [x] Add searchable opt-in profiles, moderated communities, membership requests, approved-only public posts, and owner review procedures.
 - [x] Build Arabic-first community discovery and discussion interfaces with clear join, post, report, and review states.
 - [x] Add an owner-only moderation center and regression tests covering privacy, role scope, pending-content isolation, and mobile community flows.
+- [ ] Define a review-only GitHub merge workspace with repository selection, license/conflict disclosure, source limits, and no automatic writes.
+- [ ] Add owner-scoped merge-plan records and procedures that verify selected GitHub metadata before generating a unified integration plan.
+- [ ] Build an Arabic GitHub merge workspace with selected-repository review, conflict/source reporting, and explicit private draft controls.
+- [ ] Add tests proving GitHub merge plans are owner-only, do not clone or write repositories automatically, and reject unavailable repositories.
+- [x] Define a browser-local JavaScript workstation with a sandboxed runtime, execution limits, output isolation, and no automatic access to network, secrets, accounts, or platform files.
+- [x] Build a private JavaScript workstation with editor, controlled run action, output console, stop/reset controls, and a clear non-agent capability boundary.
+- [x] Add tests proving untrusted JavaScript runs only in the isolated client sandbox, cannot access parent platform state, and reports errors or timeouts clearly.
+- [x] Define a review-only periodic draft format for architecture, code, tests, and conflict reports, with no automatic application, deployment, account actions, or secret access.
+- [x] Build an owner review surface that presents generated drafts with provenance, status, and explicit handoff actions rather than automatic changes.
+- [x] Compare safe periodic review and continuous-service options for the owner, then implement only the option explicitly selected after its cost and operating limits are understood.

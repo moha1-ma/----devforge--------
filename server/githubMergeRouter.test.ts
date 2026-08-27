@@ -1,0 +1,8 @@
+import { describe, expect, it, vi } from "vitest";
+import type { TrpcContext } from "./_core/context";
+const prepare = vi.hoisted(() => vi.fn());
+vi.mock("./githubMergePolicy", () => ({ prepareMergePlan: prepare }));
+import { ENV } from "./_core/env";
+import { appRouter } from "./routers";
+function context(openId: string, id: number): TrpcContext { return { user: { id, openId, email: null, name: "User", loginMethod: "manus", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() }, req: { protocol: "https", headers: {} } as TrpcContext["req"], res: { clearCookie: () => undefined } as TrpcContext["res"] }; }
+describe("github merge router", () => { it("keeps planning owner-only and forwards selected repositories without writes", async () => { await expect(appRouter.createCaller(context("visitor", 9)).githubMerge.prepare({ toolName: "أداة موحدة", repositories: ["acme/a"] })).rejects.toThrow("مخصصة للمالك فقط"); prepare.mockReturnValue({ toolName: "أداة موحدة", repositories: ["acme/a"] }); await appRouter.createCaller(context(ENV.ownerOpenId, 2)).githubMerge.prepare({ toolName: "أداة موحدة", repositories: ["acme/a"], brief: "تجميع مراجَع" }); expect(prepare).toHaveBeenCalledWith({ toolName: "أداة موحدة", repositories: ["acme/a"], brief: "تجميع مراجَع" }); }); });

@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import Home from "./Home";
 
 vi.mock("@/_core/hooks/useAuth", () => ({ useAuth: () => ({ user: null, loading: false, isAuthenticated: false, logout: vi.fn() }) }));
+vi.mock("@/components/CommunityFeed", () => ({ default: () => <section>تغذية المجتمع</section> }));
 
 const toHashHref = (href: string) => `#${href}`;
 

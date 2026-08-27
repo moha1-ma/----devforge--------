@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { parsePeriodicDevelopmentDraft } from "./periodicDevelopmentPolicy";
+describe("periodic development drafts", () => { it("accepts a structured review-only draft and rejects executable status", () => { const content = JSON.stringify({ executionStatus: "review-only", kind: "architecture", title: "تقليل التعقيد", summary: "مسودة مراجعة منظمة.", proposedChanges: ["فصل وحدة"], codeDraft: ["// مسودة"], testPlan: ["اختبار مسار"], risks: ["مراجعة الصلاحية"], approvalsRequired: ["اعتماد المالك"] }); expect(parsePeriodicDevelopmentDraft(content).title).toBe("تقليل التعقيد"); expect(() => parsePeriodicDevelopmentDraft(content.replace("review-only", "executed"))).toThrow("تعذر التحقق"); }); });

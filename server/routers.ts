@@ -23,8 +23,12 @@ import { developerLanguageKeys } from "../shared/developerLanguageCatalog";
 import { getPrivateVisitorAttachment, listVisitorSubmissionsForOwner, moderateVisitorSubmission, submitVisitorContribution } from "./visitorSubmissions";
 import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
 import { closeVisitorConversation, listVisitorConversations, sendVisitorConversationMessage, startVisitorConversation } from "./visitorConversations";
-import { createCommunityPost, createCommunityRequest, getMyMemberProfile, listApprovedCommunities, listCommunityPosts, listCommunityReviewQueue, listMyCommunityMemberships, moderateCommunityItem, reportCommunityTarget, requestCommunityMembership, saveMemberProfile, searchDiscoverableMembers } from "./communities";
+import { createCommunityPost, createCommunityRequest, getMyMemberProfile, listApprovedCommunities, listCommunityPosts, listCommunityReviewQueue, listMyCommunityMemberships, listPublicCommunityFeed, moderateCommunityItem, reportCommunityTarget, requestCommunityMembership, saveMemberProfile, searchDiscoverableMembers } from "./communities";
 import { createCodeSuggestion } from "./codeCompletion";
+import { prepareMergePlan } from "./githubMergePolicy";
+import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
+import { parse as parseCookie } from "cookie";
+import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -166,6 +170,7 @@ export const appRouter = router({
     close: ownerProcedure.input(z.object({ conversationId: z.number().int().positive() })).mutation(({ ctx, input }) => closeVisitorConversation({ userId: ctx.user.id, isOwner: true, ...input })),
   }),
   communityHub: router({
+    publicFeed: publicProcedure.query(() => listPublicCommunityFeed()),
     myProfile: protectedProcedure.query(({ ctx }) => getMyMemberProfile(ctx.user.id)),
     saveProfile: protectedProcedure.input(z.object({ alias: z.string().trim().min(3).max(48), bio: z.string().trim().max(500).optional(), skills: z.string().trim().max(240).optional(), discoveryEnabled: z.boolean() })).mutation(({ ctx, input }) => saveMemberProfile({ userId: ctx.user.id, ...input })),
     memberSearch: protectedProcedure.input(z.object({ query: z.string().trim().max(80) })).query(({ input }) => searchDiscoverableMembers(input.query)),
@@ -181,6 +186,23 @@ export const appRouter = router({
   }),
   codeAssistant: router({
     suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),
+  }),
+  githubMerge: router({
+    prepare: ownerProcedure.input(z.object({ toolName: z.string().trim().min(3).max(120), repositories: z.array(z.string().trim().min(3).max(300)).min(1).max(12), brief: z.string().trim().max(2000).optional() })).mutation(({ input }) => prepareMergePlan(input)),
+  }),
+  periodicDevelopment: router({
+    status: ownerProcedure.query(({ ctx }) => getPeriodicDevelopmentJob(ctx.user.id)),
+    drafts: ownerProcedure.query(({ ctx }) => listPeriodicDevelopmentDrafts(ctx.user.id)),
+    configure: ownerProcedure.input(z.object({ cadence: z.enum(["hourly", "every-6-hours"]) })).mutation(async ({ ctx, input }) => {
+      let job = await savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: input.cadence, status: "active" });
+      const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? "";
+      const cron = getPeriodicDevelopmentCron(input.cadence);
+      if (job.scheduleCronTaskUid) await updateHeartbeatJob(job.scheduleCronTaskUid, { cron, enable: true, description: "مسودات تطوير DevForge للمراجعة فقط" }, sessionToken);
+      else { const schedule = await createHeartbeatJob({ name: `periodic-development-${job.id}`, cron, path: "/api/scheduled/periodic-development", description: "ينتج مسودات تطوير DevForge للمراجعة فقط" }, sessionToken); job = await attachPeriodicDevelopmentSchedule({ ownerId: ctx.user.id, taskUid: schedule.taskUid }); }
+      return job;
+    }),
+    pause: ownerProcedure.mutation(async ({ ctx }) => { const job = await getPeriodicDevelopmentJob(ctx.user.id); if (!job) throw new Error("لا توجد مهمة تطوير دورية مهيأة"); const sessionToken = parseCookie(ctx.req.headers.cookie ?? "")[COOKIE_NAME] ?? ""; if (job.scheduleCronTaskUid) await updateHeartbeatJob(job.scheduleCronTaskUid, { enable: false }, sessionToken); return savePeriodicDevelopmentJob({ ownerId: ctx.user.id, cadence: job.cadence, status: "paused" }); }),
+    reviewDraft: ownerProcedure.input(z.object({ id: z.number().int().positive(), status: z.enum(["acknowledged", "dismissed"]) })).mutation(({ ctx, input }) => updatePeriodicDevelopmentDraft({ ownerId: ctx.user.id, ...input })),
   }),
 });
 

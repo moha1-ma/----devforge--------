@@ -23,6 +23,8 @@ import VisitorReviewCenter from "./pages/VisitorReviewCenter";
 import VisitorMessagesPage from "./pages/VisitorMessagesPage";
 import CommunityHub from "./pages/CommunityHub";
 import CommunityReviewCenter from "./pages/CommunityReviewCenter";
+import JavaScriptWorkstation from "./pages/JavaScriptWorkstation";
+import PeriodicDevelopmentCenter from "./pages/PeriodicDevelopmentCenter";
 import Workspace from "./pages/Workspace";
 
 const toHashHref = (href: string) => `#${href}`;
@@ -52,6 +54,8 @@ function AppRoutes() {
         <Route path="/visitor/messages" component={VisitorMessagesPage} />
         <Route path="/community" component={CommunityHub} />
         <Route path="/community-review" component={CommunityReviewCenter} />
+        <Route path="/javascript-lab" component={JavaScriptWorkstation} />
+        <Route path="/periodic-development" component={PeriodicDevelopmentCenter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

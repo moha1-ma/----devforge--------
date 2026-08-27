@@ -1,4 +1,4 @@
-import { boolean, foreignKey, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { boolean, foreignKey, index, int, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -308,6 +308,14 @@ export const communityReports = mysqlTable("communityReports", {
   id: int("id").autoincrement().primaryKey(), reporterId: int("reporterId").notNull(), targetType: mysqlEnum("targetType", ["community", "post", "member"]).notNull(), targetId: int("targetId").notNull(), reason: varchar("reason", { length: 500 }).notNull(), status: mysqlEnum("status", ["open", "resolved", "dismissed"]).default("open").notNull(), handlerId: int("handlerId"), resolutionNote: varchar("resolutionNote", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [foreignKey({ name: "cr_reporter_fk", columns: [table.reporterId], foreignColumns: [users.id] }).onDelete("cascade"), foreignKey({ name: "cr_handler_fk", columns: [table.handlerId], foreignColumns: [users.id] }).onDelete("set null")]);
 
+export const periodicDevelopmentJobs = mysqlTable("periodicDevelopmentJobs", {
+  id: int("id").autoincrement().primaryKey(), ownerId: int("ownerId").notNull(), cadence: mysqlEnum("cadence", ["hourly", "every-6-hours"]).default("every-6-hours").notNull(), status: mysqlEnum("status", ["active", "paused", "error"]).default("active").notNull(), scheduleCronTaskUid: varchar("scheduleCronTaskUid", { length: 65 }), lastRunAt: timestamp("lastRunAt"), lastError: varchar("lastError", { length: 500 }), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("pdj_owner_unique").on(table.ownerId), index("pdj_cron_uid_idx").on(table.scheduleCronTaskUid), foreignKey({ name: "pdj_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade")]);
+
+export const periodicDevelopmentDrafts = mysqlTable("periodicDevelopmentDrafts", {
+  id: int("id").autoincrement().primaryKey(), jobId: int("jobId").notNull(), ownerId: int("ownerId").notNull(), kind: mysqlEnum("kind", ["architecture", "code", "tests", "conflicts"]).notNull(), status: mysqlEnum("status", ["proposed", "acknowledged", "dismissed"]).default("proposed").notNull(), title: varchar("title", { length: 180 }).notNull(), summary: text("summary").notNull(), proposedChanges: text("proposedChanges").notNull(), codeDraft: text("codeDraft").notNull(), testPlan: text("testPlan").notNull(), risks: text("risks").notNull(), approvalsRequired: text("approvalsRequired").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [index("pdd_job_idx").on(table.jobId), index("pdd_owner_status_idx").on(table.ownerId, table.status), foreignKey({ name: "pdd_job_fk", columns: [table.jobId], foreignColumns: [periodicDevelopmentJobs.id] }).onDelete("cascade"), foreignKey({ name: "pdd_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade")]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -338,3 +346,5 @@ export type Community = typeof communities.$inferSelect;
 export type CommunityMembership = typeof communityMemberships.$inferSelect;
 export type CommunityPost = typeof communityPosts.$inferSelect;
 export type CommunityReport = typeof communityReports.$inferSelect;
+export type PeriodicDevelopmentJob = typeof periodicDevelopmentJobs.$inferSelect;
+export type PeriodicDevelopmentDraftRecord = typeof periodicDevelopmentDrafts.$inferSelect;
