@@ -119,6 +119,7 @@
 - [x] Add a persistent Arabic-first language preference with direction-aware English support and an extensible translation catalog.
 - [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
+- [x] Add reviewed Arabic and English interface copy for the owner AI task router without translating task input or generated private workstreams.
 - [x] Define a trusted-knowledge search policy for the AI assistant, including explicit user-triggered search, citations, source visibility, and no background browsing.
 - [x] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
 - [x] Improve assistant response quality with structured answer guidance, transparent source status, and graceful fallbacks when no external research source is authorized.
