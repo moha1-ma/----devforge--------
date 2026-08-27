@@ -49,7 +49,7 @@
 - [ ] Record explicit confirmation that the canonical owner code succeeds in the published external session; the server-side diagnosis and tests are complete but browser OAuth cannot be completed in-agent.
 - [x] Convert SPA navigation to hash-based routes and cover the guided-plan hash URL with a rendered routing test.
 - [x] Record the completed Bright Data read-only test, including the retrieved sample result and supported capabilities, in a dedicated reviewable summary.
-- [ ] Inspect and safely test the ElevenLabs connector, then summarize retrieved data and supported capabilities.
+- [ ] Re-test the ElevenLabs connector after its ASCII `U+202A` encoding failure is corrected or it is re-authorized; two read-only calls failed before any account data was returned, and no generation or modification action was attempted.
 - [x] Inspect and safely test the Supabase connector, then summarize retrieved data and supported capabilities.
 - [x] Define the website-builder model and document the safe boundary between site generation, deployment guidance, and domain registration.
 - [x] Add owner-scoped website-builder records and protected procedures for creating and listing site builds.
@@ -281,3 +281,8 @@
 - [x] Build a protected notification center and preference controls, then connect relevant DevForge events without fabricating alerts or exposing private user activity.
 - [x] Add server and UI tests for notification authorization, read-state updates, internal-link validation, and no automatic external delivery; Stripe test scope was canceled before setup.
 - [x] Add reviewed Arabic and English interface keys and a language-rendering test for the owner notification center, without translating notification bodies or other private event data.
+- [x] Document the current managed dependencies and a reviewed JavaScript portability boundary, making clear that no data, domain, hosting, authentication, storage, or secret is migrated automatically.
+- [x] Add an owner-only JavaScript migration-readiness center that inventories safe deployment contracts and records an explicit review request only; it must not disconnect the current service, create external accounts, or transfer data.
+- [x] Add tests proving migration-readiness information exposes no secrets or internal addresses and that its review action performs no hosting, authentication, storage, DNS, GitHub, or external-provider change.
+- [x] Document the optional, replaceable AI-management layer so core DevForge operation remains based on JavaScript services and owner-controlled contracts even when no AI provider is available.
+- [ ] Add reviewed Arabic and English interface keys and language-rendering tests for the owner API Control Center and Mini Workstations, without translating dynamic contract addresses, path records, or generated private output.

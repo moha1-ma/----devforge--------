@@ -13,4 +13,11 @@ describe("integration catalog", () => {
     expect(getIntegrationDefinition("unknown-platform")).toBeNull();
     expect(getIntegrationDefinition("github")?.connectionMethod).toBe("session");
   });
+
+  it("keeps JavaScript migration readiness as a local review contract", () => {
+    const entry = getIntegrationDefinition("devforge-javascript-portability");
+    expect(entry).toMatchObject({ connectionMethod: "session", requestedScope: "review-only", availability: "no-cost-local" });
+    expect(entry?.protectedBoundary).toMatch(/لا تنقل.*بيانات/);
+    expect(entry?.protectedBoundary).toMatch(/لا تنشئ.*حساب/);
+  });
 });

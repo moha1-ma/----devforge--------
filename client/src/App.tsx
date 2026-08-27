@@ -34,6 +34,7 @@ import AiTaskRouter from "./pages/AiTaskRouter";
 import TechnicalPartnerHub from "./pages/TechnicalPartnerHub";
 import ContinuityCenter from "./pages/ContinuityCenter";
 import ApiControlCenter from "./pages/ApiControlCenter";
+import JavaScriptMigrationCenter from "./pages/JavaScriptMigrationCenter";
 import MiniWorkstations from "./pages/MiniWorkstations";
 import NotificationCenter from "./pages/NotificationCenter";
 
@@ -74,6 +75,7 @@ function AppRoutes() {
         <Route path="/partners" component={TechnicalPartnerHub} />
         <Route path="/continuity" component={ContinuityCenter} />
         <Route path="/api-control" component={ApiControlCenter} />
+        <Route path="/javascript-migration" component={JavaScriptMigrationCenter} />
         <Route path="/mini-workstations" component={MiniWorkstations} />
         <Route path="/notifications" component={NotificationCenter} />
         <Route path="/404" component={NotFound} />

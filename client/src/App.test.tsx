@@ -20,6 +20,7 @@ vi.mock("./pages/DomainGallery", () => ({ default: () => <div>معرض النط�
 vi.mock("./pages/DeveloperCenter", () => ({ default: () => <div>مركز المطور الذكي</div> }));
 vi.mock("./pages/MiniWorkstations", () => ({ default: () => <div>المحطات المصغرة الذكية</div> }));
 vi.mock("./pages/NotificationCenter", () => ({ default: () => <div>مركز الإشعارات</div> }));
+vi.mock("./pages/JavaScriptMigrationCenter", () => ({ default: () => <div>جاهزية انتقال JavaScript</div> }));
 vi.mock("./pages/CommunityHub", () => ({ default: () => <div>مجتمع DevForge</div> }));
 vi.mock("./pages/CommunityReviewCenter", () => ({ default: () => <div>مراجعة مجتمع DevForge</div> }));
 vi.mock("./pages/JavaScriptWorkstation", () => ({ default: () => <div>محطة JavaScript</div> }));
@@ -79,6 +80,13 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("مركز الإشعارات")).toBeTruthy();
+  });
+
+  it("loads the owner JavaScript migration-readiness route from its hash URL", () => {
+    window.location.hash = "#/javascript-migration";
+    render(<App />);
+
+    expect(screen.getByText("جاهزية انتقال JavaScript")).toBeTruthy();
   });
 
   it("loads community discovery and owner review from production-safe hash URLs", () => {
