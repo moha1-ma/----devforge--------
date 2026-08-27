@@ -9,7 +9,7 @@ vi.mock("@/lib/trpc", () => ({ trpc: { useUtils: () => ({ integrationCenter: { l
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 describe("IntegrationCenter", () => {
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.clear(); });
   it("states that catalog cards are not automatic external connections", () => {
     render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
     expect(screen.getByText(/لا تعني البطاقة أن الحساب متصل/)).toBeTruthy();
@@ -61,5 +61,14 @@ describe("IntegrationCenter", () => {
     expect(screen.getByText("UptimeRobot")).toBeTruthy();
     expect(screen.getByText("Better Stack Uptime")).toBeTruthy();
     expect(screen.getAllByText(/لا ينشئ DevForge مراقبًا/).length).toBeGreaterThan(0);
+  });
+
+  it("renders reviewed English category and documentation labels without connecting providers", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    expect(screen.getByRole("button", { name: "Analytics" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Media and AI" }));
+    expect(screen.getByRole("link", { name: "Documentation OpenAI" }).getAttribute("href")).toBe("https://developers.openai.com/api/docs");
+    expect(screen.queryByText("Stripe")).toBeNull();
   });
 });
