@@ -300,3 +300,4 @@
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Technical Partner Hub without changing partner data, official links, or review-only connection boundaries.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the Aziz Design Review Center without creating listings, media, prices, payments, or automatic approvals.
 - [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the public Aziz Design Market without changing approved counts, creating listings, or exposing prices, ratings, or payments.
+- [x] Add reviewed Arabic and English interface copy and language-rendering coverage for the isolated JavaScript Workstation without translating editor input, execution output, or local repair-proposal data.
