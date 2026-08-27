@@ -1,0 +1,1 @@
+ALTER TABLE `periodicDevelopmentJobs` ADD `lastRunKey` varchar(80);

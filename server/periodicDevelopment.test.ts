@@ -1,3 +1,3 @@
 import { describe, expect, it } from "vitest";
-import { getPeriodicDevelopmentCron } from "./periodicDevelopment";
-describe("periodic development scheduling", () => { it("uses six-field UTC schedules at a safe bounded cadence", () => { expect(getPeriodicDevelopmentCron("hourly")).toBe("0 0 * * * *"); expect(getPeriodicDevelopmentCron("every-6-hours")).toBe("0 0 */6 * * *"); }); });
+import { getPeriodicDevelopmentCron, getPeriodicDevelopmentRunKey } from "./periodicDevelopment";
+describe("periodic development scheduling", () => { it("uses six-field UTC schedules at a safe bounded cadence", () => { expect(getPeriodicDevelopmentCron("hourly")).toBe("0 0 * * * *"); expect(getPeriodicDevelopmentCron("every-6-hours")).toBe("0 0 */6 * * *"); }); it("uses the same execution key for retries in one cadence window", () => { expect(getPeriodicDevelopmentRunKey("hourly", 3_599_999)).toBe(getPeriodicDevelopmentRunKey("hourly", 1)); expect(getPeriodicDevelopmentRunKey("hourly", 3_600_000)).not.toBe(getPeriodicDevelopmentRunKey("hourly", 1)); expect(getPeriodicDevelopmentRunKey("every-6-hours", 21_599_999)).toBe(getPeriodicDevelopmentRunKey("every-6-hours", 1)); }); });

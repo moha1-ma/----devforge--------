@@ -120,7 +120,7 @@
 - [x] Translate the shared DevForge shell, authentication gate, navigation, public entry page, guided plans, and AI workspace without translating private user code or conversation content.
 - [ ] Extend human-reviewed translations across every remaining private workspace and verify the selected language at desktop and iPhone viewports; additional language choices currently fall back safely to English until their reviewed copy is added.
 - [x] Define a trusted-knowledge search policy for the AI assistant, including explicit user-triggered search, citations, source visibility, and no background browsing.
-- [ ] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
+- [x] Add an owner-controlled research mode to the AI assistant that can use approved read-only knowledge sources without storing provider credentials in DevForge.
 - [x] Improve assistant response quality with structured answer guidance, transparent source status, and graceful fallbacks when no external research source is authorized.
 - [ ] Test research-mode privacy, provider boundaries, mobile usability, and publish the assistant-quality upgrade.
 - [x] Audit the existing iOS companion source and define the App Store boundary: signed build, developer account, listing, privacy disclosures, and final submission remain owner-controlled external steps.
@@ -188,3 +188,4 @@
 - [x] Define a review-only periodic draft format for architecture, code, tests, and conflict reports, with no automatic application, deployment, account actions, or secret access.
 - [x] Build an owner review surface that presents generated drafts with provenance, status, and explicit handoff actions rather than automatic changes.
 - [x] Compare safe periodic review and continuous-service options for the owner, then implement only the option explicitly selected after its cost and operating limits are understood.
+- [x] Make the periodic-development handler idempotent across cron retries, retaining an actionable error state without duplicating generated drafts.
