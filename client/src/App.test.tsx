@@ -9,7 +9,6 @@ vi.mock("./components/ErrorBoundary", () => ({ default: ({ children }: { childre
 vi.mock("./contexts/ThemeContext", () => ({ ThemeProvider: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
 vi.mock("./pages/Home", () => ({ default: () => <div>الصفحة الرئيسية</div> }));
 vi.mock("./pages/Workspace", () => ({ default: () => <div>مساحة العمل</div> }));
-vi.mock("./pages/StripeLab", () => ({ default: () => <div>مختبر Stripe</div> }));
 vi.mock("./pages/CodeWorkspace", () => ({ default: () => <div>مساحة الكود</div> }));
 vi.mock("./pages/AiWorkspace", () => ({ default: () => <div>مساحة الذكاء</div> }));
 vi.mock("./pages/GithubWorkspace", () => ({ default: () => <div>GitHub</div> }));
@@ -87,6 +86,14 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("جاهزية انتقال JavaScript")).toBeTruthy();
+  });
+
+  it("does not expose the inactive Stripe route", () => {
+    window.location.hash = "#/stripe-lab";
+    render(<App />);
+
+    expect(screen.getByText("غير موجود")).toBeTruthy();
+    expect(screen.queryByText("مختبر Stripe")).toBeNull();
   });
 
   it("loads community discovery and owner review from production-safe hash URLs", () => {

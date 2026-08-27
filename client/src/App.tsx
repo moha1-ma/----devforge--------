@@ -13,7 +13,6 @@ import CodeWorkspace from "./pages/CodeWorkspace";
 import GithubWorkspace from "./pages/GithubWorkspace";
 import PlansWorkspace from "./pages/PlansWorkspace";
 import ImageStudio from "./pages/ImageStudio";
-import StripeLab from "./pages/StripeLab";
 import WebsiteStudio from "./pages/WebsiteStudio";
 import DomainGallery from "./pages/DomainGallery";
 import IntegrationCenter from "./pages/IntegrationCenter";
@@ -50,7 +49,6 @@ function AppRoutes() {
         <Route path="/work-items" component={Workspace} />
         <Route path="/pull-requests" component={Workspace} />
         <Route path="/releases" component={Workspace} />
-        <Route path="/stripe-lab" component={StripeLab} />
         <Route path="/code" component={CodeWorkspace} />
         <Route path="/ai" component={AiWorkspace} />
         <Route path="/github" component={GithubWorkspace} />

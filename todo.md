@@ -286,3 +286,6 @@
 - [x] Add tests proving migration-readiness information exposes no secrets or internal addresses and that its review action performs no hosting, authentication, storage, DNS, GitHub, or external-provider change.
 - [x] Document the optional, replaceable AI-management layer so core DevForge operation remains based on JavaScript services and owner-controlled contracts even when no AI provider is available.
 - [ ] Add reviewed Arabic and English interface keys and language-rendering tests for the owner API Control Center and Mini Workstations, without translating dynamic contract addresses, path records, or generated private output.
+- [x] Audit every visible DevForge navigation entry and route for payment, subscription, billing, card, or financial-data collection; remove any unneeded inactive finance entry and document the user-facing no-payment boundary.
+- [x] Add regression coverage proving the owner navigation does not expose a Stripe or payment route and no payment-related procedure is invoked while rendering core screens.
+- [x] Document the JavaScript/TypeScript application template and owner-controlled API-management contract, clarifying that the manager is an optional review layer rather than a required runtime dependency.

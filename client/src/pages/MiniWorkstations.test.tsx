@@ -44,4 +44,17 @@ describe("MiniWorkstations", () => {
     expect(document.body.textContent).toMatch(/Termux: تسليم دليل مراجعة/);
     expect(document.body.textContent).not.toMatch(/Bearer |service_role|127\.0\.0\.1/);
   });
+
+  it("renders reviewed English interface and role copy without starting a workstation", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><MiniWorkstations /></LanguageProvider>);
+
+    expect(screen.getByText("Intelligent mini workstations")).toBeTruthy();
+    expect(screen.getAllByText("System architect")).toHaveLength(2);
+    expect(screen.getByLabelText("Selected workstation request")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Start AI review" })).toBeTruthy();
+    expect(screen.getByText("No saved path yet")).toBeTruthy();
+    expect(run).not.toHaveBeenCalled();
+    expect(consolidate).not.toHaveBeenCalled();
+  });
 });

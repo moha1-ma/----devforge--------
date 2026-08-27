@@ -19,6 +19,13 @@ describe("IntegrationCenter", () => {
     expect(screen.getByText("GitHub")).toBeTruthy();
   });
 
+  it("does not expose Stripe or a payments category in the no-payment platform", () => {
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    expect(screen.queryByText("Stripe")).toBeNull();
+    expect(screen.queryByRole("button", { name: "المدفوعات" })).toBeNull();
+    expect(screen.queryByText("مختبر Stripe")).toBeNull();
+  });
+
   it("filters the expanded catalog locally by category", () => {
     render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
     fireEvent.click(screen.getByRole("button", { name: "التحليلات" }));
