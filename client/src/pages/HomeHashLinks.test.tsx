@@ -40,4 +40,13 @@ describe("روابط الصفحة الرئيسية", () => {
     expect(screen.getByRole("link", { name: /فتح مسار المراجعة/ }).getAttribute("href")).toBe("#/plans");
     expect(screen.getByRole("link", { name: /فتح مركز الجودة/ }).getAttribute("href")).toBe("#/developer-center");
   });
+
+  it("يعرض مرجع API المنشور من دون أي مادة اعتماد", () => {
+    render(<LanguageProvider><Router hook={useHashLocation} hrefs={toHashHref}><Home /></Router></LanguageProvider>);
+
+    const endpoint = "https://devforgeapp-grp92cnd.manus.space/api/trpc";
+    expect(screen.getByText(endpoint)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /فتح مدخل API/ }).getAttribute("href")).toBe(endpoint);
+    expect(document.body.textContent).not.toMatch(/api[_ -]?key|authorization: bearer|sk_[a-z0-9]/i);
+  });
 });

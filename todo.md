@@ -173,7 +173,7 @@
 - [x] Define a review-only code-completion policy that limits context, prohibits execution, and distinguishes completion from applying edits.
 - [x] Add owner-scoped code-completion and code-improvement proposal procedures with structured outputs and error handling.
 - [x] Extend the Arabic code editor with current-line completion, stronger improvement suggestions, visible proposal previews, and explicit apply controls.
-- [ ] Add regression tests proving completion is private, not automatically applied or executed, and usable on desktop and mobile.
+- [x] Add regression tests proving completion is private, not automatically applied or executed, and usable on desktop and mobile.
 - [x] Define a scalable social-network core with member visibility, community ownership, post moderation, reports, and strict visitor isolation.
 - [x] Add searchable opt-in profiles, moderated communities, membership requests, approved-only public posts, and owner review procedures.
 - [x] Build Arabic-first community discovery and discussion interfaces with clear join, post, report, and review states.
@@ -189,3 +189,5 @@
 - [x] Build an owner review surface that presents generated drafts with provenance, status, and explicit handoff actions rather than automatic changes.
 - [x] Compare safe periodic review and continuous-service options for the owner, then implement only the option explicitly selected after its cost and operating limits are understood.
 - [x] Make the periodic-development handler idempotent across cron retries, retaining an actionable error state without duplicating generated drafts.
+- [x] Add a clear DevForge API reference inside the platform with the endpoint, public/protected distinction, and explicit no-secret disclosure.
+- [x] Add a rendered test confirming the in-app API reference uses the published endpoint and contains no credential material.
