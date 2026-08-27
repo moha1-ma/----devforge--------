@@ -223,3 +223,20 @@
 - [x] Add a clear bounded recovery state for any DevForge-controlled mobile preview/load failure and verify the public production route remains directly reachable.
 - [x] Update the PWA service-worker lifecycle so a newly published DevForge bundle replaces stale cached navigation safely and exposes a clear update path.
 - [x] Add regression coverage for the service-worker cache version and the client update notification without relying on a live external browser session.
+- [x] Remove user-facing preview recovery choices from the iPhone companion, retaining only a clear production-route experience and offline-safe state.
+- [x] Add a reviewed Replit entry to the owner Integration Center with official guidance, explicit connection state, and no automatic workspace or code access.
+- [x] Improve the owner-only global research experience with clear cross-source search controls, result provenance, and mobile-safe loading/error states.
+- [x] Add regression tests for preview removal, Replit connection boundaries, and owner-only global-search behaviors, then publish the update.
+- [x] Expand the reviewed development-platform catalog beyond Replit to include documented free-tier alternatives, without claiming guaranteed availability or creating external workspaces.
+- [x] Add a JavaScript error-diagnosis workflow that returns bounded repair proposals for the owner to review, without automatic execution, file overwrite, deployment, or external platform changes.
+- [x] Add privacy and regression tests for the free-platform catalog and JavaScript repair-proposal workflow before publication.
+- [x] Add an owner-only unified global-search input that queries a fixed, disclosed set of approved public sources in parallel, with per-source provenance and no arbitrary-site fan-out.
+- [x] Add source-selection, loading, partial-failure, empty-result, and mobile-safe result states for the unified global-search experience.
+- [x] Add service and router tests proving unified global search stays owner-only, bounds its query and result count, and never sends external write requests.
+- [x] Define a verified technical-partner catalog with official documentation, stated data scope, connection method, and explicit exclusion of financial, identity, and automatic-write actions.
+- [x] Build an owner-only partner discovery and API-request surface that records an owner review request without connecting, sharing data, or creating external accounts.
+- [x] Add tests proving partner discovery and connection requests remain owner-scoped, catalog-bound, and review-only before publication.
+- [x] Define a production-continuity boundary that distinguishes independent hosting health from the active Manus chat session and prohibits autonomous code, infrastructure, or third-party account changes.
+- [x] Add an owner-only continuity dashboard that reports the current platform health signal, controlled recovery guidance, and a local JavaScript diagnostic handoff without executing remediation automatically.
+- [x] Add a curated reliability-services catalog with official documentation and review-only connection requests, without claiming that every service is free, connected, or continuously monitoring.
+- [x] Add tests proving continuity status is owner-scoped, health probes remain bounded and read-only, and recovery proposals never execute or publish automatically.

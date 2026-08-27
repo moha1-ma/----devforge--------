@@ -31,6 +31,8 @@ import GlobalResearchHub from "./pages/GlobalResearchHub";
 import MarketplaceHub from "./pages/MarketplaceHub";
 import MarketplaceReviewCenter from "./pages/MarketplaceReviewCenter";
 import AiTaskRouter from "./pages/AiTaskRouter";
+import TechnicalPartnerHub from "./pages/TechnicalPartnerHub";
+import ContinuityCenter from "./pages/ContinuityCenter";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -66,6 +68,8 @@ function AppRoutes() {
         <Route path="/marketplace" component={MarketplaceHub} />
         <Route path="/marketplace-review" component={MarketplaceReviewCenter} />
         <Route path="/ai-router" component={AiTaskRouter} />
+        <Route path="/partners" component={TechnicalPartnerHub} />
+        <Route path="/continuity" component={ContinuityCenter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

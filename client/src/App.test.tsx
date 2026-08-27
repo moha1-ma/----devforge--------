@@ -27,6 +27,8 @@ vi.mock("./pages/GlobalResearchHub", () => ({ default: () => <div>مركز بح�
 vi.mock("./pages/MarketplaceHub", () => ({ default: () => <div>سوق المتاجر</div> }));
 vi.mock("./pages/MarketplaceReviewCenter", () => ({ default: () => <div>مراجعة السوق</div> }));
 vi.mock("./pages/AiTaskRouter", () => ({ default: () => <div>موجّه الذكاء الصناعي</div> }));
+vi.mock("./pages/TechnicalPartnerHub", () => ({ default: () => <div>الشركاء التقنيون</div> }));
+vi.mock("./pages/ContinuityCenter", () => ({ default: () => <div>مركز الاستمرارية</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -112,5 +114,15 @@ describe("DevForge hash routing", () => {
     render(<App />);
 
     expect(screen.getByText("موجّه الذكاء الصناعي")).toBeTruthy();
+  });
+
+  it("loads the owner partner and continuity routes from safe hash URLs", () => {
+    window.location.hash = "#/partners";
+    const { unmount } = render(<App />);
+    expect(screen.getByText("الشركاء التقنيون")).toBeTruthy();
+    unmount();
+    window.location.hash = "#/continuity";
+    render(<App />);
+    expect(screen.getByText("مركز الاستمرارية")).toBeTruthy();
   });
 });

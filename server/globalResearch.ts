@@ -6,7 +6,7 @@ export const globalResearchSources = [
 ] as const;
 
 export type GlobalResearchSourceKey = (typeof globalResearchSources)[number]["key"];
-type SearchableSourceKey = Extract<GlobalResearchSourceKey, "openalex" | "crossref" | "wikidata">;
+export type SearchableSourceKey = Extract<GlobalResearchSourceKey, "openalex" | "crossref" | "wikidata">;
 
 export type GlobalResearchResult = { title: string; summary: string; url: string; meta?: string };
 
@@ -77,4 +77,16 @@ export async function searchGlobalResearch(input: { source: SearchableSourceKey;
     if (error instanceof Error && error.name === "AbortError") throw new Error("انتهت مهلة مصدر البحث. أعد المحاولة لاحقًا أو اختر مصدرًا آخر.");
     throw error;
   } finally { clearTimeout(timeout); }
+}
+
+export async function searchUnifiedGlobalResearch(input: { sources: SearchableSourceKey[]; query: string }) {
+  const sources = Array.from(new Set(input.sources));
+  if (!sources.length || sources.length > 3) throw new Error("اختر من مصدر واحد إلى ثلاثة مصادر معتمدة.");
+  const settled = await Promise.allSettled(sources.map(source => searchGlobalResearch({ source, query: input.query })));
+  const results = settled.map((outcome, index) => {
+    const source = sourceFor(sources[index]);
+    if (outcome.status === "fulfilled") return { source: outcome.value.source, results: outcome.value.results, disclosure: outcome.value.disclosure };
+    return { source: { key: source.key, name: source.name, documentationUrl: source.documentationUrl, attribution: source.attribution }, results: [] as GlobalResearchResult[], error: outcome.reason instanceof Error ? outcome.reason.message : "تعذر الوصول إلى المصدر الآن." };
+  });
+  return { query: input.query.trim().replace(/\s+/g, " "), sources: results, disclosure: "بحث موحّد للقراءة فقط في المصادر المعتمدة التي اخترتها. كل قسم يحتفظ باسم مصدره ورابطه الأصلي، وقد يفشل مصدر منفرد دون إيقاف بقية النتائج." };
 }

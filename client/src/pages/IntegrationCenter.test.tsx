@@ -32,4 +32,22 @@ describe("IntegrationCenter", () => {
     expect(documentation.getAttribute("href")).toBe("https://developers.openai.com/api/docs");
     expect(screen.getAllByText("غير متصل").length).toBeGreaterThan(0);
   });
+
+  it("lists free-tier development platforms as reviewable references rather than active workspaces", () => {
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "بيئات تطوير سحابية" }));
+    expect(screen.getByText("Replit")).toBeTruthy();
+    expect(screen.getByText("GitHub Codespaces")).toBeTruthy();
+    expect(screen.getByText("StackBlitz")).toBeTruthy();
+    expect(screen.getByText(/لا ينشئ DevForge مساحة Replit/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "توثيق Replit" }).getAttribute("href")).toBe("https://docs.replit.com/features/integrations/overview");
+  });
+
+  it("lists reliability services as unconnected review options", () => {
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "استمرارية المنصة" }));
+    expect(screen.getByText("UptimeRobot")).toBeTruthy();
+    expect(screen.getByText("Better Stack Uptime")).toBeTruthy();
+    expect(screen.getAllByText(/لا ينشئ DevForge مراقبًا/).length).toBeGreaterThan(0);
+  });
 });

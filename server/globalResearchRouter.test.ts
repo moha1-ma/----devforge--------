@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const mocks = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn() }));
-vi.mock("./globalResearch", () => ({ listGlobalResearchSources: mocks.list, searchGlobalResearch: mocks.search }));
+const mocks = vi.hoisted(() => ({ list: vi.fn(), search: vi.fn(), unified: vi.fn() }));
+vi.mock("./globalResearch", () => ({ listGlobalResearchSources: mocks.list, searchGlobalResearch: mocks.search, searchUnifiedGlobalResearch: mocks.unified }));
 import { ENV } from "./_core/env";
 import { appRouter } from "./routers";
 
@@ -18,5 +18,9 @@ describe("global research router", () => {
     mocks.search.mockResolvedValue({ results: [], disclosure: "قراءة فقط" });
     await appRouter.createCaller(context(ENV.ownerOpenId, 2)).globalResearch.search({ source: "crossref", query: "اختبار" });
     expect(mocks.search).toHaveBeenCalledWith({ source: "crossref", query: "اختبار" });
+    mocks.unified.mockResolvedValue({ sources: [], disclosure: "قراءة فقط" });
+    await appRouter.createCaller(context(ENV.ownerOpenId, 2)).globalResearch.searchUnified({ sources: ["openalex", "wikidata"], query: "اختبار" });
+    expect(mocks.unified).toHaveBeenCalledWith({ sources: ["openalex", "wikidata"], query: "اختبار" });
+    await expect(appRouter.createCaller(context("visitor", 9)).globalResearch.searchUnified({ sources: ["openalex"], query: "اختبار" })).rejects.toThrow("مخصصة للمالك فقط");
   });
 });

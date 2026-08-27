@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { listGlobalResearchSources, searchGlobalResearch } from "./globalResearch";
+import { listGlobalResearchSources, searchGlobalResearch, searchUnifiedGlobalResearch } from "./globalResearch";
 
 const fetchMock = vi.fn();
 
@@ -28,5 +28,16 @@ describe("global research service", () => {
   it("rejects oversized queries before making an external request", async () => {
     await expect(searchGlobalResearch({ source: "wikidata", query: "س".repeat(181) })).rejects.toThrow("180");
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("runs an owner-chosen unified search only across approved sources and preserves partial failures", async () => {
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ results: [{ id: "https://openalex.org/W1", title: "بحث", primary_location: { source: { display_name: "Open" } } }] }) });
+    fetchMock.mockResolvedValueOnce({ ok: true, json: async () => ({ message: { items: [{ DOI: "10.1/example", title: ["DOI record"], publisher: "Publisher" }] } }) });
+    fetchMock.mockRejectedValueOnce(new Error("المصدر غير متاح"));
+    const result = await searchUnifiedGlobalResearch({ sources: ["openalex", "crossref", "wikidata"], query: "ذكاء مسؤول" });
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock.mock.calls.map(call => String(call[0]))).toEqual(expect.arrayContaining([expect.stringContaining("api.openalex.org"), expect.stringContaining("api.crossref.org"), expect.stringContaining("wikidata.org")]));
+    expect(result.sources).toEqual(expect.arrayContaining([expect.objectContaining({ source: expect.objectContaining({ name: "OpenAlex" }), results: [expect.objectContaining({ title: "بحث" })] }), expect.objectContaining({ source: expect.objectContaining({ name: "Wikidata" }), error: "المصدر غير متاح" })]));
+    expect(result.disclosure).toContain("المصادر المعتمدة");
   });
 });
