@@ -6,6 +6,7 @@ export type IntegrationDefinition = {
   requestedScope: string;
   connectionMethod: "oauth" | "api-key" | "session";
   protectedBoundary: string;
+  documentationUrl?: string;
 };
 
 export const integrationCatalog: IntegrationDefinition[] = [
@@ -66,9 +67,9 @@ export const integrationCatalog: IntegrationDefinition[] = [
   { providerKey: "higgsfield", name: "Higgsfield", category: "الوسائط والذكاء", description: "وسائط مرئية وسجل أصول للمشروع عند تفويض صريح.", requestedScope: "metadata-only", connectionMethod: "session", protectedBoundary: "لا إنشاء مخرجات أو استهلاك رصيد تلقائيًا." },
   { providerKey: "minimax", name: "MiniMax", category: "الوسائط والذكاء", description: "صوت وصور وفيديو وموسيقى عند اختيار مهمة واضحة.", requestedScope: "metadata-only", connectionMethod: "session", protectedBoundary: "لا يولد محتوى أو يستدعي الخدمة تلقائيًا." },
   { providerKey: "hume", name: "Hume", category: "الوسائط والذكاء", description: "صوت وتفاعلات محادثة للمشروع عند تفويض محدد.", requestedScope: "metadata-only", connectionMethod: "session", protectedBoundary: "لا يرسل صوتًا أو يستدعي الخدمة تلقائيًا." },
-  { providerKey: "openai", name: "OpenAI", category: "الوسائط والذكاء", description: "نماذج نصية ومرئية تستخدم فقط بعد إعداد آمن مستقل.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُخزن المفاتيح أو تُرسل البيانات أو تستهلك رصيدًا تلقائيًا." },
-  { providerKey: "anthropic", name: "Anthropic", category: "الوسائط والذكاء", description: "نماذج مساعدة للمشروع عند إعداد مفتاح خارج DevForge.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُحفظ المفاتيح ولا تُنفذ طلبات أو تُرسل محتوى تلقائيًا." },
-  { providerKey: "google-gemini", name: "Google Gemini", category: "الوسائط والذكاء", description: "نماذج متعددة الوسائط للمشروع عند إعداد منفصل.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُحفظ المفاتيح ولا يُستهلك رصيد تلقائيًا." },
+  { providerKey: "openai", name: "OpenAI", category: "الوسائط والذكاء", description: "نماذج نصية ومرئية تستخدم فقط بعد إعداد آمن مستقل.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُخزن المفاتيح أو تُرسل البيانات أو تستهلك رصيدًا تلقائيًا.", documentationUrl: "https://developers.openai.com/api/docs" },
+  { providerKey: "anthropic", name: "Anthropic", category: "الوسائط والذكاء", description: "نماذج مساعدة للمشروع عند إعداد مفتاح خارج DevForge.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُحفظ المفاتيح ولا تُنفذ طلبات أو تُرسل محتوى تلقائيًا.", documentationUrl: "https://platform.claude.com/docs/en/home" },
+  { providerKey: "google-gemini", name: "Google Gemini", category: "الوسائط والذكاء", description: "نماذج متعددة الوسائط للمشروع عند إعداد منفصل.", requestedScope: "metadata-only", connectionMethod: "api-key", protectedBoundary: "لا تُحفظ المفاتيح ولا يُستهلك رصيد تلقائيًا.", documentationUrl: "https://ai.google.dev/gemini-api/docs" },
   { providerKey: "mixpanel", name: "Mixpanel", category: "التحليلات", description: "أحداث ومنتجات وتحليلات ضمن موافقة مالك المشروع.", requestedScope: "read-only", connectionMethod: "session", protectedBoundary: "لا يغير تقارير أو تعريفات أحداث تلقائيًا." },
   { providerKey: "google-analytics", name: "Google Analytics", category: "التحليلات", description: "تقارير أداء الموقع المختارة للمشروع.", requestedScope: "read-only", connectionMethod: "oauth", protectedBoundary: "لا يغير إعدادات القياس أو الجمهور تلقائيًا." },
   { providerKey: "amplitude", name: "Amplitude", category: "التحليلات", description: "تحليلات المنتج والأحداث التي يسمح بها المالك.", requestedScope: "read-only", connectionMethod: "api-key", protectedBoundary: "لا ينشئ لوحات أو يعدل بيانات تلقائيًا." },

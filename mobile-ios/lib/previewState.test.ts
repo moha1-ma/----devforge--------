@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { WEB_PREVIEW_TIMEOUT_MS, completePreview, failPreview, retryPreview, startPreview } from "./previewState";
+import { WEB_PREVIEW_TIMEOUT_MS, completePreview, failPreview, getPublishedFallbackLabel, retryPreview, startPreview } from "./previewState";
 
 describe("mobile web preview state", () => {
   it("uses a bounded timeout rather than an indefinite loading state", () => {
@@ -11,5 +11,8 @@ describe("mobile web preview state", () => {
   });
   it("clears a successful preview state without issuing any network request", () => {
     expect(completePreview(startPreview(4))).toEqual({ attempt: 4, loading: false, error: null });
+  });
+  it("labels the optional published-site recovery without automatic navigation", () => {
+    expect(getPublishedFallbackLabel()).toBe("فتح الرابط المنشور");
   });
 });

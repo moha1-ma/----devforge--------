@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Linking,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -16,7 +17,7 @@ import { WebView } from "react-native-webview";
 import { DEVFORGE_ORIGIN, isTrustedDevForgeNavigation, makeWorkspaceUrl, type DevForgeRoute } from "./lib/devforgeRoutes";
 import { mobileHomeSections } from "./lib/homeSections";
 import { createNativeBriefRecord, NATIVE_BRIEF_MAX_LENGTH, NATIVE_BRIEF_STORAGE_KEY, parseNativeBriefRecord } from "./lib/nativeBrief";
-import { WEB_PREVIEW_TIMEOUT_MS, completePreview, failPreview, retryPreview, startPreview } from "./lib/previewState";
+import { WEB_PREVIEW_TIMEOUT_MS, completePreview, failPreview, getPublishedFallbackLabel, retryPreview, startPreview } from "./lib/previewState";
 
 type WorkspaceTarget = {
   title: string;
@@ -114,6 +115,10 @@ export default function App() {
   };
   const returnToHome = () => { setActiveTarget(null); setPreview((current) => completePreview(current)); };
   const retryWorkspace = () => setPreview((current) => retryPreview(current));
+  const openPublishedWorkspace = () => {
+    if (!workspaceUrl) return;
+    void Linking.openURL(workspaceUrl).catch(() => Alert.alert("تعذر فتح الرابط", "تعذر فتح رابط DevForge المنشور. يمكنك إعادة المحاولة من داخل التطبيق."));
+  };
 
   if (activeTarget && workspaceUrl) {
     return (
@@ -129,7 +134,7 @@ export default function App() {
           </View>
         </View>
         <View style={styles.webViewFrame}>
-          {preview.error ? <View style={styles.webFailure}><Text style={styles.webFailureTitle}>تعذر إكمال المعاينة</Text><Text style={styles.webErrorText}>{preview.error}</Text><View style={styles.webFailureActions}><Pressable accessibilityRole="button" accessibilityLabel="إعادة محاولة المعاينة" onPress={retryWorkspace} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}><Text style={styles.retryButtonText}>إعادة المحاولة</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="العودة إلى لوحة DevForge" onPress={returnToHome} style={({ pressed }) => [styles.returnButton, pressed && styles.pressed]}><Text style={styles.returnButtonText}>العودة</Text></Pressable></View></View> : <WebView
+          {preview.error ? <View style={styles.webFailure}><Text style={styles.webFailureTitle}>تعذر إكمال المعاينة</Text><Text style={styles.webErrorText}>{preview.error}</Text><Text style={styles.webFallbackText}>إذا استمر التعذر، يمكنك فتح رابط الإنتاج الرسمي بنفسك. لن يفتح التطبيق أي موقع تلقائيًا.</Text><View style={styles.webFailureActions}><Pressable accessibilityRole="button" accessibilityLabel="إعادة محاولة المعاينة" onPress={retryWorkspace} style={({ pressed }) => [styles.retryButton, pressed && styles.pressed]}><Text style={styles.retryButtonText}>إعادة المحاولة</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="فتح رابط DevForge المنشور" onPress={openPublishedWorkspace} style={({ pressed }) => [styles.publishedButton, pressed && styles.pressed]}><Text style={styles.publishedButtonText}>{getPublishedFallbackLabel()}</Text></Pressable><Pressable accessibilityRole="button" accessibilityLabel="العودة إلى لوحة DevForge" onPress={returnToHome} style={({ pressed }) => [styles.returnButton, pressed && styles.pressed]}><Text style={styles.returnButtonText}>العودة</Text></Pressable></View></View> : <WebView
             key={preview.attempt}
             source={{ uri: workspaceUrl }}
             originWhitelist={["https://*", "http://*"]}
@@ -302,9 +307,12 @@ const styles = StyleSheet.create({
   webFailure: { alignItems: "stretch", backgroundColor: "#0B2237", flex: 1, justifyContent: "center", padding: 24 },
   webFailureTitle: { color: "#F5FAFF", fontSize: 20, fontWeight: "900", textAlign: "right" },
   webErrorText: { color: "#FFE7EF", fontSize: 13, lineHeight: 20, textAlign: "right" },
-  webFailureActions: { flexDirection: "row-reverse", gap: 10, marginTop: 20 },
+  webFailureActions: { flexDirection: "row-reverse", flexWrap: "wrap", gap: 10, marginTop: 20 },
+  webFallbackText: { color: "#B8CDDE", fontSize: 12, lineHeight: 19, marginTop: 10, textAlign: "right" },
   retryButton: { alignItems: "center", backgroundColor: "#37D6C0", borderRadius: 12, flex: 1, paddingVertical: 13 },
   retryButtonText: { color: "#06242C", fontSize: 14, fontWeight: "900" },
+  publishedButton: { alignItems: "center", backgroundColor: "#284A68", borderColor: "#4E83A7", borderRadius: 12, borderWidth: 1, flex: 1, paddingVertical: 13 },
+  publishedButtonText: { color: "#E1F2FF", fontSize: 13, fontWeight: "900" },
   returnButton: { alignItems: "center", borderColor: "#51828A", borderRadius: 12, borderWidth: 1, flex: 1, paddingVertical: 13 },
   returnButtonText: { color: "#D8EFF1", fontSize: 14, fontWeight: "800" },
   configurationNotice: { backgroundColor: "#183449", borderColor: "#3C6C83", borderRadius: 16, borderWidth: 1, marginTop: 20, padding: 16 },

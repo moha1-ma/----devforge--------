@@ -30,6 +30,7 @@ import ApiReferencePage from "./pages/ApiReferencePage";
 import GlobalResearchHub from "./pages/GlobalResearchHub";
 import MarketplaceHub from "./pages/MarketplaceHub";
 import MarketplaceReviewCenter from "./pages/MarketplaceReviewCenter";
+import AiTaskRouter from "./pages/AiTaskRouter";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="/global-research" component={GlobalResearchHub} />
         <Route path="/marketplace" component={MarketplaceHub} />
         <Route path="/marketplace-review" component={MarketplaceReviewCenter} />
+        <Route path="/ai-router" component={AiTaskRouter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

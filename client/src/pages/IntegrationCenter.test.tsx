@@ -24,4 +24,12 @@ describe("IntegrationCenter", () => {
     expect(screen.getByText("PostHog")).toBeTruthy();
     expect(screen.queryByText("GitHub")).toBeNull();
   });
+
+  it("shows official AI-provider documentation links without marking providers connected", () => {
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "الوسائط والذكاء" }));
+    const documentation = screen.getByRole("link", { name: "توثيق OpenAI" });
+    expect(documentation.getAttribute("href")).toBe("https://developers.openai.com/api/docs");
+    expect(screen.getAllByText("غير متصل").length).toBeGreaterThan(0);
+  });
 });

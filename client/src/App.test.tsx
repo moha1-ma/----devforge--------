@@ -26,6 +26,7 @@ vi.mock("./pages/ApiReferencePage", () => ({ default: () => <div>مرجع API ع
 vi.mock("./pages/GlobalResearchHub", () => ({ default: () => <div>مركز بحث عالمي</div> }));
 vi.mock("./pages/MarketplaceHub", () => ({ default: () => <div>سوق المتاجر</div> }));
 vi.mock("./pages/MarketplaceReviewCenter", () => ({ default: () => <div>مراجعة السوق</div> }));
+vi.mock("./pages/AiTaskRouter", () => ({ default: () => <div>موجّه الذكاء الصناعي</div> }));
 vi.mock("./pages/NotFound", () => ({ default: () => <div>غير موجود</div> }));
 
 describe("DevForge hash routing", () => {
@@ -104,5 +105,12 @@ describe("DevForge hash routing", () => {
     window.location.hash = "#/marketplace-review";
     render(<App />);
     expect(screen.getByText("مراجعة السوق")).toBeTruthy();
+  });
+
+  it("loads the owner AI task router from its hash URL", () => {
+    window.location.hash = "#/ai-router";
+    render(<App />);
+
+    expect(screen.getByText("موجّه الذكاء الصناعي")).toBeTruthy();
   });
 });
