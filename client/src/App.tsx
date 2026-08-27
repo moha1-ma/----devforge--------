@@ -35,6 +35,7 @@ import TechnicalPartnerHub from "./pages/TechnicalPartnerHub";
 import ContinuityCenter from "./pages/ContinuityCenter";
 import ApiControlCenter from "./pages/ApiControlCenter";
 import MiniWorkstations from "./pages/MiniWorkstations";
+import NotificationCenter from "./pages/NotificationCenter";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -74,6 +75,7 @@ function AppRoutes() {
         <Route path="/continuity" component={ContinuityCenter} />
         <Route path="/api-control" component={ApiControlCenter} />
         <Route path="/mini-workstations" component={MiniWorkstations} />
+        <Route path="/notifications" component={NotificationCenter} />
         <Route path="/404" component={NotFound} />
         <Route component={NotFound} />
       </Switch>

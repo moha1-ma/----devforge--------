@@ -16,18 +16,19 @@ import {
 import { startLogin } from "@/const";
 import { LanguageSelector, useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/useMobile";
+import { trpc } from "@/lib/trpc";
 import { Bell, Blocks, Boxes, BrainCircuit, Cable, Code2, CreditCard, Cpu, FolderKanban, Github, GitPullRequest, Globe2, HeartPulse, ImagePlus, LayoutTemplate, ListChecks, LogOut, Menu, MessageSquareHeart, Rocket, Search, Sparkles, Store, TimerReset, TerminalSquare, UsersRound } from "lucide-react";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import OwnerCodeGate from "./OwnerCodeGate";
-import { getNotificationsUnavailableMessage } from "@/lib/notifications";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { loading, user, logout } = useAuth();
   const [location, setLocation] = useLocation();
   const isMobile = useIsMobile();
   const { direction, t, isFullyTranslated } = useLanguage();
+  const unreadNotifications = trpc.notifications.unreadCount.useQuery(undefined, { enabled: Boolean(user) });
   const menuItems = [
     { icon: Boxes, label: t("overview"), path: "/workspace" }, { icon: FolderKanban, label: t("projects"), path: "/projects" }, { icon: Code2, label: t("workItems"), path: "/work-items" }, { icon: GitPullRequest, label: t("pullRequests"), path: "/pull-requests" }, { icon: Rocket, label: t("releases"), path: "/releases" }, { icon: ListChecks, label: t("buildPlans"), path: "/plans" }, { icon: Blocks, label: t("codeWorkspace"), path: "/code" }, { icon: TerminalSquare, label: "محطة JavaScript", path: "/javascript-lab" }, { icon: TimerReset, label: "مسودات دورية", path: "/periodic-development" }, { icon: Cpu, label: "محطات مصغرة", path: "/mini-workstations" }, { icon: Sparkles, label: t("aiAssistant"), path: "/ai" }, { icon: BrainCircuit, label: "موجّه الذكاء", path: "/ai-router" }, { icon: Search, label: "البحث العالمي", path: "/global-research" }, { icon: Cable, label: "الشركاء التقنيون", path: "/partners" }, { icon: HeartPulse, label: "استمرارية المنصة", path: "/continuity" }, { icon: Cable, label: "تحكم API", path: "/api-control" }, { icon: Store, label: "مراجعة السوق", path: "/marketplace-review" }, { icon: BrainCircuit, label: "مركز المطور الذكي", path: "/developer-center" }, { icon: MessageSquareHeart, label: "مراجعة مشاركات الزوار", path: "/visitor-review" }, { icon: UsersRound, label: "مراجعة المجتمعات", path: "/community-review" }, { icon: ImagePlus, label: t("imageStudio"), path: "/image-studio" }, { icon: LayoutTemplate, label: t("websiteBuilder"), path: "/website-studio" }, { icon: Globe2, label: t("domainGallery"), path: "/domains" }, { icon: Github, label: "GitHub", path: "/github" }, { icon: Cable, label: t("integrations"), path: "/integrations" }, { icon: CreditCard, label: t("stripeLab"), path: "/stripe-lab" },
   ];
@@ -85,7 +86,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <header className="relative flex h-16 items-center justify-between overflow-hidden border-b border-white/8 px-4 sm:h-20 sm:px-5 md:px-8">
             <div className="engineering-grid pointer-events-none absolute inset-0 opacity-45" />
             <div className="relative"><p className="command-label">{t("engineeringControlRoom")}</p><div className="mt-1 flex flex-wrap items-center gap-2"><h2 className="text-lg font-bold text-white">{menuItems.find(item => item.path === location)?.label || t("workspace")}</h2><span className="signal-chip hidden sm:inline-flex"><span className="signal-dot" />مراجعة منظمة</span></div></div>
-            <div className="relative flex items-center gap-2 sm:gap-3"><LanguageSelector compact />{isMobile && <SidebarTrigger className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-300 hover:bg-white/8 hover:text-white" aria-label={t("openNavigation")}><Menu className="h-4 w-4" /></SidebarTrigger>}<button type="button" onClick={() => toast.info(getNotificationsUnavailableMessage())} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/7 hover:text-white" aria-label={t("notifications")}><Bell className="h-4 w-4" /></button></div>
+            <div className="relative flex items-center gap-2 sm:gap-3"><LanguageSelector compact />{isMobile && <SidebarTrigger className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-300 hover:bg-white/8 hover:text-white" aria-label={t("openNavigation")}><Menu className="h-4 w-4" /></SidebarTrigger>}<button type="button" onClick={() => setLocation("/notifications")} className="relative grid h-10 w-10 place-items-center rounded-xl border border-white/10 text-slate-400 hover:bg-white/7 hover:text-white" aria-label={t("notifications")}><Bell className="h-4 w-4" />{unreadNotifications.data?.count ? <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-cyan-300 px-1 text-[9px] font-bold text-slate-950">{unreadNotifications.data.count > 9 ? "9+" : unreadNotifications.data.count}</span> : null}</button></div>
           </header>
           <main className="min-w-0 max-w-full overflow-x-hidden p-4 sm:p-5 md:p-8">{!isFullyTranslated && <p role="status" className="mb-4 rounded-xl border border-amber-300/20 bg-amber-300/5 px-4 py-3 text-xs leading-6 text-amber-100/85" dir="rtl">{t("languageFallback")}</p>}{children}</main>
         </SidebarInset>

@@ -3,6 +3,7 @@ import { visitorSubmissionAttachments, visitorSubmissions } from "../drizzle/sch
 import { validateVisitorSubmission, type VisitorAttachmentInput } from "../shared/visitorSubmissionPolicy";
 import { getDb } from "./db";
 import { storageGet, storageGetSignedUrl, storagePut } from "./storage";
+import { notifyOwnerOfVisitorSubmission } from "./siteNotifications";
 
 export async function submitVisitorContribution(input: { visitorAlias?: string; category: "opinion" | "media" | "code" | "project"; title: string; content: string; mediaReferenceUrl?: string; consentAccepted: boolean; attachments: VisitorAttachmentInput[] }) {
   const validated = validateVisitorSubmission(input);
@@ -15,6 +16,7 @@ export async function submitVisitorContribution(input: { visitorAlias?: string; 
     const uploaded = await storagePut(`visitor-submissions/pending/${submissionId}/${attachment.safeName}`, attachment.data, attachment.mimeType);
     await db.insert(visitorSubmissionAttachments).values({ submissionId, kind: attachment.kind, safeName: attachment.safeName, mimeType: attachment.mimeType, sizeBytes: attachment.sizeBytes, storageKey: uploaded.key });
   }
+  await notifyOwnerOfVisitorSubmission();
   return { id: submissionId, status: "pending" as const };
 }
 

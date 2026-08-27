@@ -6,6 +6,7 @@ import MiniWorkstations from "./MiniWorkstations";
 
 const run = vi.fn();
 const reviewPath = vi.fn();
+const consolidate = vi.fn();
 const invalidate = vi.fn();
 
 vi.mock("@/components/DashboardLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
@@ -15,6 +16,7 @@ vi.mock("@/lib/trpc", () => ({
     miniWorkstations: {
       paths: { useQuery: () => ({ data: [], isLoading: false }) },
       run: { useMutation: () => ({ mutate: run, isPending: false }) },
+      consolidate: { useMutation: () => ({ mutate: consolidate, isPending: false }) },
       reviewPath: { useMutation: () => ({ mutate: reviewPath, isPending: false }) },
     },
   },
@@ -30,6 +32,8 @@ describe("MiniWorkstations", () => {
     expect(screen.getByText("10 / 10")).toBeTruthy();
     expect(document.querySelectorAll("button[aria-pressed]")).toHaveLength(10);
     expect(run).not.toHaveBeenCalled();
+    expect(consolidate).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "إنشاء تجميع للمراجعة" }).hasAttribute("disabled")).toBe(true);
 
     const request = "راجع بنية منصة تعليمية متعددة المساحات مع معايير قبول واختبارات وحدود صلاحية واضحة.";
     fireEvent.change(screen.getByLabelText("طلب المحطة المختارة"), { target: { value: request } });

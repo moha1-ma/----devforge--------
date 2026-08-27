@@ -269,10 +269,14 @@
 - [x] Investigate the blank visual capture observed for the unauthenticated `#/api-control` preview, despite the expected login-gate text being present, before claiming visual verification complete.
 - [x] Define an owner-only miniature-workstation policy with a fixed maximum of ten review agents; prohibit self-replication, autonomous code changes, deployments, credential access, external account actions, and automatic merging.
 - [x] Design an owner-only Mini Workstations dashboard that shows bounded agent roles, proposal status, provenance, and a review queue instead of autonomous computer copies.
-- [ ] Add a review-only consolidation proposal when the owner explicitly requests it after ten completed drafts; it must not merge code, delete agents, or alter infrastructure.
+- [x] Add a review-only consolidation proposal when the owner explicitly requests it after ten completed drafts; it must not merge code, delete agents, or alter infrastructure.
 - [x] Add authorization and rendered UI tests proving mini workstations are owner-scoped, bounded, and cannot create agents, execute code, merge outputs, or perform external actions automatically.
 - [x] Configure exactly ten fixed owner-only miniature workstation roles: architecture, requirements, user experience, frontend review, backend review, security review, test planning, JavaScript diagnostics, research provenance, and release-readiness review.
 - [x] Define an optional GitHub handoff for a selected miniature-workstation output that requires an existing owner-selected repository and a fresh explicit confirmation for each write; do not implement automatic synchronization, repository creation, cloning, or credential storage.
 - [x] Add an owner-scoped miniature-workstation path memory that records the selected role, bounded request, generated result, provenance, timestamps, and review status without retaining secrets or creating background execution.
 - [x] Connect each miniature workstation to a server-side AI proposal only after an explicit owner-started request, with structured review-only output and no autonomous polling, agent-to-agent messaging, execution, or external writes.
 - [x] Make the miniature-workstation roles an explicit webpage-development team with JavaScript and Python review specializations, and provide Termux guidance as an owner-reviewed, non-connected handoff rather than device access or background execution.
+- [x] Cancel the requested Stripe setup before any capability, key, product, customer, checkout, webhook, or financial action is created.
+- [x] Define an owner-controlled in-site notification model with read state, category, timestamp, and audience scope; keep email, push, SMS, and third-party delivery disabled until separately configured.
+- [x] Build a protected notification center and preference controls, then connect relevant DevForge events without fabricating alerts or exposing private user activity.
+- [x] Add server and UI tests for notification authorization, read-state updates, internal-link validation, and no automatic external delivery; Stripe test scope was canceled before setup.

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const mocks = vi.hoisted(() => ({ list: vi.fn(), run: vi.fn(), review: vi.fn() }));
-vi.mock("./miniWorkstations", () => ({ listMiniWorkstationPaths: mocks.list, runMiniWorkstation: mocks.run, updateMiniWorkstationPathReview: mocks.review }));
+const mocks = vi.hoisted(() => ({ list: vi.fn(), run: vi.fn(), consolidate: vi.fn(), review: vi.fn() }));
+vi.mock("./miniWorkstations", () => ({ listMiniWorkstationPaths: mocks.list, runMiniWorkstation: mocks.run, consolidateMiniWorkstationPaths: mocks.consolidate, updateMiniWorkstationPathReview: mocks.review }));
 import { ENV } from "./_core/env";
 import { appRouter } from "./routers";
 
@@ -15,8 +15,10 @@ describe("mini workstations router", () => {
     const visitor = appRouter.createCaller(context("visitor", 9));
     await expect(visitor.miniWorkstations.paths()).rejects.toThrow("مخصصة للمالك فقط");
     await expect(visitor.miniWorkstations.run({ stationKey: "architecture", request: "راجع تصميم منصة تعليمية تتضمن مساحات خاصة وحدود صلاحية واختبارات مقترحة." })).rejects.toThrow("مخصصة للمالك فقط");
+    await expect(visitor.miniWorkstations.consolidate()).rejects.toThrow("مخصصة للمالك فقط");
     expect(mocks.list).not.toHaveBeenCalled();
     expect(mocks.run).not.toHaveBeenCalled();
+    expect(mocks.consolidate).not.toHaveBeenCalled();
   });
 
   it("passes an explicit owner request to one selected workstation only", async () => {

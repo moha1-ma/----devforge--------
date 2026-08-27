@@ -31,8 +31,9 @@ import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
 import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, recordPeriodicDevelopmentScheduleError, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
 import { listMarketplaceReviewQueue, listMyMarketplaceStores, listPublicMarketplaceStores, moderateMarketplaceStore, requestMarketplaceStore } from "./marketplace";
-import { listMiniWorkstationPaths, runMiniWorkstation, updateMiniWorkstationPathReview } from "./miniWorkstations";
+import { consolidateMiniWorkstationPaths, listMiniWorkstationPaths, runMiniWorkstation, updateMiniWorkstationPathReview } from "./miniWorkstations";
 import { miniWorkstationKeys } from "./miniWorkstationPolicy";
+import { getSiteNotificationPreferences, getUnreadSiteNotificationCount, listSiteNotifications, markAllSiteNotificationsRead, markSiteNotificationRead, updateSiteNotificationPreferences } from "./siteNotifications";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -134,6 +135,14 @@ export const appRouter = router({
     list: protectedProcedure.query(({ ctx }) => listIntegrationPreferences(ctx.user.id)),
     request: protectedProcedure.input(z.object({ providerKey: z.string().trim().min(2).max(80) })).mutation(({ ctx, input }) => requestIntegrationPreference({ ownerId: ctx.user.id, ...input })),
   }),
+  notifications: router({
+    list: protectedProcedure.query(({ ctx }) => listSiteNotifications(ctx.user.id)),
+    unreadCount: protectedProcedure.query(({ ctx }) => getUnreadSiteNotificationCount(ctx.user.id)),
+    preferences: protectedProcedure.query(({ ctx }) => getSiteNotificationPreferences(ctx.user.id)),
+    updatePreferences: protectedProcedure.input(z.object({ inAppEnabled: z.boolean(), workspaceEnabled: z.boolean(), communityEnabled: z.boolean(), reviewEnabled: z.boolean(), systemEnabled: z.boolean() })).mutation(({ ctx, input }) => updateSiteNotificationPreferences({ userId: ctx.user.id, ...input })),
+    markRead: protectedProcedure.input(z.object({ notificationId: z.number().int().positive() })).mutation(({ ctx, input }) => markSiteNotificationRead({ userId: ctx.user.id, notificationId: input.notificationId })),
+    markAllRead: protectedProcedure.mutation(({ ctx }) => markAllSiteNotificationsRead(ctx.user.id)),
+  }),
   globalResearch: router({
     catalog: ownerProcedure.query(() => listGlobalResearchSources()),
     search: ownerProcedure.input(z.object({ source: z.enum(["openalex", "crossref", "wikidata"]), query: z.string().trim().min(1).max(180) })).mutation(({ input }) => searchGlobalResearch(input)),
@@ -161,6 +170,7 @@ export const appRouter = router({
   miniWorkstations: router({
     paths: ownerProcedure.query(({ ctx }) => listMiniWorkstationPaths(ctx.user.id)),
     run: ownerProcedure.input(z.object({ stationKey: z.enum(miniWorkstationKeys), request: z.string().trim().min(24).max(4000) })).mutation(({ ctx, input }) => runMiniWorkstation({ ownerId: ctx.user.id, ...input })),
+    consolidate: ownerProcedure.mutation(({ ctx }) => consolidateMiniWorkstationPaths(ctx.user.id)),
     reviewPath: ownerProcedure.input(z.object({ id: z.number().int().positive(), reviewStatus: z.enum(["reviewed", "archived"]) })).mutation(({ ctx, input }) => updateMiniWorkstationPathReview({ ownerId: ctx.user.id, ...input })),
   }),
   visitorSubmissions: router({

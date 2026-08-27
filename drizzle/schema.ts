@@ -254,6 +254,29 @@ export const miniWorkstationPaths = mysqlTable("miniWorkstationPaths", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [index("mini_workstation_owner_status_idx").on(table.ownerId, table.reviewStatus), index("mini_workstation_owner_station_idx").on(table.ownerId, table.stationKey)]);
 
+export const siteNotificationPreferences = mysqlTable("siteNotificationPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  inAppEnabled: boolean("inAppEnabled").default(true).notNull(),
+  workspaceEnabled: boolean("workspaceEnabled").default(true).notNull(),
+  communityEnabled: boolean("communityEnabled").default(true).notNull(),
+  reviewEnabled: boolean("reviewEnabled").default(true).notNull(),
+  systemEnabled: boolean("systemEnabled").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("site_notification_preferences_user_unique").on(table.userId)]);
+
+export const siteNotifications = mysqlTable("siteNotifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  category: mysqlEnum("category", ["workspace", "community", "review", "system"]).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  body: varchar("body", { length: 900 }).notNull(),
+  link: varchar("link", { length: 160 }),
+  readAt: timestamp("readAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [index("site_notification_user_read_idx").on(table.userId, table.readAt), index("site_notification_user_created_idx").on(table.userId, table.createdAt)]);
+
 export const visitorSubmissions = mysqlTable("visitorSubmissions", {
   id: int("id").autoincrement().primaryKey(),
   visitorAlias: varchar("visitorAlias", { length: 80 }),
@@ -360,6 +383,8 @@ export type IntegrationPreference = typeof integrationPreferences.$inferSelect;
 export type DeveloperCenterProposal = typeof developerCenterProposals.$inferSelect;
 export type DeveloperReviewTask = typeof developerReviewTasks.$inferSelect;
 export type MiniWorkstationPath = typeof miniWorkstationPaths.$inferSelect;
+export type SiteNotificationPreference = typeof siteNotificationPreferences.$inferSelect;
+export type SiteNotification = typeof siteNotifications.$inferSelect;
 export type VisitorSubmission = typeof visitorSubmissions.$inferSelect;
 export type VisitorSubmissionAttachment = typeof visitorSubmissionAttachments.$inferSelect;
 export type VisitorConversation = typeof visitorConversations.$inferSelect;
