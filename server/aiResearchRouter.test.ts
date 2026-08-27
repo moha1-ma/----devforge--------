@@ -1,0 +1,8 @@
+import { describe, expect, it, vi } from "vitest";
+import type { TrpcContext } from "./_core/context";
+const ask = vi.hoisted(() => vi.fn());
+vi.mock("./aiAssistant", () => ({ askPrivateAiAssistant: ask }));
+import { ENV } from "./_core/env";
+import { appRouter } from "./routers";
+function context(openId: string, id: number): TrpcContext { return { user: { id, openId, email: null, name: "User", loginMethod: "manus", role: "user", createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() }, req: { headers: {} } as TrpcContext["req"], res: { clearCookie: () => undefined } as TrpcContext["res"] }; }
+describe("AI research router", () => { it("blocks global research for a non-owner before calling the assistant", async () => { await expect(appRouter.createCaller(context("visitor", 7)).aiWorkspace.ask({ threadId: 1, content: "ابحث عالميًا", researchMode: "trusted-web" })).rejects.toThrow("مخصص للمالك فقط"); expect(ask).not.toHaveBeenCalled(); }); it("permits a normal private assistant request without global search for a signed-in user", async () => { ask.mockResolvedValue({ answer: "إجابة خاصة" }); await appRouter.createCaller(context("visitor", 7)).aiWorkspace.ask({ threadId: 1, content: "حلل الفكرة", researchMode: "off" }); expect(ask).toHaveBeenCalledWith({ ownerId: 7, threadId: 1, content: "حلل الفكرة", researchMode: "off" }); }); it("permits owner-requested global research", async () => { ask.mockResolvedValue({ answer: "مصادر" }); await appRouter.createCaller(context(ENV.ownerOpenId, 2)).aiWorkspace.ask({ threadId: 1, content: "ابحث", researchMode: "trusted-web" }); expect(ask).toHaveBeenCalledWith({ ownerId: 2, threadId: 1, content: "ابحث", researchMode: "trusted-web" }); }); });

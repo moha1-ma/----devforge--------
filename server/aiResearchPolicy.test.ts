@@ -7,8 +7,8 @@ describe("AI research policy", () => {
     expect(researchQualityInstruction()).toContain("لم يطلب المالك بحثًا خارجيًا");
   });
 
-  it("never claims a search happened when research is requested without an app provider", () => {
-    expect(resolveResearchMode("trusted-web")).toMatchObject({ requested: true, executed: false, provider: "not-configured" });
-    expect(researchQualityInstruction("trusted-web")).toContain("لا تدّع إجراء بحث");
+  it("requests the embedded search without claiming a result or source before it returns", () => {
+    expect(resolveResearchMode("trusted-web")).toMatchObject({ requested: true, executed: false, provider: "built-in-web-search" });
+    expect(researchQualityInstruction("trusted-web")).toContain("لا تخترع مصادر أو روابط");
   });
 });

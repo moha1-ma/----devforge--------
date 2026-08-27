@@ -53,10 +53,12 @@ describe("private AI assistant", () => {
     expect(mocks.invokeLLM).not.toHaveBeenCalled();
   });
 
-  it("keeps requested research transparent until an in-app provider is configured", async () => {
+  it("uses the explicit built-in web search tool only when the owner requests research and returns visible source links", async () => {
+    mocks.invokeLLM.mockResolvedValue({ choices: [{ message: { content: "نتيجة موثقة: [المصدر](https://example.org/report)" } }], usage: { prompt_tokens: 10, completion_tokens: 8, total_tokens: 18 } });
     const result = await askPrivateAiAssistant({ ownerId: 4, threadId: 9, content: "حلل هذه الفكرة", researchMode: "trusted-web" });
     const messages = mocks.invokeLLM.mock.calls[0][0].messages;
-    expect(messages).toContainEqual(expect.objectContaining({ role: "system", content: expect.stringContaining("لا تدّع إجراء بحث") }));
-    expect(result.research).toMatchObject({ requested: true, executed: false, provider: "not-configured" });
+    expect(messages).toContainEqual(expect.objectContaining({ role: "system", content: expect.stringContaining("استخدم أداة البحث") }));
+    expect(mocks.invokeLLM.mock.calls[0][0].tools).toEqual([{ type: "web_search", web_search: { max_uses: 3, search_context_size: "medium" } }]);
+    expect(result.research).toMatchObject({ requested: true, executed: true, provider: "built-in-web-search", sources: ["https://example.org/report"] });
   });
 });

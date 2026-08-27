@@ -13,6 +13,7 @@ vi.mock("@/lib/trpc", () => ({
       getLink: { useQuery: () => ({ data: null }) },
       selectRepository: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
     },
+    githubMerge: { prepare: { useMutation: () => ({ mutate: vi.fn(), isPending: false, data: null }) } },
   },
 }));
 
@@ -23,5 +24,7 @@ describe("GithubWorkspace", () => {
     expect(screen.getByText(/لا يمنح هذا وصولًا ولا ينفذ استيرادًا أو تصديرًا/)).toBeTruthy();
     expect((screen.getByLabelText("المستودع") as HTMLInputElement).placeholder).toContain("https://github.com");
     expect((screen.getByRole("button", { name: /انتظار مصادقة GitHub الصريحة/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole("heading", { name: "خطة دمج موحّدة للمراجعة" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "إنشاء خطة المراجعة" })).toBeTruthy();
   });
 });

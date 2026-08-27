@@ -316,6 +316,10 @@ export const periodicDevelopmentDrafts = mysqlTable("periodicDevelopmentDrafts",
   id: int("id").autoincrement().primaryKey(), jobId: int("jobId").notNull(), ownerId: int("ownerId").notNull(), kind: mysqlEnum("kind", ["architecture", "code", "tests", "conflicts"]).notNull(), status: mysqlEnum("status", ["proposed", "acknowledged", "dismissed"]).default("proposed").notNull(), title: varchar("title", { length: 180 }).notNull(), summary: text("summary").notNull(), proposedChanges: text("proposedChanges").notNull(), codeDraft: text("codeDraft").notNull(), testPlan: text("testPlan").notNull(), risks: text("risks").notNull(), approvalsRequired: text("approvalsRequired").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [index("pdd_job_idx").on(table.jobId), index("pdd_owner_status_idx").on(table.ownerId, table.status), foreignKey({ name: "pdd_job_fk", columns: [table.jobId], foreignColumns: [periodicDevelopmentJobs.id] }).onDelete("cascade"), foreignKey({ name: "pdd_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade")]);
 
+export const githubMergePlans = mysqlTable("githubMergePlans", {
+  id: int("id").autoincrement().primaryKey(), ownerId: int("ownerId").notNull(), toolName: varchar("toolName", { length: 120 }).notNull(), brief: text("brief").notNull(), sourceJson: text("sourceJson").notNull(), planJson: text("planJson").notNull(), reviewStatus: mysqlEnum("reviewStatus", ["draft", "acknowledged", "dismissed"]).default("draft").notNull(), createdAt: timestamp("createdAt").defaultNow().notNull(), updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [index("gmp_owner_status_idx").on(table.ownerId, table.reviewStatus), foreignKey({ name: "gmp_owner_fk", columns: [table.ownerId], foreignColumns: [users.id] }).onDelete("cascade")]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
@@ -348,3 +352,4 @@ export type CommunityPost = typeof communityPosts.$inferSelect;
 export type CommunityReport = typeof communityReports.$inferSelect;
 export type PeriodicDevelopmentJob = typeof periodicDevelopmentJobs.$inferSelect;
 export type PeriodicDevelopmentDraftRecord = typeof periodicDevelopmentDrafts.$inferSelect;
+export type GithubMergePlan = typeof githubMergePlans.$inferSelect;

@@ -7,6 +7,14 @@ function responseText(content: string | Array<{ type: "text"; text: string } | {
   return content.filter(part => part.type === "text").map(part => part.text).join("\n").trim();
 }
 
+function sourceUrls(content: string) {
+  const candidates = Array.from(content.matchAll(/https?:\/\/[^\s)\]}>,]+/g)).map(match => match[0]);
+  return Array.from(new Set(candidates)).filter(url => {
+    try { return ["http:", "https:"].includes(new URL(url).protocol); }
+    catch { return false; }
+  }).slice(0, 8);
+}
+
 export async function askPrivateAiAssistant(input: { ownerId: number; threadId: number; content: string; githubProjectId?: number; researchMode?: ResearchMode }) {
   const content = input.content.trim();
   if (!content) throw new Error("اكتب رسالة قبل الإرسال");
@@ -23,6 +31,7 @@ export async function askPrivateAiAssistant(input: { ownerId: number; threadId: 
     model: "gpt-5-mini",
     maxCompletionTokens: 420,
     reasoning: { effort: "minimal" },
+    ...(research.requested ? { tools: [{ type: "web_search", web_search: { max_uses: 3, search_context_size: "medium" } }] } : {}),
     messages: [
       { role: "system", content: `أنت مساعد DevForge الخاص بالمالك. أجب بلغة المستخدم، والعربية هي اللغة الافتراضية. قدّم جوابًا عمليًا عالي الجودة: ابدأ بالخلاصة، ثم أعط خطوات مرتبة أو مثالًا صغيرًا عند الحاجة، وافصل بين الحقائق والافتراضات والمخاطر. ساعد في تخطيط المنتجات، البرمجة، مراجعة النصوص، وتفكيك المهام. لا تطلب أو تكشف مفاتيح سرية أو كلمات مرور، ولا تدّع تنفيذ تغييرات خارج هذه المحادثة. ${researchQualityInstruction(input.researchMode)}` },
       ...(githubContext ? [{ role: "system" as const, content: githubContext }] : []),
@@ -31,7 +40,9 @@ export async function askPrivateAiAssistant(input: { ownerId: number; threadId: 
   });
   const answer = responseText(response.choices[0]?.message.content ?? "");
   if (!answer) throw new Error("لم يُرجع النموذج ردًا صالحًا. حاول برسالة أقصر.");
+  const sources = research.requested ? sourceUrls(answer) : [];
+  const completedResearch = research.requested ? { ...research, executed: sources.length > 0, sources, disclosure: sources.length ? `أُجري بحث ويب لهذه الرسالة مع ${sources.length} مصدر/مصادر ظاهرة في الإجابة.` : "طُلب بحث ويب، لكن لم تُرجع الإجابة مصادر قابلة للتحقق؛ لا تعاملها كبحث موثق." } : { ...research, sources };
   await addPrivateAiMessage({ ownerId: input.ownerId, threadId: input.threadId, role: "assistant", content: answer });
   await markPrivateAiThreadManaged(input.ownerId, input.threadId);
-  return { answer, model: "gpt-5-mini", usage: response.usage ?? null, research, githubContext: githubLink ? { repositoryFullName: githubLink.repositoryFullName, defaultBranch: githubLink.defaultBranch } : null };
+  return { answer, model: "gpt-5-mini", usage: response.usage ?? null, research: completedResearch, githubContext: githubLink ? { repositoryFullName: githubLink.repositoryFullName, defaultBranch: githubLink.defaultBranch } : null };
 }

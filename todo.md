@@ -166,10 +166,10 @@
 - [x] Connect each public capability card and action indicator to a safe, relevant DevForge route or an explicit available-state message, then test the behavior on desktop and iPhone.
 - [x] Restore and repair the visitor sharing controls with explicit validation, success, retry feedback, and exact attachment-to-submission association.
 - [x] Define and build consent-based member discovery, communities, memberships, posts, reports, and owner moderation after the project restore.
-- [ ] Inspect the available global-search capability and document an owner-triggered, citation-first boundary for the AI assistant.
-- [ ] Add an authenticated owner-only research action that retrieves read-only global sources, preserves source URLs, and never runs external actions.
-- [ ] Extend the Arabic AI Workspace with explicit research request, source disclosure, loading/error/retry states, and no autonomous searching.
-- [ ] Add regression tests for sharing, search authorization, source output, failure handling, community privacy, and responsive interfaces.
+- [x] Inspect the available global-search capability and document an owner-triggered, citation-first boundary for the AI assistant.
+- [x] Add an authenticated owner-only research action that retrieves read-only global sources, preserves source URLs, and never runs external actions.
+- [x] Extend the Arabic AI Workspace with explicit research request, source disclosure, loading/error/retry states, and no autonomous searching.
+- [x] Add regression tests for sharing, search authorization, source output, failure handling, community privacy, and responsive interfaces.
 - [x] Define a review-only code-completion policy that limits context, prohibits execution, and distinguishes completion from applying edits.
 - [x] Add owner-scoped code-completion and code-improvement proposal procedures with structured outputs and error handling.
 - [x] Extend the Arabic code editor with current-line completion, stronger improvement suggestions, visible proposal previews, and explicit apply controls.
@@ -178,10 +178,10 @@
 - [x] Add searchable opt-in profiles, moderated communities, membership requests, approved-only public posts, and owner review procedures.
 - [x] Build Arabic-first community discovery and discussion interfaces with clear join, post, report, and review states.
 - [x] Add an owner-only moderation center and regression tests covering privacy, role scope, pending-content isolation, and mobile community flows.
-- [ ] Define a review-only GitHub merge workspace with repository selection, license/conflict disclosure, source limits, and no automatic writes.
-- [ ] Add owner-scoped merge-plan records and procedures that verify selected GitHub metadata before generating a unified integration plan.
-- [ ] Build an Arabic GitHub merge workspace with selected-repository review, conflict/source reporting, and explicit private draft controls.
-- [ ] Add tests proving GitHub merge plans are owner-only, do not clone or write repositories automatically, and reject unavailable repositories.
+- [x] Define a review-only GitHub merge workspace with repository selection, license/conflict disclosure, source limits, and no automatic writes.
+- [x] Add owner-scoped merge-plan records and procedures that verify selected GitHub metadata before generating a unified integration plan.
+- [x] Build an Arabic GitHub merge workspace with selected-repository review, conflict/source reporting, and explicit private draft controls.
+- [x] Add tests proving GitHub merge plans are owner-only, do not clone or write repositories automatically, and reject unavailable repositories.
 - [x] Define a browser-local JavaScript workstation with a sandboxed runtime, execution limits, output isolation, and no automatic access to network, secrets, accounts, or platform files.
 - [x] Build a private JavaScript workstation with editor, controlled run action, output console, stop/reset controls, and a clear non-agent capability boundary.
 - [x] Add tests proving untrusted JavaScript runs only in the isolated client sandbox, cannot access parent platform state, and reports errors or timeouts clearly.

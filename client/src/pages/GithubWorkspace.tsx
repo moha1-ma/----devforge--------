@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { CheckCircle2, FileDown, FileUp, Github, GitPullRequest, LockKeyhole, ShieldAlert } from "lucide-react";
+import { CheckCircle2, FileDown, FileUp, Github, GitMerge, GitPullRequest, LockKeyhole, ShieldAlert } from "lucide-react";
 import React, { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -16,6 +16,9 @@ export default function GithubWorkspace() {
   const [projectId, setProjectId] = useState<number | null>(null);
   const [repositoryFullName, setRepositoryFullName] = useState("");
   const [defaultBranch, setDefaultBranch] = useState("main");
+  const [toolName, setToolName] = useState("أداة DevForge الموحدة");
+  const [mergeRepositories, setMergeRepositories] = useState("");
+  const [mergeBrief, setMergeBrief] = useState("");
 
   useEffect(() => { if (!projectId && projects[0]) setProjectId(projects[0].id); }, [projectId, projects]);
   const link = trpc.githubWorkspace.getLink.useQuery({ projectId: projectId ?? 0 }, { enabled: Boolean(projectId) });
@@ -25,12 +28,14 @@ export default function GithubWorkspace() {
     onSuccess: async () => { await utils.githubWorkspace.getLink.invalidate(); toast.success(t("selectionSaved")); },
     onError: error => toast.error(error.message),
   });
+  const mergePlan = trpc.githubMerge.prepare.useMutation({ onError: error => toast.error(error.message) });
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!projectId) return toast.error(t("chooseProjectFirst"));
     selectRepository.mutate({ projectId, repositoryFullName, defaultBranch });
   }
+  function buildMergePlan(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const repositories = mergeRepositories.split(/[\n,]/).map(item => item.trim()).filter(Boolean); mergePlan.mutate({ toolName, repositories, brief: mergeBrief.trim() || undefined }); }
 
   return (
     <DashboardLayout>
@@ -57,7 +62,9 @@ export default function GithubWorkspace() {
         </section>
 
         <section className="rounded-3xl border border-amber-300/15 bg-amber-300/5 p-6"><div className="flex gap-3"><ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" /><div><h2 className="font-bold text-amber-100">{t("githubNotConnected")}</h2><p className="mt-2 max-w-3xl text-sm leading-7 text-amber-100/70">{t("githubNotConnectedCopy")}</p></div></div><Button disabled className="mt-5 bg-white/10 text-slate-500"><LockKeyhole className="ml-2 h-4 w-4" /> {t("waitGithubAuth")}</Button></section>
+        <section className="rounded-3xl border border-violet-300/15 bg-violet-300/[0.035] p-5 sm:p-6"><div className="flex gap-3"><GitMerge className="mt-0.5 h-5 w-5 shrink-0 text-violet-200" /><div><h2 className="font-bold text-white">خطة دمج موحّدة للمراجعة</h2><p className="mt-1 max-w-3xl text-sm leading-7 text-slate-400">أدخل المستودعات العامة التي تختارها فقط. تتحقق الأداة من بياناتها العلنية ثم تنشئ ترتيب مراجعة وضوابط دمج؛ لا تستنسخ أي مستودع ولا تكتب إلى GitHub ولا تدمج شفرة تلقائيًا.</p></div></div><form onSubmit={buildMergePlan} className="mt-6 grid gap-4"><div className="grid gap-4 md:grid-cols-2"><div className="space-y-2"><Label htmlFor="merge-tool-name">اسم الأداة الموحدة</Label><Input id="merge-tool-name" value={toolName} onChange={event => setToolName(event.target.value)} maxLength={120} required className="border-white/10 bg-slate-950/60 text-white" /></div><div className="space-y-2"><Label htmlFor="merge-brief">هدف الدمج</Label><Input id="merge-brief" value={mergeBrief} onChange={event => setMergeBrief(event.target.value)} maxLength={2000} placeholder="مثال: مراجعة وحدات واجهة قابلة لإعادة الاستخدام" className="border-white/10 bg-slate-950/60 text-white" /></div></div><div className="space-y-2"><Label htmlFor="merge-repositories">المستودعات المختارة</Label><textarea id="merge-repositories" value={mergeRepositories} onChange={event => setMergeRepositories(event.target.value)} placeholder={"owner/repository-one\nowner/repository-two"} dir="ltr" className="min-h-28 w-full rounded-xl border border-white/10 bg-slate-950/60 p-3 font-mono text-sm text-white outline-none" required /><p className="text-xs text-slate-500">حتى 12 مستودعًا عامًا؛ افصل بينها بسطر جديد أو فاصلة. تُرفض التكرارات أو المصادر غير المتاحة.</p></div><div><Button type="submit" disabled={mergePlan.isPending} className="bg-violet-300 text-slate-950 hover:bg-violet-200"><GitMerge className="ml-1 h-4 w-4" />إنشاء خطة المراجعة</Button></div></form>{mergePlan.data && <article className="mt-6 rounded-2xl border border-violet-300/15 bg-slate-950/50 p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-bold text-white">{mergePlan.data.toolName}</h3><Badge className="border border-violet-300/20 bg-violet-300/10 text-violet-100">مراجعة فقط</Badge></div><p className="mt-2 text-sm text-slate-400">{mergePlan.data.brief || "لا يوجد وصف إضافي."}</p><div className="mt-4 grid gap-2 md:grid-cols-2">{mergePlan.data.repositories.map(repo => <a key={repo.fullName} href={repo.url} target="_blank" rel="noreferrer" className="rounded-xl border border-white/8 bg-white/[0.025] p-3 text-sm text-cyan-100 hover:bg-white/[0.05]"><span className="font-mono">{repo.fullName}</span><span className="mt-1 block text-xs text-slate-500">{repo.defaultBranch} · {repo.language ?? "غير محددة"} · {repo.license ?? "ترخيص غير محدد"}</span></a>)}</div><p className="mt-3 text-xs leading-6 text-violet-100/80">{mergePlan.data.sourceDisclosure}</p><MergeList title="ترتيب المراجعة" items={mergePlan.data.mergeOrder} /><MergeList title="الضوابط" items={mergePlan.data.safeguards} /><MergeList title="قائمة الاعتماد" items={mergePlan.data.reviewChecklist} /></article>}</section>
       </section>
     </DashboardLayout>
   );
 }
+function MergeList({ title, items }: { title: string; items: string[] }) { return <div className="mt-5"><h4 className="text-xs font-bold text-slate-500">{title}</h4><ul className="mt-2 space-y-2 text-sm leading-6 text-slate-300">{items.map(item => <li key={item} className="rounded-xl bg-white/[0.03] p-3">{item}</li>)}</ul></div>; }

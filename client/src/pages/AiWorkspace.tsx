@@ -24,6 +24,7 @@ export default function AiWorkspace() {
   const [githubProjectId, setGithubProjectId] = useState<number | null>(null);
   const [useGithubContext, setUseGithubContext] = useState(false);
   const [researchMode, setResearchMode] = useState<"off" | "trusted-web">("off");
+  const [researchResult, setResearchResult] = useState<{ disclosure: string; sources: string[] } | null>(null);
   const githubLink = trpc.githubWorkspace.getLink.useQuery({ projectId: githubProjectId ?? 0 }, { enabled: Boolean(githubProjectId) });
 
   useEffect(() => { if (!threadId && threads[0]) setThreadId(threads[0].id); }, [threadId, threads]);
@@ -33,7 +34,7 @@ export default function AiWorkspace() {
     onError: error => toast.error(error.message),
   });
   const askAssistant = trpc.aiWorkspace.ask.useMutation({
-    onSuccess: async () => { await Promise.all([utils.aiWorkspace.messages.invalidate(), utils.aiWorkspace.listThreads.invalidate()]); setAssistantError(""); },
+    onSuccess: async result => { await Promise.all([utils.aiWorkspace.messages.invalidate(), utils.aiWorkspace.listThreads.invalidate()]); setAssistantError(""); setResearchResult(result.research.requested ? { disclosure: result.research.disclosure, sources: result.research.sources } : null); },
     onError: error => { setAssistantError(error.message); toast.error(error.message); },
   });
   const selectedGithubLink = useGithubContext ? githubLink.data : null;
@@ -78,12 +79,13 @@ export default function AiWorkspace() {
               <section className="mt-4 rounded-2xl border border-emerald-300/15 bg-emerald-300/5 p-4" aria-label={t("trustedResearch")}>
                 <div className="flex items-start gap-3"><SearchCheck className="mt-0.5 h-5 w-5 shrink-0 text-emerald-300" /><div className="min-w-0 flex-1"><h3 className="font-bold text-emerald-100">{t("trustedResearch")}</h3><p className="mt-1 text-sm leading-6 text-emerald-100/70">{t("trustedResearchCopy")}</p></div></div>
                 <label className="mt-4 flex cursor-pointer items-center gap-2 rounded-lg border border-emerald-300/20 bg-slate-950/20 p-3 text-sm text-emerald-100"><input type="checkbox" checked={researchMode === "trusted-web"} onChange={event => setResearchMode(event.target.checked ? "trusted-web" : "off")} className="accent-emerald-300" /> {t("requestResearch")}</label>
-                <p className="mt-3 text-xs leading-6 text-slate-400">{researchMode === "trusted-web" ? t("researchNotConfigured") : t("researchOff")}</p>
+                <p className="mt-3 text-xs leading-6 text-slate-400">{researchMode === "trusted-web" ? "يُنفّذ البحث لهذه الرسالة فقط ويعرض روابط المصادر التي أعادها. إذا لم تظهر روابط، لا تُعامل النتيجة كبحث موثق." : t("researchOff")}</p>
               </section>
 
               <section className="mt-4 flex gap-3 rounded-2xl border border-white/8 bg-white/[0.025] p-4"><ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-cyan-300" /><div><h3 className="font-bold text-white">{t("qualityAnswer")}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{t("qualityAnswerCopy")}</p></div></section>
 
               {assistantError && <p role="alert" className="mt-4 rounded-xl border border-rose-300/20 bg-rose-300/5 p-3 text-sm text-rose-100">{assistantError}</p>}
+              {researchResult && <section className="mt-4 rounded-2xl border border-emerald-300/15 bg-emerald-300/[0.035] p-4" aria-label="مصادر البحث"><h3 className="font-bold text-emerald-100">حالة مصادر البحث</h3><p className="mt-1 text-sm leading-6 text-emerald-100/75">{researchResult.disclosure}</p>{researchResult.sources.length ? <div className="mt-3 flex flex-wrap gap-2">{researchResult.sources.map(source => <a key={source} href={source} target="_blank" rel="noreferrer" className="max-w-full truncate rounded-lg border border-emerald-300/20 px-3 py-1.5 text-xs text-emerald-100 hover:bg-emerald-300/10">{source}</a>)}</div> : null}</section>}
               {selectedGithubLink ? <p className="mt-4 rounded-xl border border-cyan-300/15 bg-cyan-300/5 p-3 text-xs leading-6 text-cyan-100">{t("githubAttached")}: <span className="font-mono">{selectedGithubLink.repositoryFullName}@{selectedGithubLink.defaultBranch}</span>. {t("noFetchGithub")}</p> : null}
               <AIChatBox messages={(messages.data ?? []).map(message => ({ role: message.role, content: message.content }))} onSendMessage={(content: string) => askAssistant.mutate({ threadId, content, githubProjectId: selectedGithubLink ? githubProjectId ?? undefined : undefined, researchMode })} isLoading={askAssistant.isPending} height="min(56vh, 540px)" placeholder={t("promptPlaceholder")} emptyStateMessage={t("chatEmpty")} suggestedPrompts={[t("promptWebsite"), t("promptReview"), t("promptApi")]} />
             </> : <div className="grid h-full place-items-center text-center"><div><Sparkles className="mx-auto h-8 w-8 text-violet-300" /><h2 className="mt-4 font-bold text-white">{t("startPrivateChat")}</h2><p className="mt-2 max-w-md text-sm leading-7 text-slate-500">{t("startPrivateChatCopy")}</p></div></div>}

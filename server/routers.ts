@@ -25,7 +25,7 @@ import { visitorSubmissionPolicyCopy } from "../shared/visitorSubmissionPolicy";
 import { closeVisitorConversation, listVisitorConversations, sendVisitorConversationMessage, startVisitorConversation } from "./visitorConversations";
 import { createCommunityPost, createCommunityRequest, getMyMemberProfile, listApprovedCommunities, listCommunityPosts, listCommunityReviewQueue, listMyCommunityMemberships, listPublicCommunityFeed, moderateCommunityItem, reportCommunityTarget, requestCommunityMembership, saveMemberProfile, searchDiscoverableMembers } from "./communities";
 import { createCodeSuggestion } from "./codeCompletion";
-import { prepareMergePlan } from "./githubMergePolicy";
+import { prepareVerifiedMergePlan, saveVerifiedMergePlan } from "./githubMergeService";
 import { createHeartbeatJob, updateHeartbeatJob } from "./_core/heartbeat";
 import { parse as parseCookie } from "cookie";
 import { attachPeriodicDevelopmentSchedule, getPeriodicDevelopmentCron, getPeriodicDevelopmentJob, listPeriodicDevelopmentDrafts, savePeriodicDevelopmentJob, updatePeriodicDevelopmentDraft } from "./periodicDevelopment";
@@ -104,7 +104,7 @@ export const appRouter = router({
     createThread: protectedProcedure.input(z.object({ title: z.string().trim().min(2).max(180), projectId: z.number().int().positive().optional() })).mutation(({ ctx, input }) => createPrivateAiThread({ ownerId: ctx.user.id, ...input })),
     messages: protectedProcedure.input(z.object({ threadId: z.number().int().positive() })).query(({ ctx, input }) => getPrivateAiMessages(ctx.user.id, input.threadId)),
     addMessage: protectedProcedure.input(z.object({ threadId: z.number().int().positive(), role: z.enum(["user", "assistant", "system"]), content: z.string().trim().min(1).max(12000) })).mutation(({ ctx, input }) => addPrivateAiMessage({ ownerId: ctx.user.id, ...input })),
-    ask: protectedProcedure.input(z.object({ threadId: z.number().int().positive(), content: z.string().trim().min(1).max(4000), githubProjectId: z.number().int().positive().optional(), researchMode: z.enum(researchModes).optional() })).mutation(({ ctx, input }) => askPrivateAiAssistant({ ownerId: ctx.user.id, ...input })),
+    ask: protectedProcedure.input(z.object({ threadId: z.number().int().positive(), content: z.string().trim().min(1).max(4000), githubProjectId: z.number().int().positive().optional(), researchMode: z.enum(researchModes).optional() })).mutation(({ ctx, input }) => { if (input.researchMode === "trusted-web" && ctx.user.openId !== ENV.ownerOpenId) throw new TRPCError({ code: "FORBIDDEN", message: "البحث العالمي مخصص للمالك فقط." }); return askPrivateAiAssistant({ ownerId: ctx.user.id, ...input }); }),
   }),
   githubWorkspace: router({
     getLink: protectedProcedure.input(z.object({ projectId: z.number().int().positive() })).query(({ ctx, input }) => getGithubProjectLink(ctx.user.id, input.projectId)),
@@ -188,7 +188,7 @@ export const appRouter = router({
     suggest: ownerProcedure.input(z.object({ sourceFileId: z.number().int().positive(), content: z.string().max(12_000), cursorOffset: z.number().int().min(0), mode: z.enum(["complete", "improve"]) })).mutation(({ ctx, input }) => createCodeSuggestion({ ownerId: ctx.user.id, ...input })),
   }),
   githubMerge: router({
-    prepare: ownerProcedure.input(z.object({ toolName: z.string().trim().min(3).max(120), repositories: z.array(z.string().trim().min(3).max(300)).min(1).max(12), brief: z.string().trim().max(2000).optional() })).mutation(({ input }) => prepareMergePlan(input)),
+    prepare: ownerProcedure.input(z.object({ toolName: z.string().trim().min(3).max(120), repositories: z.array(z.string().trim().min(1).max(300)).min(1).max(12), brief: z.string().trim().max(2000).optional() })).mutation(async ({ ctx, input }) => saveVerifiedMergePlan(ctx.user.id, await prepareVerifiedMergePlan(input))),
   }),
   periodicDevelopment: router({
     status: ownerProcedure.query(({ ctx }) => getPeriodicDevelopmentJob(ctx.user.id)),
