@@ -11,7 +11,7 @@ vi.mock("@/lib/trpc", () => ({ trpc: { azizMarket: { collections: { useQuery: ()
 ], isLoading: false }) }, publicAssets: { useQuery: () => ({ data: [], isLoading: false }) } } } }));
 
 describe("AzizMarketHub", () => {
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); localStorage.clear(); });
   it("shows the three capacity targets with zero approved assets instead of fabricated catalog items", () => {
     render(<LanguageProvider><AzizMarketHub /></LanguageProvider>);
     expect(screen.getByRole("heading", { name: "سوق تصميمات عزوز" })).toBeTruthy();
@@ -30,5 +30,16 @@ describe("AzizMarketHub", () => {
     render(<LanguageProvider><AzizMarketHub /></LanguageProvider>);
     fireEvent.click(screen.getByRole("button", { name: /عزوز 2/ }));
     expect(screen.getByRole("button", { name: "إظهار الكل" })).toBeTruthy();
+  });
+
+  it("renders the reviewed English empty market with real zero counts and no payment", () => {
+    localStorage.setItem("devforge-language", "en");
+    render(<LanguageProvider><AzizMarketHub /></LanguageProvider>);
+    expect(screen.getByRole("heading", { name: "Aziz design market" })).toBeTruthy();
+    expect(screen.getByText("Aziz 1")).toBeTruthy();
+    expect(screen.getByText("0 / 5000")).toBeTruthy();
+    expect(screen.getByText("The market is awaiting its first genuine design asset")).toBeTruthy();
+    expect(document.body.textContent).toContain("No prices or payments");
+    expect(document.body.textContent).not.toMatch(/Buy now|Price|★★★★★/);
   });
 });
