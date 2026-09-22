@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "xm",
+  "main": "server/cloudflare.ts",
+  "compatibility_date": "2026-09-13",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": "./dist/public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/manus-storage/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "D",
+      "database_name": "xm",
+      "database_id": "3e8cceef-8006-4be5-8dfd-afa1e747bb38"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "XM",
+      "id": "74928e8799ab4cf88bf4a6cb83e098d5"
+    }
+  ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "DBQ",
+        "queue": "ai-tasks"
+      }
+    ]
+  },
+  "ai": {
+    "binding": "MX"
+  },
+  "ai_search_namespaces": [
+    {
+      "binding": "MX1",
+      "namespace": "default"
+    }
+  ],
+  "ai_search": [
+    {
+      "binding": "db",
+      "instance_name": "weathered-sea-0c16"
+    }
+  ],
+  "version_metadata": {
+    "binding": "DB"
+  },
+  "vars": {
+    "xm": "xm0665",
+    "GOOGLE_REDIRECT_URI": "https://xm.elazzouz4.workers.dev/api/auth/google/callback"
+  },
+  "observability": {
+    "enabled": false,
+    "traces": {
+      "enabled": true
+    }
+  }
+}

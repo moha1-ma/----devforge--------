@@ -139,6 +139,44 @@ export const githubProjectLinks = mysqlTable("githubProjectLinks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 }, table => [uniqueIndex("github_project_link_unique").on(table.projectId)]);
 
+export const githubConnections = mysqlTable("githubConnections", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  githubLogin: varchar("githubLogin", { length: 100 }).notNull(),
+  encryptedToken: text("encryptedToken").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [uniqueIndex("github_connection_owner_unique").on(table.ownerId)]);
+
+export const githubAggregationJobs = mysqlTable("githubAggregationJobs", {
+  id: int("id").autoincrement().primaryKey(),
+  ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  destinationName: varchar("destinationName", { length: 100 }).notNull(),
+  status: mysqlEnum("status", ["preview", "needs-review", "publishing", "published", "sources-deleted", "failed"]).default("preview").notNull(),
+  sourcesJson: text("sourcesJson").notNull(),
+  filesJson: text("filesJson").notNull(),
+  conflictsJson: text("conflictsJson").notNull(),
+  destinationFullName: varchar("destinationFullName", { length: 300 }),
+  destinationUrl: varchar("destinationUrl", { length: 500 }),
+  deletionJson: text("deletionJson"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [index("github_aggregation_owner_updated_idx").on(table.ownerId, table.updatedAt)]);
+
+export const userAppPreferences = mysqlTable("userAppPreferences", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  appKey: varchar("appKey", { length: 80 }).notNull(),
+  isPinned: boolean("isPinned").default(false).notNull(),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  lastOpenedAt: timestamp("lastOpenedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [
+  uniqueIndex("user_app_preference_user_app_unique").on(table.userId, table.appKey),
+  index("user_app_preference_user_order_idx").on(table.userId, table.isPinned, table.displayOrder),
+]);
+
 export const buildPlans = mysqlTable("buildPlans", {
   id: int("id").autoincrement().primaryKey(),
   ownerId: int("ownerId").notNull().references(() => users.id, { onDelete: "cascade" }),
@@ -378,6 +416,9 @@ export type SourceFileRevision = typeof sourceFileRevisions.$inferSelect;
 export type AiThread = typeof aiThreads.$inferSelect;
 export type AiMessage = typeof aiMessages.$inferSelect;
 export type GithubProjectLink = typeof githubProjectLinks.$inferSelect;
+export type GithubConnection = typeof githubConnections.$inferSelect;
+export type GithubAggregationJob = typeof githubAggregationJobs.$inferSelect;
+export type UserAppPreference = typeof userAppPreferences.$inferSelect;
 export type BuildPlan = typeof buildPlans.$inferSelect;
 export type BuildPlanStep = typeof buildPlanSteps.$inferSelect;
 export type AiImageAsset = typeof aiImageAssets.$inferSelect;

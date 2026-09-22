@@ -4,6 +4,10 @@ import type { Express, Request, Response } from "express";
 import * as db from "../db";
 import { getSessionCookieOptions } from "./cookies";
 import { sdk } from "./sdk";
+import { ENV } from "./env";
+import { saveGithubConnection } from "../githubAggregation";
+import crypto from "node:crypto";
+import { registerGoogleOAuthRoutes } from "./googleOAuth";
 
 function getQueryParam(req: Request, key: string): string | undefined {
   const value = req.query[key];
@@ -11,6 +15,30 @@ function getQueryParam(req: Request, key: string): string | undefined {
 }
 
 export function registerOAuthRoutes(app: Express) {
+  registerGoogleOAuthRoutes(app);
+  app.get("/api/github/connect", (req, res) => {
+    if (!ENV.githubClientId || !ENV.githubClientSecret || !ENV.githubTokenEncryptionKey) return res.status(503).json({ error: "GitHub OAuth is not configured" });
+    const state = crypto.randomBytes(24).toString("base64url");
+    res.cookie("github_oauth_state", state, { ...getSessionCookieOptions(req), httpOnly: true, maxAge: 10 * 60 * 1000 });
+    const redirectUri = `${req.protocol}://${req.get("host")}/api/github/callback`;
+    const url = new URL("https://github.com/login/oauth/authorize");
+    url.searchParams.set("client_id", ENV.githubClientId); url.searchParams.set("redirect_uri", redirectUri); url.searchParams.set("state", state); url.searchParams.set("scope", "repo delete_repo read:org");
+    res.redirect(url.toString());
+  });
+  app.get("/api/github/callback", async (req, res) => {
+    const code = getQueryParam(req, "code"); const state = getQueryParam(req, "state");
+    const expected = parseCookieHeader(req.headers.cookie ?? "").github_oauth_state;
+    if (!code || !state || !expected || Buffer.byteLength(state) !== Buffer.byteLength(expected) || !crypto.timingSafeEqual(Buffer.from(state), Buffer.from(expected))) return res.status(403).send("Invalid GitHub OAuth state");
+    try {
+      const user = await sdk.authenticateRequest(req); if (!user?.id) return res.status(401).send("Sign in to DevForge first");
+      const redirectUri = `${req.protocol}://${req.get("host")}/api/github/callback`;
+      const tokenResponse = await fetch("https://github.com/login/oauth/access_token", { method: "POST", headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify({ client_id: ENV.githubClientId, client_secret: ENV.githubClientSecret, code, redirect_uri: redirectUri }), signal: AbortSignal.timeout(10_000) });
+      const token = (await tokenResponse.json() as { access_token?: string }).access_token; if (!token) throw new Error("GitHub did not return an access token");
+      const profile = await fetch("https://api.github.com/user", { headers: { authorization: `Bearer ${token}`, accept: "application/vnd.github+json" }, signal: AbortSignal.timeout(10_000) });
+      const login = (await profile.json() as { login?: string }).login; if (!profile.ok || !login) throw new Error("GitHub profile unavailable");
+      await saveGithubConnection(user.id, login, token); res.clearCookie("github_oauth_state", getSessionCookieOptions(req)); res.redirect("/github?connected=1");
+    } catch { res.status(500).send("GitHub connection failed"); }
+  });
   app.get("/api/oauth/callback", async (req: Request, res: Response) => {
     const code = getQueryParam(req, "code");
     const state = getQueryParam(req, "state");

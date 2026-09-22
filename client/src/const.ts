@@ -29,3 +29,7 @@ export const startLogin = () => {
 
   window.location.href = url.toString();
 };
+
+export const startGoogleLogin = () => {
+  window.location.assign("/api/auth/google");
+};
