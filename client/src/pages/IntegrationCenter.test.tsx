@@ -5,7 +5,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import IntegrationCenter from "./IntegrationCenter";
 
 vi.mock("@/components/DashboardLayout", () => ({ default: ({ children }: { children: React.ReactNode }) => <div>{children}</div> }));
-vi.mock("@/lib/trpc", () => ({ trpc: { useUtils: () => ({ integrationCenter: { list: { invalidate: vi.fn() } } }), integrationCenter: { list: { useQuery: () => ({ data: [], isLoading: false, isError: false, refetch: vi.fn() }) }, request: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) } } } }));
+vi.mock("@/lib/trpc", () => ({ trpc: { useUtils: () => ({ integrationCenter: { list: { invalidate: vi.fn() } } }), integrationCenter: { list: { useQuery: () => ({ data: [], isLoading: false, isError: false, refetch: vi.fn() }) }, request: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) }, discoverMcp: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) } } } }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 describe("IntegrationCenter", () => {
@@ -17,6 +17,13 @@ describe("IntegrationCenter", () => {
     expect(screen.getAllByText("لا يلزم الدفع لتشغيل وظائف DevForge الأساسية").length).toBeGreaterThan(0);
     expect(screen.getByText(/الخدمات الخارجية اختيارية/)).toBeTruthy();
     expect(screen.getByText("GitHub")).toBeTruthy();
+  });
+
+  it("offers a universal MCP discovery flow without claiming access was granted", () => {
+    render(<LanguageProvider><IntegrationCenter /></LanguageProvider>);
+    expect(screen.getByText("اربط أي تطبيق متوافق مع MCP")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /اكتشاف الربط الآمن/ })).toBeTruthy();
+    expect(screen.getByText(/الاكتشاف لا يمنح صلاحية ولا يخزن رمز وصول/)).toBeTruthy();
   });
 
   it("does not expose Stripe or a payments category in the no-payment platform", () => {

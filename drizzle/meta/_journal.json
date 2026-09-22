@@ -183,6 +183,13 @@
       "when": 1787813476339,
       "tag": "0025_omniscient_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1789340184000,
+      "tag": "0026_platform_apps",
+      "breakpoints": true
     }
   ]
 }

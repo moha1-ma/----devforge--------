@@ -15,6 +15,14 @@ vi.mock("@/lib/trpc", () => ({
       selectRepository: { useMutation: () => ({ mutate: actionMocks.selectRepository, isPending: false }) },
     },
     githubMerge: { prepare: { useMutation: () => ({ mutate: actionMocks.prepareMerge, isPending: false, data: null }) } },
+    githubAggregation: {
+      connection: { useQuery: () => ({ data: null }) },
+      repositories: { useQuery: () => ({ data: [], isLoading: false }) },
+      latest: { useQuery: () => ({ data: null, refetch: vi.fn() }) },
+      preview: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
+      publish: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
+      deleteSources: { useMutation: () => ({ mutate: vi.fn(), isPending: false }) },
+    },
   },
 }));
 
@@ -27,7 +35,7 @@ describe("GithubWorkspace", () => {
     expect(screen.getByText(/اختيار المستودع يحفظ مرجعًا للمراجعة في DevForge فقط/)).toBeTruthy();
     expect((screen.getByLabelText("المستودع") as HTMLInputElement).placeholder).toContain("https://github.com");
     expect((screen.getByRole("button", { name: "حفظ الاختيار" }) as HTMLButtonElement).disabled).toBe(true);
-    expect((screen.getByRole("button", { name: /انتظار مصادقة GitHub الصريحة/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByRole("link", { name: /ربط GitHub/ }).getAttribute("href")).toBe("/api/github/connect");
     expect(screen.getByRole("heading", { name: "خطة دمج موحّدة للمراجعة" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "إنشاء خطة المراجعة" })).toBeTruthy();
     expect(actionMocks.selectRepository).not.toHaveBeenCalled();

@@ -38,6 +38,7 @@ import MiniWorkstations from "./pages/MiniWorkstations";
 import NotificationCenter from "./pages/NotificationCenter";
 import AzizMarketHub from "./pages/AzizMarketHub";
 import AzizDesignReviewCenter from "./pages/AzizDesignReviewCenter";
+import AppsHub from "./pages/AppsHub";
 
 const toHashHref = (href: string) => `#${href}`;
 
@@ -47,6 +48,7 @@ function AppRoutes() {
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/workspace" component={Workspace} />
+        <Route path="/apps" component={AppsHub} />
         <Route path="/projects" component={Workspace} />
         <Route path="/work-items" component={Workspace} />
         <Route path="/pull-requests" component={Workspace} />

@@ -35,6 +35,10 @@ import { createAzizDesignDraft, listAzizMarketCollections, listOwnerAzizDesignAs
 import { consolidateMiniWorkstationPaths, listMiniWorkstationPaths, runMiniWorkstation, updateMiniWorkstationPathReview } from "./miniWorkstations";
 import { miniWorkstationKeys } from "./miniWorkstationPolicy";
 import { getSiteNotificationPreferences, getUnreadSiteNotificationCount, listSiteNotifications, markAllSiteNotificationsRead, markSiteNotificationRead, updateSiteNotificationPreferences } from "./siteNotifications";
+import { createAggregationPreview, deleteAggregationSources, getAggregationJob, getGithubConnection, listAccessibleRepositories, publishAggregation } from "./githubAggregation";
+import { discoverMcpAuthorization } from "./mcpConnector";
+import { isAppKey, type AppKey } from "../shared/appRegistry";
+import { listUserAppPreferences, reorderPinnedApps, setUserAppPinned, touchUserApp } from "./appPreferences";
 
 const projectInput = z.object({
   name: z.string().trim().min(2).max(160),
@@ -60,6 +64,8 @@ const sourceUpdateInput = z.object({
   content: z.string().max(524288),
   note: z.string().trim().max(240).optional(),
 });
+
+const appKeyInput = z.string().trim().max(80).refine(isAppKey, "تطبيق غير معروف").transform(value => value as AppKey);
 
 const ownerProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.openId !== ENV.ownerOpenId) throw new TRPCError({ code: "FORBIDDEN", message: "هذه المساحة مخصصة للمالك فقط" });
@@ -135,6 +141,7 @@ export const appRouter = router({
   integrationCenter: router({
     list: protectedProcedure.query(({ ctx }) => listIntegrationPreferences(ctx.user.id)),
     request: protectedProcedure.input(z.object({ providerKey: z.string().trim().min(2).max(80) })).mutation(({ ctx, input }) => requestIntegrationPreference({ ownerId: ctx.user.id, ...input })),
+    discoverMcp: ownerProcedure.input(z.object({ endpoint: z.string().trim().url().max(2048) })).mutation(({ input }) => discoverMcpAuthorization(input.endpoint)),
   }),
   notifications: router({
     list: protectedProcedure.query(({ ctx }) => listSiteNotifications(ctx.user.id)),
@@ -143,6 +150,16 @@ export const appRouter = router({
     updatePreferences: protectedProcedure.input(z.object({ inAppEnabled: z.boolean(), workspaceEnabled: z.boolean(), communityEnabled: z.boolean(), reviewEnabled: z.boolean(), systemEnabled: z.boolean() })).mutation(({ ctx, input }) => updateSiteNotificationPreferences({ userId: ctx.user.id, ...input })),
     markRead: protectedProcedure.input(z.object({ notificationId: z.number().int().positive() })).mutation(({ ctx, input }) => markSiteNotificationRead({ userId: ctx.user.id, notificationId: input.notificationId })),
     markAllRead: protectedProcedure.mutation(({ ctx }) => markAllSiteNotificationsRead(ctx.user.id)),
+  }),
+  appPreferences: router({
+    list: protectedProcedure.query(({ ctx }) => listUserAppPreferences(ctx.user.id)),
+    setPinned: protectedProcedure.input(z.object({ appKey: appKeyInput, isPinned: z.boolean() })).mutation(({ ctx, input }) =>
+      setUserAppPinned({ userId: ctx.user.id, appKey: input.appKey, isPinned: input.isPinned })),
+    reorder: protectedProcedure.input(z.object({ appKeys: z.array(appKeyInput).max(33).superRefine((keys, context) => {
+      if (new Set(keys).size !== keys.length) context.addIssue({ code: "custom", message: "لا يمكن تكرار التطبيق في الترتيب" });
+    }) })).mutation(({ ctx, input }) => reorderPinnedApps({ userId: ctx.user.id, appKeys: input.appKeys })),
+    touch: protectedProcedure.input(z.object({ appKey: appKeyInput })).mutation(({ ctx, input }) =>
+      touchUserApp({ userId: ctx.user.id, appKey: input.appKey })),
   }),
   globalResearch: router({
     catalog: ownerProcedure.query(() => listGlobalResearchSources()),
@@ -230,6 +247,14 @@ export const appRouter = router({
   }),
   githubMerge: router({
     prepare: ownerProcedure.input(z.object({ toolName: z.string().trim().min(3).max(120), repositories: z.array(z.string().trim().min(1).max(300)).min(1).max(12), brief: z.string().trim().max(2000).optional() })).mutation(async ({ ctx, input }) => saveVerifiedMergePlan(ctx.user.id, await prepareVerifiedMergePlan(input))),
+  }),
+  githubAggregation: router({
+    connection: protectedProcedure.query(({ ctx }) => getGithubConnection(ctx.user.id)),
+    repositories: protectedProcedure.query(({ ctx }) => listAccessibleRepositories(ctx.user.id)),
+    latest: protectedProcedure.query(({ ctx }) => getAggregationJob(ctx.user.id)),
+    preview: protectedProcedure.input(z.object({ destinationName: z.string().trim().min(1).max(100).regex(/^[A-Za-z0-9._-]+$/) })).mutation(({ ctx, input }) => createAggregationPreview(ctx.user.id, input.destinationName)),
+    publish: protectedProcedure.input(z.object({ jobId: z.number().int().positive() })).mutation(({ ctx, input }) => publishAggregation(ctx.user.id, input.jobId)),
+    deleteSources: protectedProcedure.input(z.object({ jobId: z.number().int().positive() })).mutation(({ ctx, input }) => deleteAggregationSources(ctx.user.id, input.jobId)),
   }),
   periodicDevelopment: router({
     status: ownerProcedure.query(({ ctx }) => getPeriodicDevelopmentJob(ctx.user.id)),

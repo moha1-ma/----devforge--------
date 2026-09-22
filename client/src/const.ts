@@ -29,3 +29,9 @@ export const startLogin = () => {
 
   window.location.href = url.toString();
 };
+
+// Start the Google OAuth login by navigating to the server's Google auth
+// entry point, which handles the redirect to Google and the callback.
+export const startGoogleLogin = () => {
+  window.location.assign("/api/auth/google");
+};
