@@ -10,15 +10,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm shadow-cyan-950/20 hover:bg-primary/90 active:translate-y-px",
+        default:
+          "bg-primary text-primary-foreground shadow-sm shadow-cyan-950/20 hover:bg-primary/90 active:translate-y-px",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "border bg-transparent shadow-xs hover:bg-accent dark:bg-transparent dark:border-input dark:hover:bg-input/50 active:translate-y-px",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent dark:hover:bg-accent/50",
+        ghost: "hover:bg-accent dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
@@ -37,6 +37,10 @@ const buttonVariants = cva(
   }
 );
 
+// Button primitive. When `loading` is true, it shows a spinner, marks the
+// element as busy/disabled, and (when `asChild` is set, so a native
+// `disabled` attribute isn't available) blocks clicks via a capture-phase
+// handler on the wrapped element instead.
 function Button({
   className,
   variant,
@@ -71,7 +75,16 @@ function Button({
       tabIndex={inactiveChild ? -1 : props.tabIndex}
       className={cn(buttonVariants({ variant, size, className }))}
     >
-      {asChild ? children : <>{loading ? <LoaderCircle className="animate-spin" aria-hidden="true" /> : null}{children}</>}
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {loading ? (
+            <LoaderCircle className="animate-spin" aria-hidden="true" />
+          ) : null}
+          {children}
+        </>
+      )}
     </Comp>
   );
 }

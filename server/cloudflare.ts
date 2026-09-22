@@ -10,6 +10,9 @@ import { appRouter } from "./routers";
 import { runPeriodicDevelopmentDraft } from "./periodicDevelopment";
 import { registerBodyParsers } from "./_core/bodyParsers";
 
+// Cloudflare Workers (Node compat) entry point: mirrors the Express app
+// wiring in `_core/index.ts`, but is served via `httpServerHandler` instead
+// of a plain Node HTTP listener.
 const app = express();
 
 registerBodyParsers(app);
@@ -19,15 +22,23 @@ registerOAuthRoutes(app);
 app.post("/api/scheduled/periodic-development", async (req, res) => {
   try {
     const user = await sdk.authenticateRequest(req);
-    if (!user?.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+    if (!user?.isCron || !user.taskUid)
+      return res.status(403).json({ error: "cron-only" });
     return res.json(await runPeriodicDevelopmentDraft(user.taskUid));
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return res.status(500).json({ error: message, timestamp: new Date().toISOString(), context: { path: req.path } });
+    return res.status(500).json({
+      error: message,
+      timestamp: new Date().toISOString(),
+      context: { path: req.path },
+    });
   }
 });
 
-app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
+app.use(
+  "/api/trpc",
+  createExpressMiddleware({ router: appRouter, createContext })
+);
 
 const server = createServer(app);
 server.listen(8080);
